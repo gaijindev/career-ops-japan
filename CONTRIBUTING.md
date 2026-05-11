@@ -43,7 +43,7 @@ Add a smoke test for new scrapers under `test/` — at minimum, a fixture-based 
 ## Getting started locally
 
 ```bash
-git clone https://github.com/achanthavong510/career-ops-japan.git
+git clone https://github.com/gaijindev/career-ops-japan.git
 cd career-ops-japan
 npm install
 cp config/profile.yml.example config/profile.yml

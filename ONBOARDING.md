@@ -88,4 +88,4 @@ npm run scan:greenhouse
 
 Output lands in `data/pipeline.md`. Review candidates and run `/career-ops oferta <jd>` to evaluate any specific one.
 
-> **Stuck?** Open an issue: <https://github.com/achanthavong510/career-ops-japan/issues>
+> **Stuck?** Open an issue: <https://github.com/gaijindev/career-ops-japan/issues>

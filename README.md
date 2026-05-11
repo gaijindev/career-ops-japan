@@ -60,7 +60,7 @@ Any JD containing one of these phrases is auto-skipped.
 ## Install
 
 ```bash
-git clone https://github.com/achanthavong510/career-ops-japan.git
+git clone https://github.com/gaijindev/career-ops-japan.git
 cd career-ops-japan
 npm install
 ```
