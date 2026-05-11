@@ -11,8 +11,10 @@ Built for English-speaking candidates targeting tech roles in Japan — but the 
 | Component | Status |
 |---|---|
 | Greenhouse Boards API (15 SaaS companies with Tokyo offices) | ✅ Working |
-| JobSpy (LinkedIn / Indeed / Glassdoor / Google Jobs) | 🚧 Stub (Phase 2) |
-| HelloWork scraper (government board) | 🚧 Stub (Phase 2) |
+| JobSpy — Indeed Japan | ✅ Working |
+| JobSpy — LinkedIn / Glassdoor (ToS-risky, opt-in) | ⚠️ Available, off by default |
+| JobSpy — Google Jobs | ❌ Currently blocked by Google |
+| HelloWork scraper (government board) | 🚧 Stub (Phase 3 — needs Playwright) |
 | Playwright scrapers (Daijob, CareerCross, GaijinPot, TokyoDev, Japan Dev, en world, JobsInJapan) | 🚧 Stub (Phase 3) |
 | WebSearch query templates | 🚧 Stub (Phase 4) |
 | `portals.yml` with full Japan defaults + JD disqualifiers | ✅ Shipped |
@@ -50,8 +52,8 @@ Any JD containing one of these phrases is auto-skipped.
 
 ## Requirements
 
-- Node.js 18+
-- Python 3.10+ (for JobSpy and Playwright scrapers in later phases)
+- Node.js 18+ (for the Greenhouse scanner)
+- Python 3.10+ (for JobSpy; verified working on 3.14)
 - [Claude Code](https://claude.com/claude-code) (the `/career-ops` skill is invoked through it)
 - A GitHub account, optional (only needed if you want to commit your customizations to a private fork)
 
@@ -62,7 +64,13 @@ Any JD containing one of these phrases is auto-skipped.
 ```bash
 git clone https://github.com/gaijindev/career-ops-japan.git
 cd career-ops-japan
+
+# Node side (Greenhouse scanner)
 npm install
+
+# Python side (JobSpy scanner) — optional, only if you want LinkedIn/Indeed/etc.
+python3 -m venv .venv
+.venv/bin/pip install -r requirements.txt
 ```
 
 Then open the directory in Claude Code and run `/career-ops` to see the welcome message.
@@ -84,7 +92,10 @@ cp config/profile.yml.example config/profile.yml
 # 3. Run a Greenhouse scan
 node scripts/scan-greenhouse.mjs
 
-# Output is written to data/pipeline.md
+# 4. (Optional) Run a JobSpy scan against Indeed Japan
+.venv/bin/python scripts/scan-jobspy.py
+
+# Output from both is appended to data/pipeline.md
 ```
 
 See [ONBOARDING.md](ONBOARDING.md) for the assistant-guided version of the same flow.

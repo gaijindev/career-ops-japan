@@ -29,19 +29,66 @@ sources:
 
   - id: jobspy
     type: jobspy
-    status: stub
+    status: working
     notes: |
       Python wrapper around LinkedIn, Indeed, Glassdoor, Google Jobs.
-      Phase 2 — requires Python 3.10+.
+      Requires Python 3.10+ and python-jobspy package. See requirements.txt.
+
+      Per-site reliability (verified 2026-05-11 on Python 3.14):
+        - indeed:    works reliably for Japan with country_indeed="japan"
+        - linkedin:  aggressive anti-bot; off by default, opt-in below
+        - glassdoor: medium reliability; opt-in below
+        - google:    consistently returns 0 results (blocked); off by default
+    config:
+      # Sites to query. Add/remove freely. LinkedIn and Glassdoor are off
+      # by default because their ToS prohibits scraping — uncommenting is
+      # a deliberate ToS judgment YOU make.
+      sites:
+        - indeed
+        # - linkedin    # ToS-risky; LinkedIn has aggressive bot detection.
+        # - glassdoor   # ToS-risky; check robots.txt before enabling.
+        # - google      # Currently blocked — leave off unless JobSpy fixes it.
+
+      # Indeed needs an explicit country code. "japan" hits jp.indeed.com.
+      country_indeed: japan
+
+      # How many results to request PER QUERY PER SITE. Capped by the
+      # source's actual page size.
+      results_wanted_per_query: 30
+
+      # Listings older than this are dropped. 168h = 1 week.
+      hours_old: 168
+
+      # Search queries. Each entry becomes one JobSpy call.
+      # Mix English and Japanese keywords for coverage of bilingual boards.
+      queries:
+        - search_term: "IT support"
+          location: "Tokyo, Japan"
+        - search_term: "Workplace Technology"
+          location: "Tokyo, Japan"
+        - search_term: "Helpdesk"
+          location: "Tokyo, Japan"
+        - search_term: "Technical Support Engineer"
+          location: "Tokyo, Japan"
+        # Bilingual / foreign-affiliated funnel — Japanese keywords often
+        # surface listings the English queries miss.
+        - search_term: "英語 IT"
+          location: "東京"
+        - search_term: "外資系 IT"
+          location: "Tokyo, Japan"
 
   - id: hellowork
     type: hellowork
     status: stub
     notes: |
       Japan government employment service. Heavily Japanese-required roles.
-      Default config runs 12 Japanese keyword searches (英語, 外資, バイリンガル,
+      Default config will run 12 Japanese keyword searches (英語, 外資, バイリンガル,
       etc.) to surface English-friendly listings. <10% APPLY hit rate.
-      Phase 2.
+
+      Originally planned for Phase 2 — moved to Phase 3 after a 2026-05-11 probe
+      confirmed the search endpoint is JS-driven ASP.NET (viewstate + session
+      cookies + multi-step form). Requires Playwright; lives alongside the
+      other Playwright scrapers in Phase 3.
 
   - id: daijob
     type: playwright
@@ -269,4 +316,6 @@ location_filter:
   - "日本"
   - "Remote - Japan"
   - "Remote (Japan)"
-  - "APAC"  # often catches Japan-eligible roles
+  - "APAC"      # often catches Japan-eligible roles
+  - ", JP"      # Indeed Japan listings end with ", JP" (e.g., "虎ノ門, JPC, JP")
+  - "JPC"       # Indeed's region code for the Tokyo metropolitan area

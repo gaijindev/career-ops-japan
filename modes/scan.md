@@ -11,23 +11,18 @@ Read `_shared.md` first.
 
 Runs every source in `portals.yml > sources` whose `status: working`, applies the filter chain in `_shared.md`, appends survivors to `data/pipeline.md`.
 
-## Phase 1 (current)
+## What's working now
 
-Only `greenhouse` is `status: working`. Run it via:
+| Source | Command | Notes |
+|---|---|---|
+| `greenhouse` | `node scripts/scan-greenhouse.mjs` | Public API, no key. |
+| `jobspy` | `.venv/bin/python scripts/scan-jobspy.py` | Indeed Japan by default; LinkedIn/Glassdoor opt-in in `portals.yml`. |
 
-```bash
-node scripts/scan-greenhouse.mjs
-```
-
-The scanner reads `portals.yml` and writes to `data/pipeline.md` directly. No assistant action needed beyond invoking the script.
-
-## Phase 2 (coming)
-
-- `hellowork` — `node scripts/scan-hellowork.mjs`
-- `jobspy` — `python scripts/scan-jobspy.py` (Python 3.10+, JobSpy installed)
+When the user runs `/career-ops scan`, invoke both. The pipeline.md schema is identical across both, so downstream modes (oferta, batch, tracker) treat them uniformly.
 
 ## Phase 3 (coming)
 
+- `hellowork` — Playwright; JS-driven ASP.NET, needs viewstate handling.
 - `daijob`, `careercross`, `gaijinpot`, `tokyodev`, `japandev`, `enworld`, `jobsinjapan` — Playwright scrapers
 
 ## Phase 4 (coming)

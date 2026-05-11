@@ -6,7 +6,8 @@
   "type": "module",
   "scripts": {
     "scan:greenhouse": "node scripts/scan-greenhouse.mjs",
-    "scan": "node scripts/scan-greenhouse.mjs"
+    "scan:jobspy": ".venv/bin/python scripts/scan-jobspy.py",
+    "scan": "npm run scan:greenhouse && npm run scan:jobspy"
   },
   "engines": {
     "node": ">=18"
