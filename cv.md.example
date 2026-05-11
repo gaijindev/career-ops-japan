@@ -1,0 +1,61 @@
+# Jane Doe
+
+[your-email@example.com](mailto:your-email@example.com) · Tokyo, Japan · [linkedin.com/in/janedoe](https://linkedin.com/in/janedoe) · [github.com/janedoe](https://github.com/janedoe)
+
+> Copy this file to `cv.md` and replace with your real CV. The real file is git-ignored.
+> You can also paste a LinkedIn profile URL into Claude Code and ask it to extract a draft.
+
+---
+
+## Summary
+
+IT Support engineer with 5 years of experience supporting a 500-person US technology company, looking to relocate to Tokyo. Strong background in identity (Okta), endpoint management (Jamf, Intune), and onboarding/offboarding automation. Conversational English; learning Japanese (JLPT N5 in progress).
+
+---
+
+## Experience
+
+### Senior IT Support Engineer · ExampleCo · 2022 – Present
+
+- Owned IT onboarding/offboarding for a workforce that grew from 200 → 500 in 18 months
+- Cut new-hire setup from 4 hours to 25 minutes via Okta + Jamf + Intune automation
+- Resolved 800+ tickets / quarter with a 96% CSAT
+- On-call for tier-2 escalations across macOS, Windows, and Microsoft 365
+
+### IT Support Engineer · Globex Corp · 2020 – 2022
+
+- First-line support for a 150-person engineering org
+- Built a self-service knowledge base in Confluence that reduced repeat-tickets 35%
+- Ran the device-imaging pipeline (~30 devices / month)
+
+---
+
+## Skills
+
+- **Identity & access:** Okta, Azure AD, Google Workspace, SCIM, SAML, OIDC
+- **Endpoint management:** Jamf Pro, Microsoft Intune, JumpCloud
+- **Productivity:** Microsoft 365, Google Workspace, Slack admin, Zoom admin
+- **Scripting:** bash, PowerShell, Python (intermediate), AppleScript
+- **Ticketing:** Jira Service Management, Zendesk, Freshservice
+- **Networking basics:** VPN, mTLS, certificate management
+
+---
+
+## Education
+
+**BSc, Computer Science** · State University · 2016 – 2020
+
+---
+
+## Languages
+
+- **English** — Native
+- **Japanese** — Beginner (JLPT N5 in progress, daily study since Jan 2025)
+
+---
+
+## Notes for evaluators
+
+- Open to relocation to Tokyo within 60 days of offer
+- Visa sponsorship required (currently a US citizen with no Japan work authorization)
+- Target compensation: ¥5–8M JPY annual

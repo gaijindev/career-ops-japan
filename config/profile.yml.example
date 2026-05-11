@@ -1,0 +1,86 @@
+# career-ops-japan — user profile
+#
+# Copy this to config/profile.yml and edit. The real file is git-ignored —
+# your personal data never lands in the public repo.
+#
+# Fields marked REQUIRED must be filled in before /career-ops scan will run.
+
+# REQUIRED — basic identity
+name: "Jane Doe"
+email: "you@example.com"
+location: "Tokyo, Japan"                # primary city; broader region OK
+phone: ""                                # optional
+linkedin_url: ""                         # optional but recommended
+github_url: ""                           # optional
+portfolio_url: ""                        # optional
+
+# REQUIRED — what you want to be hired as.
+# These flow into title_filter.positive in portals.yml and into the
+# evaluator's "is this role on-target?" check.
+target_roles:
+  - "IT Support Engineer"
+  - "Workplace Technology Engineer"
+  - "Helpdesk Lead"
+
+# REQUIRED — target annual compensation, JPY.
+# The evaluator uses this for the comp score; not used as a hard filter
+# (a role at ¥4M with strong fit still surfaces, ranked lower).
+comp_range:
+  min: 5000000
+  max: 8000000
+  currency: JPY
+
+# REQUIRED — your Japanese level.
+# Drops listings requiring more than this when combined with portals.yml >
+# jd_disqualifiers. Values: none, n5, n4, n3, n2, n1.
+japanese_level: "none"
+
+# REQUIRED — work-mode preference.
+# Values: onsite, hybrid, remote, any.
+# Listings outside this preference are ranked lower but not dropped.
+work_mode: "hybrid"
+
+# REQUIRED — visa / work-authorization status in Japan.
+# Used to weight visa-sponsorship signals in evaluation.
+# Values:
+#   - "citizen"          — Japanese national
+#   - "permanent"        — permanent resident
+#   - "work_visa_held"   — currently holding a Japan work visa
+#   - "needs_sponsorship" — no current authorization, will need sponsorship
+visa_status: "needs_sponsorship"
+
+# OPTIONAL — archetypes.
+# Role types you'd accept, with seniority level. Used by the evaluator to
+# decide whether a listing matches your career trajectory.
+archetypes:
+  - role: "IT Support Engineer"
+    seniority: "mid"        # entry | mid | senior | staff | principal
+    weight: 1.0             # 0.0 to 1.0; higher = more preferred
+  - role: "Workplace Technology Engineer"
+    seniority: "mid"
+    weight: 0.9
+  - role: "Helpdesk Lead"
+    seniority: "senior"
+    weight: 0.7
+
+# OPTIONAL — non-negotiables.
+# Free-text deal-breakers the evaluator will flag.
+non_negotiables:
+  - "No on-call rotation that exceeds 1 week / month"
+  - "Must offer visa sponsorship"
+  - "No 100% on-site if outside central Tokyo"
+
+# OPTIONAL — north-star.
+# A one-sentence statement of what role you actually want next.
+# The evaluator uses this for the qualitative fit score.
+north_star: |
+  Lead workplace tech / IT for a high-growth SaaS company's Tokyo office,
+  owning onboarding/offboarding automation, identity, and device management.
+
+# OPTIONAL — companies you definitely DO want to work at.
+# These get a positive weight in evaluation.
+target_companies: []
+
+# OPTIONAL — companies you definitely do NOT want to work at.
+# These get auto-skipped at the source level.
+blocked_companies: []

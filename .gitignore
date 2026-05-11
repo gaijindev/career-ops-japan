@@ -1,0 +1,26 @@
+# Personal data — never commit
+cv.md
+config/profile.yml
+data/
+*.private.md
+
+# Local credentials
+.env
+.env.local
+
+# Runtime
+node_modules/
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Editor / OS
+.DS_Store
+*.swp
+.vscode/
+.idea/
+
+# Build artifacts
+dist/
+*.log

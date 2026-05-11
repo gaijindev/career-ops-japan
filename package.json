@@ -1,0 +1,18 @@
+{
+  "name": "career-ops-japan",
+  "version": "0.1.0",
+  "description": "A career-ops fork preconfigured for the Japanese job market — English-friendly, JP-language-required roles auto-filtered.",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "scan:greenhouse": "node scripts/scan-greenhouse.mjs",
+    "scan": "node scripts/scan-greenhouse.mjs"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "js-yaml": "^4.1.0"
+  },
+  "license": "MIT"
+}

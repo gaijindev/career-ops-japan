@@ -1,0 +1,272 @@
+# career-ops-japan — sources, filters, tracked companies
+#
+# This file is the single source of truth for what gets scanned and how listings
+# are filtered. Edit this file rather than hard-coding values in scripts/.
+#
+# Generated values: keep as-is unless you understand the impact.
+# User-customizable values: marked with # CUSTOMIZE.
+
+# -----------------------------------------------------------------------------
+# Sources
+# -----------------------------------------------------------------------------
+# Each source has:
+#   - id:       short slug used by scripts/scan-<id>.mjs
+#   - type:     greenhouse | jobspy | playwright | websearch | hellowork
+#   - status:   working | stub
+#   - notes:    why it's here, what to expect
+#
+# Sources marked `status: stub` are scaffolded but not implemented yet — they
+# land in Phases 2–4. See README.md § Status.
+
+sources:
+  - id: greenhouse
+    type: greenhouse
+    status: working
+    notes: |
+      Public Boards API. No key needed. Hits the per-company endpoint
+      https://boards-api.greenhouse.io/v1/boards/<token>/jobs and filters
+      results by location keywords (Tokyo / Japan / Remote-Japan).
+
+  - id: jobspy
+    type: jobspy
+    status: stub
+    notes: |
+      Python wrapper around LinkedIn, Indeed, Glassdoor, Google Jobs.
+      Phase 2 — requires Python 3.10+.
+
+  - id: hellowork
+    type: hellowork
+    status: stub
+    notes: |
+      Japan government employment service. Heavily Japanese-required roles.
+      Default config runs 12 Japanese keyword searches (英語, 外資, バイリンガル,
+      etc.) to surface English-friendly listings. <10% APPLY hit rate.
+      Phase 2.
+
+  - id: daijob
+    type: playwright
+    status: stub
+    notes: |
+      English-friendly bilingual board. Phase 3.
+
+  - id: careercross
+    type: playwright
+    status: stub
+    notes: |
+      Bilingual board, broad coverage. Phase 3.
+
+  - id: gaijinpot
+    type: playwright
+    status: stub
+    notes: |
+      English-first board, often entry-level / English-teaching heavy.
+      Phase 3.
+
+  - id: jobsinjapan
+    type: playwright
+    status: stub
+    notes: |
+      English-first board. Phase 3.
+
+  - id: tokyodev
+    type: playwright
+    status: stub
+    notes: |
+      Tokyo-focused English-friendly tech listings. Phase 3.
+
+  - id: japandev
+    type: playwright
+    status: stub
+    notes: |
+      English-friendly tech listings. Phase 3.
+
+  - id: enworld
+    type: playwright
+    status: stub
+    notes: |
+      en world Japan — bilingual recruiting agency. Phase 3.
+
+  - id: websearch
+    type: websearch
+    status: stub
+    notes: |
+      Google site:-filtered queries mediated by Claude. Covers English-first
+      boards, Japanese-native big boards, recruiter sites, global aggregators,
+      and LinkedIn with English-friendly filters. Phase 4.
+
+# -----------------------------------------------------------------------------
+# Title filter
+# -----------------------------------------------------------------------------
+# CUSTOMIZE: defaults are intentionally generic. Replace with keywords that
+# match YOUR target roles. Matching is case-insensitive substring.
+
+title_filter:
+  positive:
+    # CUSTOMIZE — replace with your target role keywords
+    - "Software Engineer"
+    - "Frontend Engineer"
+    - "Backend Engineer"
+    - "Full-Stack Engineer"
+    - "Site Reliability Engineer"
+    - "Platform Engineer"
+    - "DevOps"
+    - "IT Support"
+    - "Workplace Technology"
+    - "Helpdesk"
+    - "Technical Support"
+    - "Support Engineer"
+
+  negative:
+    # CUSTOMIZE — replace with what you want to exclude
+    - "Sales Engineer"
+    - "Customer Success"
+    - "Account Manager"
+    - "Solutions Architect"
+    - "Pre-Sales"
+    - "Internship"
+    - "Intern"
+
+# -----------------------------------------------------------------------------
+# JD disqualifiers
+# -----------------------------------------------------------------------------
+# Listings whose JD contains ANY of these phrases are auto-skipped.
+# Matching is case-insensitive substring across the full JD text.
+#
+# This list is THE language-requirement filter — the main reason a Japan-focused
+# career-ops fork exists. Don't loosen these without thinking about it.
+#
+# Reusable packs in examples/jd-disqualifiers/ for other languages/regions.
+
+jd_disqualifiers:
+  # English phrasings
+  - "JLPT N1"
+  - "JLPT N2"
+  - "JLPT Level 1"
+  - "JLPT Level 2"
+  - "business-level Japanese"
+  - "business level Japanese"
+  - "fluent in Japanese"
+  - "fluent Japanese"
+  - "native-level Japanese"
+  - "native level Japanese"
+  - "Japanese: Native"
+  - "Japanese - Native"
+  - "must be fluent in Japanese"
+  - "Japanese language proficiency required"
+  - "Japanese language is required"
+  - "Japanese is required"
+  - "Japanese required"
+  - "proficient in Japanese"
+  - "professional working proficiency in Japanese"
+
+  # Japanese phrasings
+  - "日本語必須"
+  - "日本語ビジネスレベル"
+  - "ビジネス日本語"
+  - "ビジネスレベル日本語"
+  - "母語レベル"
+  - "ネイティブレベル"
+  - "ネイティブ日本語"
+  - "日本語ネイティブ"
+  - "JLPT N1相当"
+  - "JLPT N2相当"
+  - "日本語能力試験1級"
+  - "日本語能力試験2級"
+  - "日本語能力試験N1"
+  - "日本語能力試験N2"
+  - "日本語が堪能"
+  - "日本語が流暢"
+
+# -----------------------------------------------------------------------------
+# Tracked companies (Greenhouse API)
+# -----------------------------------------------------------------------------
+# Each company has:
+#   - name:         human-readable label
+#   - board_token:  Greenhouse board slug. Find via the company's careers page
+#                   URL (boards.greenhouse.io/<token> or boards-api.greenhouse.io/v1/boards/<token>/jobs).
+#   - careers_url:  fallback URL for human review if the API returns nothing.
+#
+# CUSTOMIZE: add/remove based on companies you'd actually work at.
+# Board tokens may shift over time — the scanner will report 404s.
+
+tracked_companies:
+  - name: Figma
+    board_token: figma
+    careers_url: https://www.figma.com/careers/
+
+  - name: Stripe
+    board_token: stripe
+    careers_url: https://stripe.com/jobs
+
+  - name: Cloudflare
+    board_token: cloudflare
+    careers_url: https://www.cloudflare.com/careers/jobs/
+
+  - name: GitHub
+    # Verified 2026-05-11: returns 404 — GitHub uses a non-Greenhouse ATS now.
+    # Left here intentionally so forkers see the diagnostic. To re-enable,
+    # find the real ATS and add a scraper, or remove this entry.
+    board_token: github
+    careers_url: https://www.github.careers/careers-home/jobs
+
+  - name: HubSpot
+    board_token: hubspot
+    careers_url: https://www.hubspot.com/careers
+
+  - name: PagerDuty
+    board_token: pagerduty
+    careers_url: https://careers.pagerduty.com/
+
+  - name: Snowflake
+    # Verified 2026-05-11: returns 404 — Snowflake uses Workday.
+    board_token: snowflake
+    careers_url: https://careers.snowflake.com/
+
+  - name: Splunk
+    # Verified 2026-05-11: returns 404 — Splunk uses Workday post-Cisco-acquisition.
+    board_token: splunkinc
+    careers_url: https://www.splunk.com/en_us/careers.html
+
+  - name: Dropbox
+    board_token: dropbox
+    careers_url: https://jobs.dropbox.com/
+
+  - name: MongoDB
+    board_token: mongodb
+    careers_url: https://www.mongodb.com/careers
+
+  - name: Datadog
+    board_token: datadog
+    careers_url: https://careers.datadoghq.com/
+
+  - name: Elastic
+    board_token: elastic
+    careers_url: https://www.elastic.co/careers/
+
+  - name: Twilio
+    board_token: twilio
+    careers_url: https://www.twilio.com/en-us/company/jobs
+
+  - name: Asana
+    board_token: asana
+    careers_url: https://asana.com/jobs
+
+  - name: Zendesk
+    # Verified 2026-05-11: returns 404 — Zendesk uses a non-Greenhouse ATS.
+    board_token: zendesk
+    careers_url: https://www.zendesk.com/jobs/
+
+# -----------------------------------------------------------------------------
+# Location filter
+# -----------------------------------------------------------------------------
+# Substring match on each listing's location field, case-insensitive.
+# A listing must match AT LEAST ONE of these to be included.
+
+location_filter:
+  - "Tokyo"
+  - "Japan"
+  - "東京"
+  - "日本"
+  - "Remote - Japan"
+  - "Remote (Japan)"
+  - "APAC"  # often catches Japan-eligible roles
