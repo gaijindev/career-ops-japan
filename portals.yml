@@ -122,10 +122,19 @@ sources:
       Tokyo-focused English-friendly tech listings. Phase 3.
 
   - id: japandev
-    type: playwright
-    status: stub
+    type: html
+    status: working
     notes: |
-      English-friendly tech listings. Phase 3.
+      English-friendly tech listings. Cheap HTML scrape (no Playwright needed).
+      Robots.txt is permissive. Two-pass approach: parse index for cheap fields
+      (title, company, location, tags), then fetch each survivor's full JD page
+      and extract .job-detail-main-content for the disqualifier filter.
+
+      Known limitation: static HTML only renders ~60 listings; the remaining
+      ~200 of the advertised 264 are loaded by their Nuxt JS hydration call.
+      Full coverage would need Playwright. The 60 we get are typically the
+      freshest, which is the most useful subset for daily-scan workflows.
+      Verified 2026-05-12.
 
   - id: enworld
     type: playwright

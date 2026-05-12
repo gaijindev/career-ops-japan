@@ -48,7 +48,7 @@ cd career-ops-japan
 npm install
 cp config/profile.yml.example config/profile.yml
 cp cv.md.example cv.md
-npm run scan:greenhouse   # smoke test
+npm run scan              # full smoke test (Greenhouse + Japan Dev + JobSpy)
 ```
 
 If that runs and writes to `data/pipeline.md`, you're set up.

@@ -8,12 +8,13 @@ This is a career-ops fork preconfigured for the Japanese job market — English-
 
 ## Out of the box, this scans
 
-- **15 global SaaS companies with Tokyo offices** — Greenhouse API, free, no key needed
+- **15 global SaaS companies with Tokyo offices** — Greenhouse API ✅
   Figma · Stripe · Cloudflare · GitHub · HubSpot · PagerDuty · Snowflake · Splunk · Dropbox · MongoDB · Datadog · Elastic · Twilio · Asana · Zendesk
-- **English-first Japan boards** *(coming in Phase 3)* — TokyoDev, Japan Dev, JobsInJapan, Daijob, GaijinPot, CareerCross
-- **Japanese-native boards with English filters** *(coming in Phase 3)* — Green, Doda, Bizreach, Mynavi Tenshoku, Rikunabi NEXT
-- **LinkedIn / Indeed / Glassdoor / Google Jobs** *(coming in Phase 2)* — via JobSpy
-- **HelloWork** *(coming in Phase 2)* — Japanese government board, scanned with 12 English-keyword searches
+- **Japan Dev** ✅ — English-first board, ~60 latest listings via HTML scrape
+- **Indeed Japan** ✅ — via JobSpy (LinkedIn / Glassdoor opt-in)
+- **English-first Japan boards** *(coming)* — TokyoDev, JobsInJapan, Daijob, GaijinPot, CareerCross
+- **Japanese-native boards with English filters** *(coming)* — Green, Doda, Bizreach, Mynavi Tenshoku, Rikunabi NEXT
+- **HelloWork** *(coming)* — Japanese government board, scanned with 12 English-keyword searches
 
 See [README.md § Status](README.md#status) for the current build state.
 
@@ -60,13 +61,13 @@ This is the **most important step**. Default values are intentionally generic pl
 
 The default 15 Greenhouse companies are a starter set. Add or remove based on where you want to work. Each entry needs a `careers_url`. Companies on Greenhouse can use the free API; others fall back to scraping in later phases.
 
-## Notes on Japanese-native boards (Phase 3)
+## Notes on Japanese-native boards (coming)
 
 Green, Doda, Mynavi Tenshoku, Bizreach, and Rikunabi NEXT are primarily Japanese-language. Their queries will include English/bilingual filter clauses (`英語`, `外資系`, `バイリンガル`) to surface English-friendly roles. Expect a lower hit rate (~15% English-friendly) but unique coverage — many JP-domestic SMBs and foreign-affiliated firms post here but not on LinkedIn.
 
 **Bizreach is scout-based** (recruiters find you) — maintaining a complete Bizreach profile is as valuable as searching it.
 
-## HelloWork quirk (Phase 2)
+## HelloWork quirk (coming)
 
 HelloWork is the government board — heavily Japanese-required roles. Default config will run 12 Japanese keyword searches (`英語`, `外資`, `バイリンガル`, …) to surface English-friendly listings, but expect a <10% apply hit rate. Unique discovery, low precision.
 
@@ -80,10 +81,13 @@ See [FORKING.md](FORKING.md) — swap `portals.yml` and `jd_disqualifiers`, keep
 /career-ops scan
 ```
 
-Or, in Phase 1, the equivalent direct command:
+Or run scanners directly:
 
 ```bash
-npm run scan:greenhouse
+npm run scan              # all working scanners in sequence
+npm run scan:greenhouse   # just Greenhouse API
+npm run scan:japandev     # just Japan Dev
+npm run scan:jobspy       # just Indeed Japan via JobSpy
 ```
 
 Output lands in `data/pipeline.md`. Review candidates and run `/career-ops oferta <jd>` to evaluate any specific one.

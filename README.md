@@ -14,8 +14,9 @@ Built for English-speaking candidates targeting tech roles in Japan — but the 
 | JobSpy — Indeed Japan | ✅ Working |
 | JobSpy — LinkedIn / Glassdoor (ToS-risky, opt-in) | ⚠️ Available, off by default |
 | JobSpy — Google Jobs | ❌ Currently blocked by Google |
-| HelloWork scraper (government board) | 🚧 Stub (Phase 3 — needs Playwright) |
-| Playwright scrapers (Daijob, CareerCross, GaijinPot, TokyoDev, Japan Dev, en world, JobsInJapan) | 🚧 Stub (Phase 3) |
+| **Japan Dev** (HTML scrape, ~60 latest listings) | ✅ Working |
+| HelloWork scraper (government board) | 🚧 Stub (needs Playwright) |
+| Playwright scrapers (Daijob, CareerCross, GaijinPot, TokyoDev, en world, JobsInJapan, Japan Dev full coverage) | 🚧 Stub |
 | WebSearch query templates | 🚧 Stub (Phase 4) |
 | `portals.yml` with full Japan defaults + JD disqualifiers | ✅ Shipped |
 | All mode files (`scan`, `oferta`, `pdf`, `contacto`, etc.) | 🚧 Stubs (Phase 4) |
@@ -89,13 +90,15 @@ cp config/profile.yml.example config/profile.yml
 #    - config/profile.yml: name, email, target roles, comp range
 #    - portals.yml > title_filter.positive: keywords for YOUR role
 
-# 3. Run a Greenhouse scan
-node scripts/scan-greenhouse.mjs
+# 3. Run all working scanners
+npm run scan
 
-# 4. (Optional) Run a JobSpy scan against Indeed Japan
-.venv/bin/python scripts/scan-jobspy.py
+# Or one at a time:
+#   npm run scan:greenhouse
+#   npm run scan:japandev
+#   npm run scan:jobspy
 
-# Output from both is appended to data/pipeline.md
+# Output is appended to data/pipeline.md
 ```
 
 See [ONBOARDING.md](ONBOARDING.md) for the assistant-guided version of the same flow.

@@ -16,14 +16,16 @@ Runs every source in `portals.yml > sources` whose `status: working`, applies th
 | Source | Command | Notes |
 |---|---|---|
 | `greenhouse` | `node scripts/scan-greenhouse.mjs` | Public API, no key. |
+| `japandev` | `node scripts/scan-japandev.mjs` | HTML scrape, ~60 latest listings. |
 | `jobspy` | `.venv/bin/python scripts/scan-jobspy.py` | Indeed Japan by default; LinkedIn/Glassdoor opt-in in `portals.yml`. |
 
-When the user runs `/career-ops scan`, invoke both. The pipeline.md schema is identical across both, so downstream modes (oferta, batch, tracker) treat them uniformly.
+When the user runs `/career-ops scan`, invoke all three. The pipeline.md schema is identical across them, so downstream modes (oferta, batch, tracker) treat them uniformly. Combined: `npm run scan`.
 
-## Phase 3 (coming)
+## Coming
 
 - `hellowork` — Playwright; JS-driven ASP.NET, needs viewstate handling.
-- `daijob`, `careercross`, `gaijinpot`, `tokyodev`, `japandev`, `enworld`, `jobsinjapan` — Playwright scrapers
+- `daijob`, `careercross`, `gaijinpot`, `tokyodev`, `enworld`, `jobsinjapan` — Playwright scrapers
+- Japan Dev full coverage (beyond the first ~60 listings) — Playwright
 
 ## Phase 4 (coming)
 

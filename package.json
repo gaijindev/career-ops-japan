@@ -6,13 +6,15 @@
   "type": "module",
   "scripts": {
     "scan:greenhouse": "node scripts/scan-greenhouse.mjs",
+    "scan:japandev": "node scripts/scan-japandev.mjs",
     "scan:jobspy": ".venv/bin/python scripts/scan-jobspy.py",
-    "scan": "npm run scan:greenhouse && npm run scan:jobspy"
+    "scan": "npm run scan:greenhouse && npm run scan:japandev && npm run scan:jobspy"
   },
   "engines": {
     "node": ">=18"
   },
   "dependencies": {
+    "cheerio": "^1.0.0",
     "js-yaml": "^4.1.0"
   },
   "license": "MIT"
