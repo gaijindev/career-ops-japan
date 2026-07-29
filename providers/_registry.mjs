@@ -75,8 +75,24 @@ export async function loadProviders(dir) {
 }
 
 /**
+ * Make the provider-facing entry canonical while preserving legacy configs.
+ * An explicit `source:` is authoritative and is overlaid onto `provider:` so
+ * older providers that inspect the legacy field receive the selected source.
+ *
+ * @param {object} entry - tracked_companies or job-board entry.
+ * @returns {object} The original entry when no source is present, otherwise a shallow copy.
+ */
+export function canonicalizeProviderEntry(entry) {
+  if (!entry || typeof entry !== 'object') return entry;
+  const source = typeof entry.source === 'string' && entry.source.trim()
+    ? entry.source.trim()
+    : null;
+  return source ? { ...entry, provider: source } : entry;
+}
+
+/**
  * Resolve which provider handles a tracked_companies entry.
- *   1. Explicit `provider:` field wins (skips detect()).
+ *   1. Explicit `source:` wins; legacy `provider:` is used when source is absent (both skip detect()).
  *   2. local-parser when parser.command + script are configured (before API detect).
  *   3. Otherwise each provider's detect() runs in load order; first hit wins.
  *
@@ -94,6 +110,7 @@ export function resolveProvider(entry, providers, { skipIds = [] } = {}) {
     ? entry.provider.trim()
     : null;
   const explicitId = explicitSource || explicitProvider;
+  const routedEntry = canonicalizeProviderEntry(entry);
 
   if (explicitId) {
     const p = providers.get(explicitId);
@@ -101,14 +118,14 @@ export function resolveProvider(entry, providers, { skipIds = [] } = {}) {
       const kind = explicitSource ? 'source' : 'provider';
       return { error: `unsupported ${kind}: ${explicitId}` };
     }
-    return { provider: p };
+    return { provider: p, entry: routedEntry };
   }
 
   const localParser = providers.get('local-parser');
   if (localParser && !skipIds.includes('local-parser')) {
     try {
-      const hit = localParser.detect?.(entry);
-      if (hit) return { provider: localParser };
+      const hit = localParser.detect?.(routedEntry);
+      if (hit) return { provider: localParser, entry: routedEntry };
     } catch (err) {
       console.error(`⚠️  local-parser: detect() threw for "${entry.name}" — ${err.message}`);
     }
@@ -118,12 +135,12 @@ export function resolveProvider(entry, providers, { skipIds = [] } = {}) {
     if (skipIds.includes(p.id)) continue;
     let hit;
     try {
-      hit = p.detect?.(entry);
+      hit = p.detect?.(routedEntry);
     } catch (err) {
       console.error(`⚠️  ${p.id}: detect() threw for "${entry.name}" — ${err.message}`);
       continue;
     }
-    if (hit) return { provider: p };
+    if (hit) return { provider: p, entry: routedEntry };
   }
   return null;
 }

@@ -69,6 +69,11 @@
       "status": "changed"
     },
     {
+      "label": "generic error",
+      "message": "tokyodev: config parse failed: invalid source configuration",
+      "status": "error"
+    },
+    {
       "label": "error",
       "message": "tokyodev: fetchText dependency was not provided",
       "status": "error"

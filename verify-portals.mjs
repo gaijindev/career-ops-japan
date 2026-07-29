@@ -397,7 +397,7 @@ export async function verifyCompanies(
     if (providers && providers.size > 0) {
       const resolved = resolveProvider(company, providers, { skipIds: ['local-parser'] });
       if (resolved && resolved.provider) {
-        const probe = await probeProvider(company, resolved.provider, httpCtx || makeHttpCtx());
+        const probe = await probeProvider(resolved.entry || company, resolved.provider, httpCtx || makeHttpCtx());
         results.push({ name, ...probe });
         continue;
       }

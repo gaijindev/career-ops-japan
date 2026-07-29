@@ -106,6 +106,31 @@ test('Explicit source selection is authoritative when source and provider confli
   assert.equal(resolved?.provider?.id, 'tokyodev');
 });
 
+test('Explicit source overlays provider for legacy detector and fetch compatibility', async () => {
+  const providers = await loadProviders(PROVIDERS_DIR);
+  const entry = {
+    name: 'Teamtailor conflict fixture',
+    source: 'teamtailor',
+    provider: 'hellowork',
+    careers_url: 'https://careers.example.com/jobs',
+  };
+  const resolved = resolveProvider(entry, providers);
+
+  assert.equal(resolved?.provider?.id, 'teamtailor');
+  assert.equal(resolved?.entry?.provider, 'teamtailor');
+
+  const result = await scanStructuredSource(resolved.entry, resolved.provider, {
+    fetchText: async (url, options) => {
+      assert.equal(url, 'https://careers.example.com/jobs.rss');
+      assert.deepEqual(options, { redirect: 'error' });
+      return '<rss><channel><item><title>Platform Engineer</title><link>https://careers.example.com/jobs/platform-engineer</link><tt:city>Tokyo</tt:city><tt:country>Japan</tt:country></item></channel></rss>';
+    },
+  });
+
+  assert.equal(result.status, 'ok');
+  assert.equal(result.offers[0]?.title, 'Platform Engineer');
+});
+
 test('Unsupported explicit source and legacy provider diagnostics stay distinct', async () => {
   const providers = await loadProviders(PROVIDERS_DIR);
 

@@ -1378,7 +1378,7 @@ export function classifyStructuredSourceError(error) {
   if (/(missing title|missing company|missing company_name|missing location|missing location_text|incomplete)/.test(text)) {
     return 'incomplete';
   }
-  if (/(unrecognized page shape|parse failed|markup|shape likely changed|no job cards found)/.test(text)) {
+  if (/(unrecognized page shape|shape likely changed|no job cards found|(?:changed|drift|unexpected) (?:page )?markup|(?:page )?markup (?:changed|drifted|unexpected)|page (?:shape|markup) (?:changed|drifted|unexpected))/.test(text)) {
     return 'changed';
   }
   return 'error';
@@ -1989,7 +1989,7 @@ async function main() {
         continue;
       }
 
-      targets.push({ ...entry, _provider: resolved.provider, _isBoard: isBoard });
+      targets.push({ ...(resolved.entry || entry), _provider: resolved.provider, _isBoard: isBoard });
       if (isBoard) boardCount++;
     }
   }

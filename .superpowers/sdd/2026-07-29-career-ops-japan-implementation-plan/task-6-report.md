@@ -265,3 +265,114 @@ Confirmed:
 
 - Unknown pasted URL behavior remains unchanged: still serialized as a bare `- [ ] {url}` row.
 - Public source safety remains unchanged: no adapter widening, no host-policy relaxation, no network requirement added to the new regression.
+
+## Fix round 2 — review findings addressed (2026-07-29)
+
+### Review scope
+
+This round addressed the remaining Task 6 review findings without changing adapter implementations or documentation:
+
+- removed the bare `parse failed` classifier branch so generic configuration/integration parse errors stay `error`;
+- retained `blocked`, `stale`, `incomplete`, and explicit page markup/shape drift as their existing statuses;
+- made the resolved entry canonical by overlaying an explicit `source:` onto the legacy `provider:` field before detector/fetch consumers see it;
+- updated the registry JSDoc to state that `source:` wins and `provider:` remains the legacy fallback;
+- passed the canonical entry into scan targets and liveness provider probes.
+
+### TDD evidence
+
+Red tests were added first in `test/japan-scan-pipeline.test.mjs` and `test/fixtures/japan-scan-results.json`.
+
+Command:
+
+```bash
+node --test test/japan-scan-pipeline.test.mjs
+```
+
+Observed red output before implementation:
+
+```text
+✖ Structured-source failures map to explicit blocked/stale/incomplete/changed statuses
+  'changed' !== 'error'
+
+✖ Explicit source overlays provider for legacy detector and fetch compatibility
+  + actual - expected
+  + undefined
+  - 'teamtailor'
+ℹ pass 4
+ℹ fail 2
+```
+
+### Focused green verification
+
+Command:
+
+```bash
+node --test test/japan-scan-pipeline.test.mjs
+```
+
+Output:
+
+```text
+ℹ tests 6
+ℹ pass 6
+ℹ fail 0
+```
+
+Command:
+
+```bash
+node --test tests/providers/tokyodev.test.mjs tests/providers/gaijinpot.test.mjs tests/providers/hellowork.test.mjs tests/providers/teamtailor.test.mjs
+```
+
+Output:
+
+```text
+ℹ tests 25
+ℹ pass 25
+ℹ fail 0
+```
+
+Command:
+
+```bash
+node tests/scan-url-dedup.test.mjs && node tests/scan-company-role-dedup.test.mjs && node tests/liveness-core.test.mjs
+```
+
+Output:
+
+```text
+scan.mjs — normalizeUrlForDedup() ignores tracking params, preserves identity
+  ✅ all 8 checks passed
+
+scan.mjs — company+role dedupe survives between runs
+  ✅ all 11 checks passed
+
+liveness-core — "filled" reqs (incl. Phenom/ICF phrasing) classify as expired
+  ✅ all 5 checks passed
+```
+
+### Diff inspection
+
+Commands:
+
+```bash
+git diff --check
+git diff -- providers/_registry.mjs scan.mjs verify-portals.mjs test/japan-scan-pipeline.test.mjs test/fixtures/japan-scan-results.json
+```
+
+Output/result:
+
+```text
+git diff --check: no output; exit 0
+Scoped diff: only registry canonicalization/JSDoc, scan status/target wiring,
+liveness probe entry wiring, focused regression tests, and the fixture status case.
+```
+
+The unrelated pre-existing modification to `.superpowers/sdd/2026-07-29-career-ops-japan-implementation-plan/task-4-report.md` remained outside this fix.
+
+### Fix-round concerns
+
+- No adapters were modified.
+- No docs were modified.
+- Tests use injected fixtures and do not access the network.
+- Unknown pasted URL formatting and public host/source safety remain unchanged.
