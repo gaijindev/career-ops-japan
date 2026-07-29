@@ -52,6 +52,20 @@ function keyedFieldsFromText(text) {
   return map;
 }
 
+function tableFieldsFromHtml(documentText) {
+  const fields = [];
+  const rows = String(documentText || '').matchAll(/<tr\b[^>]*>([\s\S]*?)<\/tr>/gi);
+  for (const row of rows) {
+    const cells = [...row[1].matchAll(/<(?:th|td)\b[^>]*>([\s\S]*?)<\/(?:th|td)>/gi)]
+      .map((match) => cleanText(stripHtml(match[1])));
+    if (cells.length < 2) continue;
+    const key = cells[0];
+    const value = cleanText(cells.slice(1).join(' ')).replace(/^職種解説\s*/, '');
+    if (key && value) fields.push([key, value]);
+  }
+  return fields;
+}
+
 function firstField(fields, label) {
   const values = fields.get(label);
   return values && values.length ? values[0] : '';
@@ -170,7 +184,16 @@ export async function searchHelloWork(filters, { fetchText } = {}) {
 export function parseHelloWorkListing(documentText, sourceUrl) {
   const raw_source_text = stripHtml(documentText);
   const fields = keyedFieldsFromText(raw_source_text);
-  const salaryText = firstField(fields, 'ａ ＋ ｂ（固定残業代がある場合はａ ＋ ｂ ＋ ｃ）') || firstField(fields, 'ａ ＋ ｂ');
+  for (const [key, value] of tableFieldsFromHtml(documentText)) {
+    if (!fields.has(key)) fields.set(key, []);
+    fields.get(key).push(value);
+  }
+  const salaryMarker = raw_source_text.lastIndexOf('賃金・手当');
+  const salarySection = salaryMarker >= 0 ? raw_source_text.slice(salaryMarker, salaryMarker + 1200) : '';
+  const salaryText = firstField(fields, 'ａ ＋ ｂ（固定残業代がある場合はａ ＋ ｂ ＋ ｃ）')
+    || firstField(fields, 'ａ ＋ ｂ')
+    || firstField(fields, '賃金・手当')
+    || salarySection;
   const salaryShape = parseSalaryRange(salaryText);
   const visibility = mapEmployerVisibility(raw_source_text, fields);
   const notesText = [

@@ -46,6 +46,31 @@ test('parseHelloWorkListing extracts Japanese employment fields from a full-time
   assert.equal(classifyHelloWorkApplication(raw), 'hello-work-introduction');
 });
 
+test('parseHelloWorkListing extracts fields from the live Hello Work table layout', () => {
+  const raw = parseHelloWorkListing(`
+    <table>
+      <tr><th>職種</th><td><div id="ID_sksu">情報システム・社内ＩＴサポート担当</div></td></tr>
+      <tr><th>事業所名</th><td>株式会社テーブルテック</td></tr>
+      <tr><th>就業場所</th><td>東京都杉並区</td></tr>
+      <tr><th>求人番号</th><td>13080-55695261</td></tr>
+      <tr><th>雇用形態</th><td>正社員</td></tr>
+      <tr><th>賃金・手当</th><td>ａ ＋ ｂ 270,000円〜350,000円</td></tr>
+      <tr><th>賃金形態等</th><td>月給</td></tr>
+      <tr><th>公開範囲</th><td>１．事業所名等を含む求人情報を公開する</td></tr>
+    </table>
+  `, 'https://www.hellowork.mhlw.go.jp/kensaku/GECA110020.do?kJNo=1308055695261');
+
+  assert.equal(raw.title, '情報システム・社内ＩＴサポート担当');
+  assert.equal(raw.company_name, '株式会社テーブルテック');
+  assert.equal(raw.location_text, '東京都杉並区');
+  assert.equal(raw.source_job_id, '13080-55695261');
+  assert.equal(raw.employment_type_text, '正社員');
+  assert.equal(raw.salary_min, 270000);
+  assert.equal(raw.salary_max, 350000);
+  assert.equal(raw.salary_period, 'month');
+  assert.equal(raw.employer_visibility, 'public');
+});
+
 test('parseHelloWorkListing detects restricted employer visibility', () => {
   const raw = parseHelloWorkListing(
     fixture('job-anonymous-employer.html'),
