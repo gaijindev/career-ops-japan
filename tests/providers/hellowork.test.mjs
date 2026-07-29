@@ -107,14 +107,14 @@ test('searchHelloWork fetches each supplied detail URL and returns parsed raw jo
   const rawJobs = await searchHelloWork(
     {
       urls: [
-        'https://example.test/fulltime',
-        'https://example.test/online',
+        'https://www.hellowork.mhlw.go.jp/kensaku/GECA110010.do?kJNo=1310012345661',
+        'https://www.hellowork.mhlw.go.jp/kensaku/GECA110020.do?kJNo=2805014675161',
       ],
     },
     {
       fetchText: async (url) => {
         calls.push(url);
-        return url.endsWith('/fulltime')
+        return url.includes('1310012345661')
           ? fixture('job-fulltime.html')
           : fixture('job-online-self-application.html');
       },
@@ -122,12 +122,90 @@ test('searchHelloWork fetches each supplied detail URL and returns parsed raw jo
   );
 
   assert.deepEqual(calls, [
-    'https://example.test/fulltime',
-    'https://example.test/online',
+    'https://www.hellowork.mhlw.go.jp/kensaku/GECA110010.do?kJNo=1310012345661',
+    'https://www.hellowork.mhlw.go.jp/kensaku/GECA110020.do?kJNo=2805014675161',
   ]);
   assert.equal(rawJobs.length, 2);
   assert.equal(rawJobs[0].source_job_id, '13100-12345661');
   assert.equal(rawJobs[1].source_job_id, '28050-14675161');
+});
+
+test('searchHelloWork rejects off-host and non-HTTPS URLs before fetching', async () => {
+  let fetchCalled = false;
+
+  await assert.rejects(
+    () => searchHelloWork(
+      {
+        urls: ['https://evil.example/hellowork'],
+      },
+      {
+        fetchText: async () => {
+          fetchCalled = true;
+          return fixture('job-fulltime.html');
+        },
+      },
+    ),
+    /untrusted hostname/,
+  );
+  assert.equal(fetchCalled, false);
+
+  await assert.rejects(
+    () => searchHelloWork(
+      {
+        sourceUrl: 'http://www.hellowork.mhlw.go.jp/kensaku/GECA110010.do?kJNo=1310012345661',
+      },
+      {
+        fetchText: async () => {
+          fetchCalled = true;
+          return fixture('job-fulltime.html');
+        },
+      },
+    ),
+    /must use HTTPS/,
+  );
+  assert.equal(fetchCalled, false);
+});
+
+test('default export detect claims valid Hello Work URLs and rejects arbitrary inputs', () => {
+  assert.deepEqual(
+    provider.detect({
+      careers_url: 'https://www.hellowork.mhlw.go.jp/kensaku/GECA110010.do?kJNo=1310012345661',
+    }),
+    {
+      url: 'https://www.hellowork.mhlw.go.jp/kensaku/GECA110010.do?kJNo=1310012345661',
+    },
+  );
+
+  assert.deepEqual(
+    provider.detect({
+      provider: 'hellowork',
+      sourceUrl: 'https://www.hellowork.mhlw.go.jp/kensaku/GECA110020.do?kJNo=2805014675161',
+    }),
+    {
+      url: 'https://www.hellowork.mhlw.go.jp/kensaku/GECA110020.do?kJNo=2805014675161',
+    },
+  );
+
+  assert.equal(
+    provider.detect({
+      careers_url: 'https://evil.example/www.hellowork.mhlw.go.jp/kensaku/GECA110010.do?kJNo=1310012345661',
+    }),
+    null,
+  );
+  assert.equal(
+    provider.detect({
+      provider: 'hellowork',
+      sourceUrl: 'https://evil.example/hellowork',
+    }),
+    null,
+  );
+  assert.equal(
+    provider.detect({
+      provider: 'hellowork',
+      sourceUrl: 'http://www.hellowork.mhlw.go.jp/kensaku/GECA110010.do?kJNo=1310012345661',
+    }),
+    null,
+  );
 });
 
 test('default export is a valid upstream provider with id hellowork', async () => {
@@ -137,20 +215,45 @@ test('default export is a valid upstream provider with id hellowork', async () =
     {
       provider: 'hellowork',
       hellowork: {
-        urls: ['https://example.test/fulltime'],
+        urls: ['https://www.hellowork.mhlw.go.jp/kensaku/GECA110010.do?kJNo=1310012345661'],
       },
     },
     {
-      fetchText: async () => fixture('job-fulltime.html'),
+      fetchText: async (url) => {
+        assert.equal(new URL(url).hostname, 'www.hellowork.mhlw.go.jp');
+        return fixture('job-fulltime.html');
+      },
     },
   );
 
   assert.deepEqual(jobs, [{
     title: 'AIプロダクトサポート担当',
-    url: 'https://example.test/fulltime',
+    url: 'https://www.hellowork.mhlw.go.jp/kensaku/GECA110010.do?kJNo=1310012345661',
     company: 'サンプルテクノロジー株式会社',
     location: '東京都千代田区',
   }]);
+});
+
+test('default export fetch rejects explicit provider entries with off-host URLs before fetching', async () => {
+  let fetchCalled = false;
+
+  await assert.rejects(
+    () => provider.fetch(
+      {
+        provider: 'hellowork',
+        sourceUrl: 'https://evil.example/hellowork',
+      },
+      {
+        fetchText: async () => {
+          fetchCalled = true;
+          return fixture('job-fulltime.html');
+        },
+      },
+    ),
+    /untrusted hostname/,
+  );
+
+  assert.equal(fetchCalled, false);
 });
 
 test('Hello Work adapter satisfies the shared Japan adapter contract on distinct listings', async () => {
@@ -163,12 +266,12 @@ test('Hello Work adapter satisfies the shared Japan adapter contract on distinct
   const rawJobs = await adapter.search(
     {
       urls: [
-        'https://example.test/fulltime',
-        'https://example.test/online',
+        'https://www.hellowork.mhlw.go.jp/kensaku/GECA110010.do?kJNo=1310012345661',
+        'https://www.hellowork.mhlw.go.jp/kensaku/GECA110020.do?kJNo=2805014675161',
       ],
     },
     {
-      fetchText: async (url) => url.endsWith('/fulltime')
+      fetchText: async (url) => url.includes('1310012345661')
         ? fixture('job-fulltime.html')
         : fixture('job-online-self-application.html'),
     },

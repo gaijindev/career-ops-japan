@@ -3,7 +3,10 @@
 
 import { normalizeJapanJob } from './_japan-job-schema.mjs';
 
-const HELLOWORK_HOST_RE = /(^|\.)hellowork\.mhlw\.go\.jp$/i;
+const ALLOWED_HELLOWORK_HOSTS = new Set([
+  'hellowork.mhlw.go.jp',
+  'www.hellowork.mhlw.go.jp',
+]);
 
 function decodeHtml(text) {
   return String(text || '')
@@ -120,8 +123,26 @@ function sourceFieldsPresent(record) {
   return present;
 }
 
+function assertHelloWorkUrl(url) {
+  let parsed;
+  try {
+    parsed = new URL(String(url || '').trim());
+  } catch {
+    throw new Error(`hellowork: invalid URL: ${url}`);
+  }
+  if (parsed.protocol !== 'https:') throw new Error(`hellowork: URL must use HTTPS: ${url}`);
+  if (!ALLOWED_HELLOWORK_HOSTS.has(parsed.hostname)) {
+    throw new Error(`hellowork: untrusted hostname "${parsed.hostname}" — must be one of: ${[...ALLOWED_HELLOWORK_HOSTS].join(', ')}`);
+  }
+  return parsed.toString();
+}
+
 function listUrls(filters) {
-  if (Array.isArray(filters)) return filters.filter((value) => typeof value === 'string' && value.trim());
+  if (Array.isArray(filters)) {
+    return [...new Set(filters
+      .filter((value) => typeof value === 'string' && value.trim())
+      .map((value) => assertHelloWorkUrl(value)))];
+  }
   const urls = [];
   if (typeof filters?.sourceUrl === 'string' && filters.sourceUrl.trim()) urls.push(filters.sourceUrl.trim());
   for (const value of [filters?.urls, filters?.sourceUrls, filters?.hellowork?.urls]) {
@@ -130,7 +151,7 @@ function listUrls(filters) {
       if (typeof url === 'string' && url.trim()) urls.push(url.trim());
     }
   }
-  return [...new Set(urls)];
+  return [...new Set(urls.map((url) => assertHelloWorkUrl(url)))];
 }
 
 export async function searchHelloWork(filters, { fetchText } = {}) {
@@ -140,7 +161,7 @@ export async function searchHelloWork(filters, { fetchText } = {}) {
   const urls = listUrls(filters);
   const jobs = [];
   for (const url of urls) {
-    const documentText = await fetchText(url);
+    const documentText = await fetchText(url, { redirect: 'error' });
     jobs.push(parseHelloWorkListing(documentText, url));
   }
   return jobs;
@@ -237,12 +258,19 @@ const provider = {
   id: 'hellowork',
 
   detect(entry) {
-    if (entry?.provider === 'hellowork') return { url: listUrls(entry).at(0) || '' };
+    if (entry?.provider === 'hellowork') {
+      try {
+        const url = listUrls(entry).at(0);
+        return url ? { url } : null;
+      } catch {
+        return null;
+      }
+    }
     const raw = entry?.careers_url;
     if (!raw) return null;
     try {
-      const url = new URL(raw);
-      return HELLOWORK_HOST_RE.test(url.hostname) ? { url: url.toString() } : null;
+      const url = assertHelloWorkUrl(raw);
+      return { url };
     } catch {
       return null;
     }

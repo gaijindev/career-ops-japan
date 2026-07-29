@@ -60,3 +60,70 @@ Implementation work therefore stayed disjoint by changing only the Hello Work pr
 
 - There was an unrelated untracked file in the worktree during Task 5: `tests/providers/tokyodev.test.mjs`. It was preserved untouched.
 - The user brief referenced commit `c303a69`, but the actual branch checkout at implementation time was already at `0730088`. This report records the observed local baseline rather than inferring branch history.
+
+---
+
+## Task 5 review-fix addendum (July 29, 2026)
+
+### Review baseline
+
+- Review-fix start commit in the current checkout: `1c5b59b`
+- Branch: `feat/career-ops-japan`
+
+### Findings addressed
+
+- Added a strict HTTPS Hello Work host allowlist (`hellowork.mhlw.go.jp`, `www.hellowork.mhlw.go.jp`) that now gates every URL intake path used by the adapter:
+  - `searchHelloWork()` array filters
+  - `sourceUrl`
+  - `sourceUrls`
+  - nested explicit-provider `hellowork.urls`
+  - `detect()` for both `careers_url` auto-detection and explicit `provider: hellowork` entries
+- Added positive and negative `detect()` coverage consistent with provider expectations.
+- Preserved existing Japanese parsing, application classification, and shared schema normalization behavior.
+
+### Files changed for the review fix
+
+- `providers/hellowork.mjs`
+  - centralized Hello Work URL validation
+  - enforced HTTPS + exact allowed hosts before any fetch
+  - passed `redirect: 'error'` through Hello Work HTML fetches
+- `tests/providers/hellowork.test.mjs`
+  - moved positive fetch-path tests onto real allowlisted Hello Work hosts
+  - added rejection tests for off-host and non-HTTPS URLs
+  - added positive and negative `detect()` tests
+  - added explicit-provider safe-behavior coverage to prove off-host URLs are rejected before fetch
+
+### TDD evidence
+
+- `node --test tests/providers/hellowork.test.mjs` after adding the new tests and before the fix — exit `1`
+  - Exact summary:
+    - `tests 10`
+    - `pass 7`
+    - `fail 3`
+    - failing tests:
+      - `searchHelloWork rejects off-host and non-HTTPS URLs before fetching`
+      - `default export detect claims valid Hello Work URLs and rejects arbitrary inputs`
+      - `default export fetch rejects explicit provider entries with off-host URLs before fetching`
+- `node --test tests/providers/hellowork.test.mjs` after the fix — exit `0`
+  - Exact summary:
+    - `tests 10`
+    - `pass 10`
+    - `fail 0`
+    - `duration_ms 585.381833`
+
+### Final verification
+
+- `node --test tests/providers/hellowork.test.mjs tests/providers/japan-adapter-contract.test.mjs` — exit `0`
+  - Exact summary:
+    - `tests 16`
+    - `pass 16`
+    - `fail 0`
+    - `duration_ms 832.751125`
+- `git diff --check -- providers/hellowork.mjs tests/providers/hellowork.test.mjs`
+  - Exact summary: clean
+
+### Review-fix concerns
+
+- Unrelated untracked TokyoDev files remained untouched:
+  - `tests/providers/tokyodev.test.mjs`
+  - `tests/fixtures/tokyodev/`
