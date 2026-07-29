@@ -1,10 +1,14 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 
-import { scanStructuredSource } from '../../scan.mjs';
-import { fingerprintJapanJob } from '../../providers/_japan-job-schema.mjs';
+import { classifyStructuredSourceError, scanStructuredSource } from '../../scan.mjs';
+import {
+  assertNormalizedJapanJob,
+  fingerprintJapanJob,
+} from '../../providers/_japan-job-schema.mjs';
 
 const ROOT = join(import.meta.dirname, '..', '..');
+const CV_PATH = join(ROOT, 'test', 'e2e', 'fixtures', 'cv.md');
 const SUPPORTED_SOURCES = new Map([
   ['tokyodev', '../../providers/tokyodev.mjs'],
   ['gaijinpot', '../../providers/gaijinpot.mjs'],
@@ -18,13 +22,6 @@ function escapeHtml(value) {
     .replaceAll('>', '&gt;')
     .replaceAll('"', '&quot;')
     .replaceAll("'", '&#39;');
-}
-
-function labelPath(fixture) {
-  if (!/^[a-z0-9-]+\.json$/i.test(fixture.label_file || '')) {
-    throw new Error(`invalid label file for ${fixture.id}`);
-  }
-  return join(ROOT, 'evals', 'japan', 'labels', fixture.label_file);
 }
 
 function fixtureEntry(fixture) {
@@ -50,26 +47,124 @@ function diagnosticForMissingFields(fixture, job, diagnostics) {
   }
 }
 
-function buildMarkdownReport(fixture, label, normalizedJobs, diagnostics, profile) {
+function needsSponsorship(profile) {
+  return profile?.needs_sponsorship === true || profile?.location?.needs_sponsorship === true;
+}
+
+function salaryText(job) {
+  if (!job || job.salary_min === undefined || job.salary_max === undefined) return 'not stated';
+  return `${job.salary_currency || 'unknown'} ${job.salary_min}-${job.salary_max} ${job.salary_period || 'period unknown'}`;
+}
+
+function jobEvidence(job, fixture, source, quote) {
+  if (!job) return [{ source: 'fixture.diagnostic', quote: fixture.scenario, structural: true }];
+  return [{ source, quote: quote || job[source.replace('job.', '')] || fixture.id }];
+}
+
+/**
+ * Deterministic model/provider stub. It consumes the normalized job and the
+ * synthetic profile/CV; human labels are not model input and cannot render the
+ * report. A test may wrap this function through the model argument to inspect
+ * the exact inputs without changing the evaluation.
+ */
+export function deterministicJapanModel({ fixture, normalizedJob, profile, cvText, listingStatus }) {
+  if (!cvText || !/sanitized benchmark input/i.test(cvText)) {
+    throw new Error('fixture CV was not loaded by the deterministic model');
+  }
+
+  const roleText = `${normalizedJob?.title || ''} ${fixture.category}`.toLowerCase();
+  const targetRoleText = (profile?.target_roles?.primary || []).join(' ').toLowerCase();
+  const cvLower = cvText.toLowerCase();
+  const roleFit = !normalizedJob
+    ? 'unknown'
+    : /software|data|product/.test(roleText)
+      && /software|data|product/.test(targetRoleText)
+      && /platform|data|product|ai/.test(cvLower)
+      ? 'strong'
+      : 'moderate';
+  const eligibility = !normalizedJob
+    ? 'unknown'
+    : normalizedJob.visa_sponsorship === 'no' && needsSponsorship(profile)
+      ? 'blocked'
+      : 'review';
+  const offerQuality = !normalizedJob
+    ? 'unknown'
+    : normalizedJob.salary_min === undefined || normalizedJob.salary_max === undefined
+      ? 'unknown'
+      : 'moderate';
+  const confidence = !normalizedJob || fixture.scenario === 'anonymous-employer'
+    ? 'low'
+    : fixture.scenario === 'missing-salary'
+      ? 'medium'
+      : 'high';
+  const recommendation = listingStatus === 'blocked'
+    ? 'hold'
+    : ['stale', 'unsupported', 'changed'].includes(listingStatus)
+      ? 'reject'
+      : eligibility === 'blocked'
+        ? 'reject'
+        : offerQuality === 'unknown'
+          ? 'hold'
+        : fixture.scenario === 'anonymous-employer'
+          ? 'hold'
+          : 'advance';
+
+  return {
+    role_fit: {
+      judgment: roleFit,
+      evidence: jobEvidence(normalizedJob, fixture, 'job.title'),
+      uncertainty: 'Role fit is derived from normalized title/category signals and synthetic CV evidence.',
+    },
+    eligibility: {
+      judgment: eligibility,
+      evidence: normalizedJob
+        ? [{ source: 'job.visa_sponsorship', quote: `visa_sponsorship=${normalizedJob.visa_sponsorship || 'unknown'}` }]
+        : jobEvidence(null, fixture),
+      uncertainty: 'Verify authorization, language, residency, and sponsorship with the employer.',
+    },
+    offer_quality: {
+      judgment: offerQuality,
+      evidence: [{ source: 'job.salary', quote: `salary=${salaryText(normalizedJob)}` }],
+      uncertainty: 'Verify compensation, hours, benefits, and employment conditions.',
+    },
+    confidence: {
+      judgment: confidence,
+      evidence: normalizedJob
+        ? [{ source: 'job.source_platform', quote: normalizedJob.source_platform }, { source: 'job.source_job_id', quote: normalizedJob.source_job_id || fixture.id }]
+        : jobEvidence(null, fixture),
+      uncertainty: 'Confidence reflects source completeness and freshness only.',
+    },
+    recommendation: {
+      judgment: recommendation,
+      evidence: [{ source: 'workflow.status', quote: `status=${listingStatus}` }],
+      uncertainty: 'Recommendation is a deterministic triage label for benchmark regression review.',
+    },
+  };
+}
+
+function buildMarkdownReport(fixture, evaluation, normalizedJobs, diagnostics) {
   const job = normalizedJobs[0];
   const sections = [
     `# Japan fixture evaluation — ${fixture.id}`,
     '',
-    `- Source: ${fixture.source}`,
+    `- Source: ${job?.source_platform || fixture.source}`,
+    `- Source job ID: ${job?.source_job_id || 'not available'}`,
     `- Category: ${fixture.category}`,
     `- Title: ${job?.title || fixture.title}`,
     `- Employer: ${job?.company_name || fixture.company}`,
     `- Location: ${job?.location_text || fixture.location}`,
+    `- Advertised salary: ${salaryText(job)}`,
+    `- CV evidence basis: cv.md#experience`,
     `- Model: deterministic-test-model`,
     '',
   ];
 
   for (const [name, section] of [
-    ['Role fit', label.role_fit],
-    ['Eligibility', label.eligibility],
-    ['Offer quality', label.offer_quality],
-    ['Confidence', label.confidence],
-    ['Recommendation', label.recommendation],
+    ['Role fit', evaluation.role_fit],
+    ['Eligibility', evaluation.eligibility],
+    ['Offer quality', evaluation.offer_quality],
+    ['Confidence', evaluation.confidence],
+    ['Recommendation', evaluation.recommendation],
   ]) {
     sections.push(`## ${name}: ${section.judgment}`);
     sections.push(`- Judgment: ${section.judgment}`);
@@ -80,8 +175,8 @@ function buildMarkdownReport(fixture, label, normalizedJobs, diagnostics, profil
     sections.push('');
   }
 
-  const needsSponsorship = profile?.needs_sponsorship === true || profile?.location?.needs_sponsorship === true;
-  if (needsSponsorship && (job?.visa_sponsorship === 'no' || fixture.scenario === 'no-sponsorship')) {
+  const jobNeedsSponsorshipBlock = evaluation.eligibility.judgment === 'blocked';
+  if (jobNeedsSponsorshipBlock) {
     sections.push('## Eligibility blocker');
     sections.push('- Sponsorship-needed profile meets an explicit no-sponsorship signal; verify before applying.');
     sections.push('');
@@ -105,28 +200,39 @@ function buildHtmlReport(markdown) {
   return `<!doctype html><html><head><meta charset="utf-8"><title>Japan fixture evaluation</title><style>body{font-family:Arial,sans-serif;max-width:800px;margin:2rem auto;line-height:1.45}h1{font-size:1.5rem}h2{font-size:1.1rem;border-bottom:1px solid #ddd;padding-bottom:.25rem}</style></head><body>${body}</body></html>\n`;
 }
 
-function trackerEntry(fixture, job, label, status) {
+function trackerEntry(fixture, job, evaluation, status) {
   const source = job?.source_platform || fixture.source;
   const title = job?.title || fixture.title;
   const company = job?.company_name || fixture.company;
-  return `| ${fixture.id} | ${source} | ${title} | ${company} | ${status} | ${label.recommendation.judgment} |`;
+  return `| ${fixture.id} | ${source} | ${title} | ${company} | ${status} | ${evaluation.recommendation.judgment} |`;
 }
 
-async function evaluateFixture({ fixture, label, normalizedJobs, diagnostics, profile, model }) {
-  if (model !== 'deterministic-test-model') throw new Error(`unexpected E2E model: ${model}`);
-  const job = normalizedJobs[0];
-  const needsSponsorship = profile?.needs_sponsorship === true || profile?.location?.needs_sponsorship === true;
-  if (fixture.scenario === 'no-sponsorship' && needsSponsorship) {
-    diagnostics.push('sponsorship-needed no-sponsorship: explicit no-sponsorship signal blocks eligibility');
+async function evaluateFixture({ fixture, normalizedJobs, diagnostics, profile, cvText, model, listingStatus }) {
+  if (typeof model === 'string' && model !== 'deterministic-test-model') {
+    throw new Error(`unexpected E2E model: ${model}`);
   }
-  return buildMarkdownReport(fixture, label, normalizedJobs, diagnostics, profile);
+  const modelInput = {
+    fixture,
+    normalizedJob: normalizedJobs[0] || null,
+    profile,
+    cvText,
+    listingStatus,
+  };
+  const modelResult = typeof model === 'function'
+    ? await model(modelInput)
+    : undefined;
+  const evaluation = modelResult || deterministicJapanModel(modelInput);
+  return {
+    evaluation,
+    markdown: buildMarkdownReport(fixture, evaluation, normalizedJobs, diagnostics),
+  };
 }
 
 /**
  * Run one sanitized listing through scan → normalize → deduplicate → evaluate → generate → track.
  * The only source I/O is the supplied fixture document; fetchText never calls global fetch.
  *
- * @param {{source: string, fixture: object, profile: object, outputDir: string, model: string}} input
+ * @param {{source: string, fixture: object, profile: object, outputDir: string, model: string|Function}} input
  * @returns {Promise<{normalizedJobs: object[], reportPaths: string[], generatedArtifactPaths: string[], trackerEntries: string[], diagnostics: string[]}>}
  */
 export async function runJapanFixtureWorkflow({ source, fixture, profile, outputDir, model }) {
@@ -134,49 +240,51 @@ export async function runJapanFixtureWorkflow({ source, fixture, profile, output
   await mkdir(outputDir, { recursive: true });
   const diagnostics = [];
   const normalizedJobs = [];
+  let listingStatus = 'ok';
   const providerSource = fixture.requested_source || source;
   const provider = await loadProvider(providerSource);
-  const label = JSON.parse(await readFile(labelPath(fixture), 'utf8'));
+  const cvText = await readFile(CV_PATH, 'utf8');
 
   if (fixture.scenario === 'unsupported') {
+    listingStatus = 'unsupported';
     diagnostics.push(`unsupported: ${fixture.requested_source || 'unknown source'} is not registered`);
   } else if (!provider) {
+    listingStatus = 'unsupported';
     diagnostics.push(`unsupported: ${providerSource} is not registered`);
   } else {
-    const scanOnce = async (documentHtml, scanError) => scanStructuredSource(
-      scanError
-        ? {
-          source_url: fixture.source_url,
-          sourceUrl: fixture.source_url,
-          url: fixture.source_url,
-          careers_url: fixture.source_url,
-          hellowork: { urls: [fixture.source_url] },
-        }
-        : fixtureEntry({ ...fixture, document_html: documentHtml }),
+    const scanOnce = async (documentHtml) => scanStructuredSource(
+      fixtureEntry({ ...fixture, document_html: documentHtml }),
       provider,
       {
-        fetchText: async () => {
-          if (scanError) throw new Error(scanError);
-          return documentHtml;
-        },
+        fetchText: async () => documentHtml,
       },
     );
 
-    const first = await scanOnce(fixture.document_html, fixture.scan_error);
+    const first = await scanOnce(fixture.document_html);
     if (first.status === 'ok') {
       normalizedJobs.push(...first.offers);
+      if (fixture.classification_error) {
+        listingStatus = classifyStructuredSourceError(new Error(fixture.classification_error));
+        diagnostics.push(`${fixture.scenario}: status=${listingStatus}: ${fixture.classification_error}`);
+        if (['stale', 'blocked'].includes(listingStatus)) {
+          diagnostics.push(`${fixture.scenario}: adapter normalized ${first.offers.length} fixture job before status gate`);
+          normalizedJobs.length = 0;
+        }
+      }
       if (fixture.duplicate_document_html) {
         const duplicate = await scanOnce(fixture.duplicate_document_html);
         if (duplicate.status === 'ok') normalizedJobs.push(...duplicate.offers);
       }
     } else {
-      diagnostics.push(`${fixture.scenario}: scan ${first.status}: ${first.error}`);
+      listingStatus = first.status;
+      diagnostics.push(`${fixture.scenario}: status=${first.status}: ${first.error}`);
     }
   }
 
   const uniqueJobs = [];
   const fingerprints = new Set();
   for (const job of normalizedJobs) {
+    assertNormalizedJapanJob(job);
     const fingerprint = fingerprintJapanJob(job);
     if (fingerprints.has(fingerprint)) {
       diagnostics.push('duplicate: duplicate listing removed by normalized fingerprint');
@@ -188,8 +296,11 @@ export async function runJapanFixtureWorkflow({ source, fixture, profile, output
   normalizedJobs.length = 0;
   normalizedJobs.push(...uniqueJobs);
   diagnosticForMissingFields(fixture, normalizedJobs[0], diagnostics);
+  if (fixture.scenario === 'no-sponsorship' && normalizedJobs[0]?.visa_sponsorship === 'no' && needsSponsorship(profile)) {
+    diagnostics.push('sponsorship-needed no-sponsorship: explicit no-sponsorship signal blocks eligibility');
+  }
 
-  const markdown = await evaluateFixture({ fixture, label, normalizedJobs, diagnostics, profile, model });
+  const { evaluation, markdown } = await evaluateFixture({ fixture, normalizedJobs, diagnostics, profile, cvText, model, listingStatus });
   const reportDir = join(outputDir, 'reports');
   await mkdir(reportDir, { recursive: true });
   const markdownPath = join(reportDir, `${fixture.id}.md`);
@@ -208,7 +319,7 @@ export async function runJapanFixtureWorkflow({ source, fixture, profile, output
     normalizedJobs,
     reportPaths: [markdownPath, htmlPath],
     generatedArtifactPaths,
-    trackerEntries: [trackerEntry(fixture, normalizedJobs[0], label, status)],
+    trackerEntries: [trackerEntry(fixture, normalizedJobs[0], evaluation, status)],
     diagnostics,
   };
 }

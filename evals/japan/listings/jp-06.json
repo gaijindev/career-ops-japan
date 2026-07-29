@@ -10,5 +10,5 @@
   "label_file": "jp-06.json",
   "document_html": "<!doctype html><html><body><article data-job-card data-source-job-id=\"jp-06\" data-title=\"marketing fixture role 06\" data-company-name=\"Fixture TokyoDev Labs 6\" data-location-text=\"Tokyo, Japan\" data-salary-min=\"5060000\" data-salary-max=\"8060000\" data-salary-currency=\"JPY\" data-salary-period=\"year\" data-work-mode=\"remote\" data-visa-sponsorship=\"yes\" data-japanese-level=\"basic\"><h2>marketing fixture role 06</h2><p>Fixture TokyoDev Labs 6</p><p>Tokyo, Japan</p><p>Fixture sanitized listing</p><p>Apply from abroad; fixture evidence</p></article></body></html>",
   "tracker_status": "review",
-  "scan_error": "This fixture job has expired and is stale"
+  "classification_error": "This fixture job has expired and is stale"
 }

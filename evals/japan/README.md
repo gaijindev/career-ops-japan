@@ -40,11 +40,15 @@ no-sponsorship with a sponsorship-needed profile (jp-05).
 ## Running the benchmark
 
 The E2E test loads only these committed fixtures and the synthetic profile/CV
-under test/e2e/fixtures/. It injects a deterministic provider/model boundary,
-rejects live network access, and writes temporary reports/artifacts outside the
-repository. PDF-capable cases are marked in the fixtures, but the E2E runner
-records a pdf-skipped diagnostic because the existing generator also writes the
-repository PDF manifest; this keeps the fixture workflow side-effect free.
+under test/e2e/fixtures/. Each listing is parsed and normalized by its real
+source adapter. Stale and blocked fixtures then pass through the shared
+production status classifier, while the deterministic model receives the
+normalized job, profile, and CV and derives the report fields from them. The
+test rejects live network access and writes temporary reports/artifacts outside
+the repository. PDF-capable cases are marked in the fixtures, but the E2E
+runner records a pdf-skipped diagnostic because the existing generator also
+writes the repository PDF manifest; this keeps the fixture workflow side-effect
+free.
 
     node --test test/e2e/japan-career-ops.e2e.test.mjs
     node test-all.mjs

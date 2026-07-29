@@ -8,6 +8,6 @@
   "location": "Tokyo, Japan",
   "source_url": "https://www.tokyodev.com/jobs/jp-04",
   "label_file": "jp-04.json",
-  "document_html": "<!doctype html><html><body><p>Fixture sanitized malformed listing</p></body></html>",
+  "document_html": "<!doctype html><html><body><p>design fixture role 04</p><p>Fixture sanitized listing</p><p>Fixture sanitized malformed listing</p></body></html>",
   "tracker_status": "review"
 }
