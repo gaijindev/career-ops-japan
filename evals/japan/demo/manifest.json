@@ -1,0 +1,8 @@
+{
+  "format": "career-ops-japan-demo-v1",
+  "fixtures": [
+    "fixtures/demo-tokyodev.json",
+    "fixtures/demo-gaijinpot.json",
+    "fixtures/demo-hellowork.json"
+  ]
+}

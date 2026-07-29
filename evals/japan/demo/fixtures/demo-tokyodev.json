@@ -1,0 +1,11 @@
+{
+  "id": "demo-tokyodev",
+  "source": "tokyodev",
+  "scenario": "normal",
+  "source_url": "https://www.tokyodev.com/jobs/demo-tokyodev",
+  "document_html": "<!doctype html><html><body><article data-job-card data-source-job-id=\"demo-tokyodev\" data-title=\"software engineering fixture role\" data-company-name=\"Fixture TokyoDev Labs\" data-location-text=\"Tokyo, Japan\" data-salary-min=\"6000000\" data-salary-max=\"9000000\" data-salary-currency=\"JPY\" data-salary-period=\"year\" data-work-mode=\"hybrid\" data-visa-sponsorship=\"yes\" data-japanese-level=\"basic\"><h2>software engineering fixture role</h2><p>Fixture TokyoDev Labs</p><p>Tokyo, Japan</p><p>Fixture sanitized listing</p><p>Apply from abroad; fixture evidence</p></article></body></html>",
+  "profile": {
+    "location": { "needs_sponsorship": true },
+    "target_roles": { "primary": ["software engineer", "data analyst", "product manager"] }
+  }
+}

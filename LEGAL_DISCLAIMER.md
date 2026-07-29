@@ -82,3 +82,37 @@ endorsement.
 ## 11. Changes
 
 This disclaimer may be updated as the project evolves. Users are encouraged to review it periodically.
+
+## 12. Japan workflow and fixture demo
+
+The Japan workflow provides public-source adapters for TokyoDev, GaijinPot
+Jobs, and Hello Work. Public page structure, availability, rate limits, and
+terms can change. A missing salary, sponsorship signal, employer identity,
+Japanese level, or work mode remains unknown; it is not a guarantee or a
+negative finding. The benchmark and fixture-only demo are deterministic
+regression tools, not hiring, immigration, tax, or legal advice.
+
+The demo command uses only committed synthetic fixtures and disables network
+access by default:
+
+```bash
+node scripts/demo-japan.mjs --fixture-set evals/japan/demo --output-dir output/demo
+```
+
+Pasted URLs and job descriptions are evaluation inputs only. The project does
+not authorize or provide CAPTCHA bypass, login bypass, private-account access,
+credential guessing, final Apply clicks, email sending, CV uploads, or
+automatic submission. The user must review and manually submit any application
+while complying with the source's terms.
+
+## 13. 日本向けワークフローと fixture デモ
+
+日本向け workflow は TokyoDev、GaijinPot Jobs、Hello Work の公開求人を扱います。
+ページ構造、公開状況、レート制限、利用規約は変わる可能性があります。給与、スポンサー、
+雇用主、日本語レベル、勤務形態が書かれていない場合は unknown のままであり、採用、在留
+資格、税務、法務の助言ではありません。benchmark と fixture デモは回帰テスト用です。
+
+デモはコミット済みの合成 fixture だけを使い、既定でネットワークを無効にします。
+貼り付けた URL や JD は評価入力であり、CAPTCHA / ログイン回避、非公開アカウントへの
+アクセス、資格情報推測、最終 Apply、メール送信、CV アップロード、自動応募を許可しません。
+応募は本人が内容を確認し、求人元の利用規約に従って手動で行ってください。

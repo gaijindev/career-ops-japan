@@ -231,6 +231,7 @@ const SYSTEM_PATHS = [
   'utils/token-tracker.mjs',
   'batch-tailor.mjs',
   'dashboard/',
+  'scripts/',
   'templates/',
   'config/cv-facts.example.json',
   'fonts/',

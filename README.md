@@ -194,6 +194,37 @@ claude   # or codex / opencode / qwen / agy / grok
 
 See [docs/SETUP.md](docs/SETUP.md) for the full setup guide, [docs/RUNNING_ON_A_BUDGET.md](docs/RUNNING_ON_A_BUDGET.md) for instructions on running career-ops cheaply using custom or local models, [docs/AUTOMATION.md](docs/AUTOMATION.md) for scheduling recurring scans and a zero-token triage-to-shortlist recipe, [docs/APPLY_AUTOFILL.md](docs/APPLY_AUTOFILL.md) for details on the ATS auto-fill flow, and [docs/FAQ.md](docs/FAQ.md) for answers to common setup questions. Design principles live in [ARCHITECTURE.md](ARCHITECTURE.md); runtime flows in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
+## Japan setup and reproducible demo
+
+The Japan vertical has first-class adapters for TokyoDev, GaijinPot Jobs, and
+Hello Work. It keeps salary, sponsorship, employer identity, Japanese level,
+and work mode unknown when a public listing does not state them. Start with the
+[bilingual Japan setup guide](docs/SETUP_JAPAN.md):
+
+```bash
+npm install
+node scripts/demo-japan.mjs --fixture-set evals/japan/demo --output-dir output/demo
+```
+
+The command is fixture-only, deterministic, idempotent, and `--no-network` by
+default. It creates Markdown reports, HTML review artifacts, a demo tracker,
+and manifests under `output/demo`; it does not read credentials or touch the
+real user tracker. Run the focused checks with:
+
+```bash
+node --test test/demo-japan.test.mjs
+node --test test/e2e/japan-career-ops.e2e.test.mjs
+```
+
+If a live source is blocked or its page shape changes, paste the visible URL or
+job description for evaluation instead. Pasting is not an instruction to log
+in or apply. career-ops does not bypass CAPTCHA, defeat login controls, send
+email, click a final Apply button, or auto-submit applications; a person must
+review and submit manually. See [the adapter guide](docs/ADAPTERS_JAPAN.md),
+[the demo contract](docs/demo/README.md), and
+[LEGAL_DISCLAIMER.md](LEGAL_DISCLAIMER.md) for limitations, privacy, tests,
+and MIT attribution.
+
 ## Antigravity CLI Integration
 
 career-ops supports Antigravity CLI natively, the same way it supports Claude Code and OpenCode. All slash commands are available through the shared skill entrypoint, using the same `modes/*.md` evaluation logic.

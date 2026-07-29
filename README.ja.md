@@ -137,6 +137,35 @@ claude   # AI CLIを起動 — 初回起動時にオンボーディングしま�
 
 完全なセットアップガイドは [docs/SETUP.md](docs/SETUP.md) を参照してください。
 
+## 日本向けセットアップと再現可能なデモ
+
+日本向け vertical には TokyoDev、GaijinPot Jobs、Hello Work の第一級アダプターが
+あります。公開求人に書かれていない給与、スポンサー、雇用主、日本語レベル、勤務形態
+は推測せず unknown のまま扱います。詳しくは [日英セットアップガイド](docs/SETUP_JAPAN.md)
+を参照してください。
+
+```bash
+npm install
+node scripts/demo-japan.mjs --fixture-set evals/japan/demo --output-dir output/demo
+```
+
+このコマンドはコミット済みの合成 fixture だけを使い、決定的・冪等で、既定では
+`--no-network` です。Markdown レポート、HTML artifact、demo 用 tracker、manifest を
+`output/demo` 以下に生成し、資格情報や実ユーザーの tracker は読みません。
+
+```bash
+node --test test/demo-japan.test.mjs
+node --test test/e2e/japan-career-ops.e2e.test.mjs
+```
+
+実サイトがブロックされたり構造が変わったりした場合は、表示されている URL または求人票
+本文を貼り付けて評価に切り替えてください。貼り付けはログインや応募の指示ではありません。
+CAPTCHA 回避、ログイン制御の突破、メール送信、最終 Apply のクリック、自動応募は行わず、
+最後の確認と応募は本人が手動で行います。制限、プライバシー、アダプター追加手順、MIT
+attribution は [docs/SETUP_JAPAN.md](docs/SETUP_JAPAN.md)、
+[docs/ADAPTERS_JAPAN.md](docs/ADAPTERS_JAPAN.md)、[LEGAL_DISCLAIMER.md](LEGAL_DISCLAIMER.md)
+を参照してください。
+
 ## 使い方
 
 career-opsは複数のモードを持つ単一のスラッシュコマンドです:

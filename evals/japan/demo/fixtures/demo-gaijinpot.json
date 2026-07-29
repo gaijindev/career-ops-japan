@@ -1,0 +1,11 @@
+{
+  "id": "demo-gaijinpot",
+  "source": "gaijinpot",
+  "scenario": "normal",
+  "source_url": "https://jobs.gaijinpot.com/en/job/demo-gaijinpot",
+  "document_html": "<!doctype html><html><head><link rel=\"canonical\" href=\"https://jobs.gaijinpot.com/en/job/demo-gaijinpot\"><script type=\"application/ld+json\">{\"@context\":\"https://schema.org/\",\"@type\":\"JobPosting\",\"title\":\"data analytics fixture role\",\"description\":\"<p>Fixture sanitized listing. Apply from abroad; fixture evidence.</p>\",\"identifier\":{\"@type\":\"PropertyValue\",\"name\":\"Fixture GaijinPot Labs\",\"value\":\"demo-gaijinpot\"},\"datePosted\":\"2026-07-20\",\"hiringOrganization\":{\"@type\":\"Organization\",\"name\":\"Fixture GaijinPot Labs\"},\"jobLocation\":{\"@type\":\"Place\",\"address\":{\"@type\":\"PostalAddress\",\"addressLocality\":\"Tokyo\",\"addressCountry\":\"JP\"}},\"baseSalary\":{\"@type\":\"MonetaryAmount\",\"currency\":\"JPY\",\"value\":{\"@type\":\"QuantitativeValue\",\"minValue\":5500000,\"maxValue\":8500000,\"unitText\":\"YEAR\"}}}</script></head><body><div class=\"card card--spotlight\"><div class=\"card-header\"><h1 class=\"card-heading text-xlarge\">data analytics fixture role</h1></div><div class=\"card-item\"><dl class=\"mb-0\"><dt>Company</dt><dd>Fixture GaijinPot Labs</dd><dt>Job ID</dt><dd>demo-gaijinpot</dd><dt>Location</dt><dd>Tokyo, Japan</dd><dt>Salary</dt><dd>¥5500000 ~ ¥8500000 / Year</dd></dl></div><div class=\"card-item\"><h3>Requirements</h3><ul><li>English: Business level</li><li>Japanese: Basic level</li><li>Fixture sanitized listing</li></ul></div></div></body></html>",
+  "profile": {
+    "location": { "needs_sponsorship": true },
+    "target_roles": { "primary": ["software engineer", "data analyst", "product manager"] }
+  }
+}

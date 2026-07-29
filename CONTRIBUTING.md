@@ -113,6 +113,52 @@ node test-all.mjs --only providers/themuse   # Run just one provider's test(s)
 `tests/providers/{name}.test.mjs` — it's auto-discovered (`tests/**/*.test.mjs`),
 no registration needed. Do not add a section to `test-all.mjs` for this.
 
+## Japan adapters, fixtures, and demo
+
+Japan contributions must stay local-first and human-in-the-loop. TokyoDev,
+GaijinPot Jobs, and Hello Work are the current first-class sources. Read
+[docs/ADAPTERS_JAPAN.md](docs/ADAPTERS_JAPAN.md) before adding a source.
+
+Use a red-green sequence: add a failing test under
+`tests/providers/<source>.test.mjs`, add only synthetic source fixtures, then
+implement the smallest adapter change. The shared Japan schema must preserve
+unknowns rather than guessing salary, sponsorship, employer identity, language,
+or work mode. Tests must inject source text and must fail if live network access
+is attempted.
+
+The fixture-only demo is an explicit review gate:
+
+```bash
+node --test test/demo-japan.test.mjs
+node scripts/demo-japan.mjs --fixture-set evals/japan/demo --output-dir output/demo
+node --test test/e2e/japan-career-ops.e2e.test.mjs
+node test-all.mjs
+```
+
+Demo fixtures must be committed, synthetic, credential-free, and free of real
+candidate data. Do not add CAPTCHA bypasses, login automation, auto-submit,
+email sending, private-page scraping, or an adapter that requires an account.
+The demo output is disposable and must not be copied into the real user
+tracker. Keep the [MIT attribution](LICENSE) and read
+[LEGAL_DISCLAIMER.md](LEGAL_DISCLAIMER.md).
+
+### 日本向けコントリビューション
+
+日本向けの変更は、ローカル実行・人間による確認・手動応募の原則を守ります。新しい
+アダプターは、まず失敗するテストを書き、合成 fixture を追加し、共通 schema の
+unknown を維持する最小実装にします。実サイトの通信、ログイン、CAPTCHA 回避、自動応募、
+メール送信はテストにも実装にも追加しません。
+
+```bash
+node --test test/demo-japan.test.mjs
+node scripts/demo-japan.mjs --fixture-set evals/japan/demo --output-dir output/demo
+node --test test/e2e/japan-career-ops.e2e.test.mjs
+node test-all.mjs
+```
+
+詳細な契約、レビュー項目、TokyoDev / GaijinPot / Hello Work の追加手順は
+[docs/ADAPTERS_JAPAN.md](docs/ADAPTERS_JAPAN.md) を参照してください。
+
 **`--only` is a dev convenience, not a PR gate:** it runs *only* the discovered
 `tests/` files matching the given substring and skips every inline core
 section (syntax, scripts, dashboard, data contract, personal data, paths,
