@@ -56,9 +56,26 @@ function salaryText(job) {
   return `${job.salary_currency || 'unknown'} ${job.salary_min}-${job.salary_max} ${job.salary_period || 'period unknown'}`;
 }
 
-function jobEvidence(job, fixture, source, quote) {
+function listingSummary(job) {
+  return {
+    source: job?.source_platform || 'unknown',
+    source_job_id: job?.source_job_id || 'not available',
+    title: job?.title || 'not available',
+    salary: salaryText(job),
+    eligibility: job?.visa_sponsorship || 'unknown',
+  };
+}
+
+function rawSourceExcerpt(job, preferredQuote) {
+  const rawSourceText = job?.raw_source_text?.trim();
+  if (!rawSourceText) return undefined;
+  if (preferredQuote && rawSourceText.includes(preferredQuote)) return preferredQuote;
+  return rawSourceText.slice(0, 120);
+}
+
+function jobEvidence(job, fixture, source, preferredQuote) {
   if (!job) return [{ source: 'fixture.diagnostic', quote: fixture.scenario, structural: true }];
-  return [{ source, quote: quote || job[source.replace('job.', '')] || fixture.id }];
+  return [{ source, quote: rawSourceExcerpt(job, preferredQuote) }];
 }
 
 /**
@@ -72,7 +89,7 @@ export function deterministicJapanModel({ fixture, normalizedJob, profile, cvTex
     throw new Error('fixture CV was not loaded by the deterministic model');
   }
 
-  const roleText = `${normalizedJob?.title || ''} ${fixture.category}`.toLowerCase();
+  const roleText = `${normalizedJob?.title || ''}`.toLowerCase();
   const targetRoleText = (profile?.target_roles?.primary || []).join(' ').toLowerCase();
   const cvLower = cvText.toLowerCase();
   const roleFit = !normalizedJob
@@ -110,33 +127,30 @@ export function deterministicJapanModel({ fixture, normalizedJob, profile, cvTex
           : 'advance';
 
   return {
+    listing: listingSummary(normalizedJob),
     role_fit: {
       judgment: roleFit,
-      evidence: jobEvidence(normalizedJob, fixture, 'job.title'),
+      evidence: jobEvidence(normalizedJob, fixture, 'job.raw_source_text', normalizedJob?.title),
       uncertainty: 'Role fit is derived from normalized title/category signals and synthetic CV evidence.',
     },
     eligibility: {
       judgment: eligibility,
-      evidence: normalizedJob
-        ? [{ source: 'job.visa_sponsorship', quote: `visa_sponsorship=${normalizedJob.visa_sponsorship || 'unknown'}` }]
-        : jobEvidence(null, fixture),
+      evidence: jobEvidence(normalizedJob, fixture, 'job.raw_source_text'),
       uncertainty: 'Verify authorization, language, residency, and sponsorship with the employer.',
     },
     offer_quality: {
       judgment: offerQuality,
-      evidence: [{ source: 'job.salary', quote: `salary=${salaryText(normalizedJob)}` }],
+      evidence: jobEvidence(normalizedJob, fixture, 'job.raw_source_text'),
       uncertainty: 'Verify compensation, hours, benefits, and employment conditions.',
     },
     confidence: {
       judgment: confidence,
-      evidence: normalizedJob
-        ? [{ source: 'job.source_platform', quote: normalizedJob.source_platform }, { source: 'job.source_job_id', quote: normalizedJob.source_job_id || fixture.id }]
-        : jobEvidence(null, fixture),
+      evidence: jobEvidence(normalizedJob, fixture, 'job.raw_source_text'),
       uncertainty: 'Confidence reflects source completeness and freshness only.',
     },
     recommendation: {
       judgment: recommendation,
-      evidence: [{ source: 'workflow.status', quote: `status=${listingStatus}` }],
+      evidence: [{ source: 'workflow.status', quote: `status=${listingStatus}`, structural: true }],
       uncertainty: 'Recommendation is a deterministic triage label for benchmark regression review.',
     },
   };
@@ -144,16 +158,17 @@ export function deterministicJapanModel({ fixture, normalizedJob, profile, cvTex
 
 function buildMarkdownReport(fixture, evaluation, normalizedJobs, diagnostics) {
   const job = normalizedJobs[0];
+  const listing = evaluation.listing || listingSummary(job);
   const sections = [
     `# Japan fixture evaluation — ${fixture.id}`,
     '',
-    `- Source: ${job?.source_platform || fixture.source}`,
-    `- Source job ID: ${job?.source_job_id || 'not available'}`,
-    `- Category: ${fixture.category}`,
-    `- Title: ${job?.title || fixture.title}`,
-    `- Employer: ${job?.company_name || fixture.company}`,
-    `- Location: ${job?.location_text || fixture.location}`,
-    `- Advertised salary: ${salaryText(job)}`,
+    `- Source: ${listing.source}`,
+    `- Source job ID: ${listing.source_job_id}`,
+    `- Title: ${listing.title}`,
+    `- Employer: ${job?.company_name || 'not available'}`,
+    `- Location: ${job?.location_text || 'not available'}`,
+    `- Advertised salary: ${listing.salary}`,
+    `- Eligibility signal: ${listing.eligibility}`,
     `- CV evidence basis: cv.md#experience`,
     `- Model: deterministic-test-model`,
     '',
@@ -169,7 +184,8 @@ function buildMarkdownReport(fixture, evaluation, normalizedJobs, diagnostics) {
     sections.push(`## ${name}: ${section.judgment}`);
     sections.push(`- Judgment: ${section.judgment}`);
     for (const evidence of section.evidence) {
-      sections.push(`- Evidence (${evidence.source}): “${evidence.quote}”`);
+      const structuralMarker = evidence.structural === true ? ' [structural diagnostic]' : '';
+      sections.push(`- Evidence${structuralMarker} (${evidence.source}): “${evidence.quote}”`);
     }
     if (section.uncertainty) sections.push(`- Uncertainty: ${section.uncertainty}`);
     sections.push('');

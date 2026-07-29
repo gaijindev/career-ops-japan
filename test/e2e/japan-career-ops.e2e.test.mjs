@@ -1,10 +1,12 @@
 import assert from 'node:assert/strict';
+import { execFile } from 'node:child_process';
 import { existsSync } from 'node:fs';
 import { mkdtemp, readFile, readdir } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import test from 'node:test';
 import yaml from 'js-yaml';
+import { promisify } from 'node:util';
 
 import { runJapanFixtureWorkflow } from './japan-career-ops-fixture.mjs';
 import { assertNormalizedJapanJob } from '../../providers/_japan-job-schema.mjs';
@@ -13,6 +15,7 @@ const ROOT = join(import.meta.dirname, '..', '..');
 const EVALS_DIR = join(ROOT, 'evals', 'japan');
 const LISTINGS_DIR = join(EVALS_DIR, 'listings');
 const FIXTURES_DIR = join(import.meta.dirname, 'fixtures');
+const execFileAsync = promisify(execFile);
 
 async function loadFixtureProfile() {
   return yaml.load(await readFile(join(FIXTURES_DIR, 'profile.yml'), 'utf8'));
@@ -30,6 +33,17 @@ async function loadCases() {
 async function loadLabel(item) {
   return JSON.parse(await readFile(join(EVALS_DIR, 'labels', item.label_file), 'utf8'));
 }
+
+function expectedSalary(job) {
+  if (job.salary_min === undefined || job.salary_max === undefined) return 'not stated';
+  return `${job.salary_currency || 'unknown'} ${job.salary_min}-${job.salary_max} ${job.salary_period || 'period unknown'}`;
+}
+
+test('fixture CV is a committed sanitized workflow input', async () => {
+  const { stdout } = await execFileAsync('git', ['ls-files', '--error-unmatch', 'test/e2e/fixtures/cv.md'], { cwd: ROOT });
+  assert.equal(stdout.trim(), 'test/e2e/fixtures/cv.md');
+  assert.match(await loadFixtureCv(), /sanitized benchmark input/i);
+});
 
 test('Japan benchmark has exactly 36 sanitized, labeled listing cases', async () => {
   const cases = await loadCases();
@@ -55,6 +69,64 @@ test('Japan benchmark has exactly 36 sanitized, labeled listing cases', async ()
         if (evidence.structural === true) continue;
         assert.ok(item.document_html.includes(evidence.quote), `${item.id} evidence quote is absent from its source`);
       }
+    }
+  }
+});
+
+test('generated report fields come from the normalized job, not fixture metadata', async () => {
+  const profile = await loadFixtureProfile();
+  const cases = await loadCases();
+  const original = cases[0];
+  const fixture = {
+    ...original,
+    source: 'fixture-decoy-source',
+    requested_source: original.source,
+    category: 'fixture decoy category',
+    title: 'fixture decoy title',
+    company: 'Fixture Decoy Company',
+    location: 'Fixture Decoy Location',
+  };
+  const outputDir = await mkdtemp(join(tmpdir(), 'career-ops-japan-normalized-fields-'));
+  const result = await runJapanFixtureWorkflow({
+    source: fixture.source,
+    fixture,
+    profile,
+    outputDir,
+    model: 'deterministic-test-model',
+  });
+  const job = result.normalizedJobs[0];
+  assert.ok(job);
+  const report = await readFile(result.reportPaths[0], 'utf8');
+
+  assert.match(report, new RegExp(`- Source: ${job.source_platform}\\n`));
+  assert.match(report, new RegExp(`- Source job ID: ${job.source_job_id}\\n`));
+  assert.match(report, new RegExp(`- Title: ${job.title}\\n`));
+  assert.match(report, new RegExp(`- Advertised salary: ${expectedSalary(job)}\\n`));
+  assert.match(report, new RegExp(`- Eligibility signal: ${job.visa_sponsorship}\\n`));
+  assert.doesNotMatch(report, /fixture-decoy-source|fixture decoy title|Fixture Decoy Company|Fixture Decoy Location|fixture decoy category/);
+});
+
+test('report evidence is literal normalized listing text unless marked structural', async () => {
+  const profile = await loadFixtureProfile();
+  const cases = await loadCases();
+  const outputDir = await mkdtemp(join(tmpdir(), 'career-ops-japan-evidence-'));
+
+  for (const fixture of cases) {
+    const result = await runJapanFixtureWorkflow({
+      source: fixture.source,
+      fixture,
+      profile,
+      outputDir,
+      model: 'deterministic-test-model',
+    });
+    const report = await readFile(result.reportPaths[0], 'utf8');
+    const evidence = [...report.matchAll(/^- Evidence( \[structural diagnostic\])? \(([^)]+)\): “([^”]+)”$/gm)];
+    assert.ok(evidence.length > 0, `${fixture.id} should emit report evidence`);
+    for (const [, structuralMarker, source, quote] of evidence) {
+      if (structuralMarker) continue;
+      const job = result.normalizedJobs[0];
+      assert.ok(job, `${fixture.id} non-structural evidence requires a normalized job`);
+      assert.ok(job.raw_source_text.includes(quote), `${fixture.id} ${source} quote is absent from normalized listing text`);
     }
   }
 });
@@ -97,13 +169,16 @@ test('fixture workflow is offline, evaluates all sources, generates local artifa
     const resultById = new Map(cases.map((fixture, index) => [fixture.id, results[index]]));
     const report = async (id) => readFile(resultById.get(id).reportPaths[0], 'utf8');
     const firstReport = await report('jp-01');
-    assert.match(firstReport, /Title: software engineering fixture role 01/);
-    assert.match(firstReport, /Source: tokyodev/);
-    assert.match(firstReport, /Source job ID: jp-01/);
+    const firstJob = resultById.get('jp-01').normalizedJobs[0];
+    assert.ok(firstReport.includes(`- Title: ${firstJob.title}\n`));
+    assert.ok(firstReport.includes(`- Source: ${firstJob.source_platform}\n`));
+    assert.ok(firstReport.includes(`- Source job ID: ${firstJob.source_job_id}\n`));
     assert.match(firstReport, /## Eligibility:/);
-    assert.match(firstReport, /Advertised salary: JPY 5010000-8010000/);
-    assert.match(await report('jp-02'), /Advertised salary: not stated/);
-    assert.match(await report('jp-05'), /visa_sponsorship.*no|no-sponsorship/i);
+    assert.ok(firstReport.includes(`- Advertised salary: ${expectedSalary(firstJob)}\n`));
+    const missingSalaryJob = resultById.get('jp-02').normalizedJobs[0];
+    assert.ok((await report('jp-02')).includes(`- Advertised salary: ${expectedSalary(missingSalaryJob)}\n`));
+    const noSponsorshipJob = resultById.get('jp-05').normalizedJobs[0];
+    assert.ok((await report('jp-05')).includes(`- Eligibility signal: ${noSponsorshipJob.visa_sponsorship}\n`));
 
     const fixtureCv = await loadFixtureCv();
     assert.match(fixtureCv, /sanitized/i);
@@ -119,8 +194,8 @@ test('fixture workflow is offline, evaluates all sources, generates local artifa
       },
     });
     assert.equal(modelInputs.length, 1);
-    assert.equal(modelInputs[0].normalizedJob.title, cases[0].title);
-    assert.equal(modelInputs[0].normalizedJob.source_job_id, 'jp-01');
+    assert.equal(modelInputs[0].normalizedJob.title, results[0].normalizedJobs[0].title);
+    assert.equal(modelInputs[0].normalizedJob.source_job_id, results[0].normalizedJobs[0].source_job_id);
     assert.equal(modelInputs[0].profile, profile);
     assert.equal(modelInputs[0].cvText, fixtureCv);
 
