@@ -131,7 +131,7 @@ diff --git a/tests/fixtures/tokyodev/search-results-two-jobs.html b/tests/fixtur
 
 ## Commit
 
-- `82d2780` — `fix: correct TokyoDev job URLs`
+- Code fix commit: `39a20cb` — `fix: correct TokyoDev job URLs`
 
 ## Concerns
 
