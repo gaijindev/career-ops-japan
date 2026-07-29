@@ -1,0 +1,71 @@
+{
+  "case_name": "role-fit-with-unknown-eligibility-and-compensation",
+  "profile": {
+    "location": {
+      "country": "United States",
+      "authorized_in": ["United States"],
+      "needs_sponsorship": true
+    },
+    "language": {
+      "output": "en",
+      "modes_dir": "modes/ja"
+    }
+  },
+  "job": {
+    "source_platform": "tokyodev",
+    "title": "Senior Platform Engineer",
+    "company_name": "Example KK",
+    "location_text": "Tokyo, Japan",
+    "work_mode": "hybrid",
+    "visa_sponsorship": "unknown",
+    "japanese_level": "unknown",
+    "salary_min": null,
+    "salary_max": null,
+    "salary_currency": null,
+    "salary_period": null,
+    "raw_source_text": "Senior Platform Engineer\nTokyo, Japan\nBuild reliable data and AI platform services."
+  },
+  "expected_contract": {
+    "role_fit": {
+      "status": "strong",
+      "evidence": ["The role names platform engineering work relevant to the target role."],
+      "uncertainty": ["The fixture does not include the complete job description or CV."],
+      "next_action": "Map the complete requirements to exact CV evidence."
+    },
+    "eligibility": {
+      "status": "unknown",
+      "evidence": ["The source marks visa sponsorship as unknown."],
+      "uncertainty": ["The posting does not state whether Japan sponsorship is available."],
+      "next_action": "Ask the employer whether Japan visa sponsorship is available before applying."
+    },
+    "offer_quality": {
+      "status": "unknown",
+      "evidence": ["No salary fields are present in the source."],
+      "uncertainty": ["Base salary, variable pay, and benefits cannot be assessed."],
+      "next_action": "Verify the fixed base salary and compensation components with the employer.",
+      "salary_score": null
+    },
+    "data_confidence": {
+      "status": "low",
+      "evidence": ["The fixture has a source platform and raw source text."],
+      "uncertainty": ["Salary and sponsorship are absent or explicitly unknown."],
+      "next_action": "Re-check the live posting and collect the missing fields."
+    }
+  },
+  "high_impact_claims": [
+    {
+      "claim": "Japan work eligibility is unresolved.",
+      "impact": "high",
+      "evidence": ["visa_sponsorship is unknown in the source record."],
+      "inference": false,
+      "verification_action": "Ask the employer to confirm sponsorship and required status."
+    },
+    {
+      "claim": "Compensation quality is unresolved.",
+      "impact": "high",
+      "evidence": ["salary_min and salary_max are absent."],
+      "inference": false,
+      "verification_action": "Request the fixed base, variable components, and benefits."
+    }
+  ]
+}

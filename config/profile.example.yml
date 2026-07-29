@@ -78,6 +78,9 @@ location:
   # needed there). Drives the Work-Authorization signal in job evaluation
   # (modes/oferta.md → Block A "Work-authorization check"). Optional — omit or
   # leave [] if not applicable; the free-text visa_status above still applies.
+  # If these structured fields are absent, the evaluator must report eligibility
+  # as unknown rather than infer sponsorship or work authorization from country,
+  # residence, employer, or job title.
   authorized_in: ["United States"]
   # true if you need visa sponsorship for roles OUTSIDE authorized_in. When a JD
   # explicitly states it will not sponsor, that is a hard blocker (see
@@ -93,7 +96,9 @@ language:
   # This is separate from language.modes_dir: modes_dir selects market
   # vocabulary/rules, while output selects the prose language.
   output: en
-  # modes_dir: modes/de  # optional: use DACH market vocabulary while still writing in English
+  # `language.output` always wins for human-facing prose, including reports.
+  # `modes_dir` selects market vocabulary/rules only; it must not force Japanese.
+  # modes_dir: modes/ja  # optional: use Japan-market rules while still writing in English
 
 # Optional follow-up cadence preferences for `node followup-cadence.mjs`.
 # CLI flags still win for one-off runs (for example `--applied-days 10`).

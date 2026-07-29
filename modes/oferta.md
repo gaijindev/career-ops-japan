@@ -2,6 +2,45 @@
 
 When the candidate pastes a job (text or URL), ALWAYS deliver the 7 blocks (A-F evaluation + G legitimacy):
 
+## Japan Evaluation Summary (additive)
+
+For a Japan-market listing, include this summary in addition to the existing A-G blocks
+and Risk Summary. It is also mirrored in the report's `## Machine Summary` YAML fence.
+Keep the keys exact even when the prose is Japanese:
+
+```yaml
+role_fit:
+  status: "strong | mixed | weak | unknown"
+  evidence: []
+  uncertainty: []
+  next_action: ""
+eligibility:
+  status: "eligible | blocked | unknown"
+  evidence: []
+  uncertainty: []
+  next_action: ""
+offer_quality:
+  status: "strong | mixed | weak | unknown"
+  advertised_salary: null
+  salary_score: null
+  evidence: []
+  uncertainty: []
+  next_action: ""
+data_confidence:
+  status: "high | medium | low"
+  evidence: []
+  uncertainty: []
+  next_action: ""
+```
+
+`eligibility` is independent from `role_fit`. Missing or absent fields are `unknown`.
+High-impact claims require evidence; label inferences as `inference` rather than facts,
+and use `next_action` to show the verification action. Never invent sponsorship or work
+authorization. Never score missing salary as zero: use `advertised_salary: null`,
+`salary_score: null`, and `status: unknown`. `language.output` always controls the
+human-facing language; `language.modes_dir` supplies Japan vocabulary and rules only.
+The contract is model-agnostic and provider-agnostic.
+
 ## Liveness gate (URL inputs)
 
 When the candidate pastes a **URL** (not JD text), confirm the posting is still live before doing any evaluation. A dead link must never reach Block A — a 404/expired page wastes a full A-G evaluation, report, and PDF on phantom content.
@@ -520,6 +559,14 @@ Save full evaluation in `reports/{###}-{company-slug}-{YYYY-MM-DD}.md`.
 ```
 
 **Machine Summary (required):** every report carries a `## Machine Summary` YAML fence directly after the header — same schema, exact field names, and rules as the "Machine Summary" block in `batch/batch-prompt.md` (do not duplicate the schema here; that file is the source of truth). It includes `advertised_comp`: the JD's own salary figure **verbatim** (e.g. `"80-90k EUR"`), or `null` when the JD states nothing — never estimated, never replaced with researched market data. This key seeds the advertised salary observation read by `node salary-gap.mjs`. It also includes `risk_summary`: the Risk Summary block mirrored as a map (schema and enum values in `batch/batch-prompt.md`).
+
+For Japan-market reports, the same fence must also contain the four top-level sections
+`role_fit`, `eligibility`, `offer_quality`, and `data_confidence`, with `evidence`,
+`uncertainty`, and `next_action` in each section. Preserve the existing upstream
+Machine Summary fields and Risk Summary map. `eligibility` must not be derived from the
+role-fit score. If salary is absent, keep both `advertised_salary` and `salary_score`
+`null`; never write zero. Use observed source text for evidence, mark interpretation as
+`inference`, and make `next_action` a concrete verification action.
 
 ### 2. Record in tracker
 

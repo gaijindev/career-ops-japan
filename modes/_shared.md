@@ -56,6 +56,58 @@ Every other reference to tier elsewhere in the modes (batch.md, pipeline.md, etc
 
 **Output parity:** The model used for evaluation never changes the A-F report structure, headers, or sections. All three tiers produce an evaluation in the exact same format described below and in `modes/oferta.md`.
 
+## Japan Evaluation Contract (additive to A-G)
+
+Japan evaluations add four machine-readable sections to the report. They do not replace
+Blocks A-G, the global score, or the Risk Summary:
+
+```yaml
+role_fit:
+  status: "strong | mixed | weak | unknown"
+  evidence: []
+  uncertainty: []
+  next_action: ""
+eligibility:
+  status: "eligible | blocked | unknown"
+  evidence: []
+  uncertainty: []
+  next_action: ""
+offer_quality:
+  status: "strong | mixed | weak | unknown"
+  advertised_salary: null
+  salary_score: null
+  evidence: []
+  uncertainty: []
+  next_action: ""
+data_confidence:
+  status: "high | medium | low"
+  evidence: []
+  uncertainty: []
+  next_action: ""
+```
+
+Rules for this contract:
+
+- `eligibility` is independent from `role_fit`. A strong role fit never turns unknown
+  work authorization, sponsorship, Japanese-language, or employment-status data into an
+  eligible result.
+- An absent field and an explicit source value of `unknown` remain `unknown`; do not
+  fill gaps from a country, title, employer, or market convention.
+- Every high-impact claim needs source evidence. Distinguish observed evidence from an
+  `inference`, label it as `inference`, and keep it separate; an inference is not a fact.
+- Never invent sponsorship or work authorization. Quote positive or negative sponsorship
+  language verbatim and use `next_action` for a verification action when it is unstated.
+- Never use 0 (or 0/5) for missing salary. Use `advertised_salary: null`,
+  `salary_score: null`, `status: unknown`, and explain the uncertainty.
+- `next_action` must name a concrete verification action for an unresolved high-impact
+  field, such as asking the employer to confirm sponsorship or the fixed salary base.
+- `language.output` controls all human-facing prose and always wins over the JD and the
+  selected market mode. `language.modes_dir` selects vocabulary and market rules only;
+  it does not force Japanese output. Keep the four machine keys and their enum values
+  exact in every language.
+- Keep this contract model-agnostic and provider-agnostic. Refer to the configured tier
+  or tier's model, never to a hardcoded provider/model as part of the evaluation logic.
+
 ## Scoring System
 
 The evaluation uses 6 blocks (A-F) with a global score of 1-5:

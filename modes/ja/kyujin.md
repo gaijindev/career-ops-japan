@@ -2,6 +2,43 @@
 
 候補者が求人（テキストまたは URL）を貼り付けたら、必ず 7 ブロック（A-F の評価 + G の legitimacy）を出力する：
 
+## 日本求人評価サマリー（追加）
+
+既存の A-G ブロックと Risk Summary を維持し、レポートに次の 4 section を追加する。
+キー名と enum は固定し、`## Machine Summary` の YAML にも同じ内容を入れる。
+
+```yaml
+role_fit:
+  status: "strong | mixed | weak | unknown"
+  evidence: []
+  uncertainty: []
+  next_action: ""
+eligibility:
+  status: "eligible | blocked | unknown"
+  evidence: []
+  uncertainty: []
+  next_action: ""
+offer_quality:
+  status: "strong | mixed | weak | unknown"
+  advertised_salary: null
+  salary_score: null
+  evidence: []
+  uncertainty: []
+  next_action: ""
+data_confidence:
+  status: "high | medium | low"
+  evidence: []
+  uncertainty: []
+  next_action: ""
+```
+
+`eligibility` は `role_fit` から導出しない。Absent field は `unknown` とし、高インパクトの
+主張には source evidence を付ける。解釈は `inference` と明示し、未確認事項には
+verification action を `next_action` として示す。スポンサーや就労資格を捏造してはならない。
+給与が記載されていない場合は 0 や 0/5 にせず、給与と score を `null`、status を
+`unknown` にする。`language.output` controls human-facing prose and always wins。`language.modes_dir` は
+市場ルールだけを選ぶ。model/provider に依存した指示は追加しない。
+
 ## Liveness gate (URL inputs)
 
 候補者が **URL**（JD テキストではなく）を貼り付けた場合、評価を始める前に求人がまだ live であることを確認する。Dead link は Block A に進めない。404 / expired page に対して A-G 評価、report、PDF を作るのは無駄。
@@ -279,6 +316,16 @@ Full evaluation を `reports/{###}-{company-slug}-{YYYY-MM-DD}.md` に保存す�
 **PDF:** {path or pending}
 
 ---
+
+## Machine Summary
+（既存の upstream schema と `risk_summary` を保持し、以下の 4 section を追加）
+
+```yaml
+role_fit: { status: "unknown", evidence: [], uncertainty: [], next_action: "" }
+eligibility: { status: "unknown", evidence: [], uncertainty: [], next_action: "" }
+offer_quality: { status: "unknown", advertised_salary: null, salary_score: null, evidence: [], uncertainty: [], next_action: "" }
+data_confidence: { status: "low", evidence: [], uncertainty: [], next_action: "" }
+```
 
 ## A) Role Summary
 (full content of block A)

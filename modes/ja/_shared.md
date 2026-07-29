@@ -1,5 +1,46 @@
 # 共通コンテキスト -- career-ops（日本語）
 
+## 日本求人評価の契約（A-G に追加）
+
+日本市場の求人評価では、既存の A-G ブロックと Risk Summary を残したまま、次の
+4 つの machine-readable section を追加する。キー名と enum は翻訳しない。
+
+```yaml
+role_fit:
+  status: "strong | mixed | weak | unknown"
+  evidence: []
+  uncertainty: []
+  next_action: ""
+eligibility:
+  status: "eligible | blocked | unknown"
+  evidence: []
+  uncertainty: []
+  next_action: ""
+offer_quality:
+  status: "strong | mixed | weak | unknown"
+  advertised_salary: null
+  salary_score: null
+  evidence: []
+  uncertainty: []
+  next_action: ""
+data_confidence:
+  status: "high | medium | low"
+  evidence: []
+  uncertainty: []
+  next_action: ""
+```
+
+`eligibility` は `role_fit` とは独立して判定する。求人が強くても、就労資格、
+スポンサー、必要な日本語レベル、雇用形態が不明なら `unknown` のままにする。
+Absent field は `unknown` とし、国名や慣習から補完しない。高インパクトの主張には
+必ず `evidence` を付け、解釈は事実と分けて `inference` と明記する。
+スポンサーや就労資格を決して捏造しない。給与がない場合に 0 や 0/5 を入れず、
+`advertised_salary: null`、`salary_score: null`、`status: unknown` とし、
+`next_action` に雇用主へ確認する具体的な verification action を書く。
+`language.output` controls human-facing prose and always wins。`language.modes_dir`
+は日本市場の語彙・ルールだけを選び、日本語を強制しない。契約は
+model-agnostic / provider-agnostic とする。
+
 <!-- ============================================================
      THIS FILE IS AUTO-UPDATABLE. Don't put personal data here.
 
