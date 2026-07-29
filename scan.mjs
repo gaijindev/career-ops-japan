@@ -1378,7 +1378,10 @@ export function classifyStructuredSourceError(error) {
   if (/(missing title|missing company|missing company_name|missing location|missing location_text|incomplete)/.test(text)) {
     return 'incomplete';
   }
-  return 'changed';
+  if (/(unrecognized page shape|parse failed|markup|shape likely changed|no job cards found)/.test(text)) {
+    return 'changed';
+  }
+  return 'error';
 }
 
 async function fetchStructuredProviderOffers(entry, provider, ctx = {}) {
@@ -1434,7 +1437,7 @@ export async function scanStructuredSource(entry, provider, ctx = {}) {
 }
 
 function toStructuredSourceError(providerId, result) {
-  const status = result?.status || 'changed';
+  const status = result?.status || 'error';
   const detail = result?.error || `${providerId}: source ${status}`;
   const err = new Error(detail);
   err.sourceStatus = status;

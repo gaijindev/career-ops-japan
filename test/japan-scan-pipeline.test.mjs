@@ -7,7 +7,10 @@ import { pathToFileURL } from 'node:url';
 import { ROOT } from '../tests/helpers.mjs';
 
 const fixture = JSON.parse(readFileSync(join(ROOT, 'test/fixtures/japan-scan-results.json'), 'utf8'));
-const { loadProviders } = await import(pathToFileURL(join(ROOT, 'providers/_registry.mjs')).href);
+const {
+  loadProviders,
+  resolveProvider,
+} = await import(pathToFileURL(join(ROOT, 'providers/_registry.mjs')).href);
 const {
   PROVIDERS_DIR,
   classifyStructuredSourceError,
@@ -86,6 +89,41 @@ test('Structured-source failures map to explicit blocked/stale/incomplete/change
       sample.label,
     );
   }
+});
+
+test('Explicit source selection is authoritative when source and provider conflict', async () => {
+  const providers = await loadProviders(PROVIDERS_DIR);
+  const resolved = resolveProvider(
+    {
+      name: 'Conflicting explicit source',
+      source: 'tokyodev',
+      provider: 'hellowork',
+      careers_url: 'https://www.tokyodev.com/jobs/senior',
+    },
+    providers,
+  );
+
+  assert.equal(resolved?.provider?.id, 'tokyodev');
+});
+
+test('Unsupported explicit source and legacy provider diagnostics stay distinct', async () => {
+  const providers = await loadProviders(PROVIDERS_DIR);
+
+  assert.deepEqual(
+    resolveProvider(
+      { name: 'Bad source', source: 'not-a-provider', provider: 'hellowork' },
+      providers,
+    ),
+    { error: 'unsupported source: not-a-provider' },
+  );
+
+  assert.deepEqual(
+    resolveProvider(
+      { name: 'Bad legacy provider', provider: 'not-a-provider' },
+      providers,
+    ),
+    { error: 'unsupported provider: not-a-provider' },
+  );
 });
 
 test('A pasted URL with an unrecognized source remains a usable bare pipeline entry', () => {

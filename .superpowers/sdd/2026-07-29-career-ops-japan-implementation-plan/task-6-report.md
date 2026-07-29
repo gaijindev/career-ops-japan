@@ -125,3 +125,143 @@ Manual diff inspection confirmed:
 1. `test-all.mjs` is currently not fully green at repo level because of pre-existing updater/path-report failures unrelated to Task 6.
 2. The provider registry now derives structured hooks by export-name matching; if future adapters use nonstandard export names, they should either attach hooks to the default export or follow the current `searchX` / `parseX` / `normalizeX` naming pattern.
 3. The new pasted structured-source fallback is implemented at scan-ingestion level, but any future higher-level UX around pasted JDs should keep using this shared path rather than duplicating parsing logic elsewhere.
+
+---
+
+## Fix round 1 — review findings addressed (2026-07-29)
+
+Review scope:
+
+- `source:` must be authoritative when present, even if stale legacy `provider:` is also present.
+- Add focused tests for conflicting explicit fields and unsupported-source diagnostics.
+- Stop classifying non-page/config/integration failures as `changed`.
+
+### Fix summary
+
+Implemented the review changes without touching adapter files or expanding documentation scope:
+
+- changed `resolveProvider()` so explicit `source:` wins over `provider:` when both are present;
+- preserved legacy `provider:` behavior when `source:` is absent;
+- preserved distinct diagnostics:
+  - `unsupported source: <id>`
+  - `unsupported provider: <id>`
+- narrowed `classifyStructuredSourceError()` so only explicit markup/shape failures map to `changed`;
+- introduced a safe catch-all `error` status for non-page integration/config failures.
+
+### TDD evidence
+
+Red test added first in `test/japan-scan-pipeline.test.mjs`:
+
+- `Explicit source selection is authoritative when source and provider conflict`
+- `Unsupported explicit source and legacy provider diagnostics stay distinct`
+- `Structured-source failures ...` extended with a generic integration failure expecting `error`
+
+Red verification command:
+
+```bash
+node --test test/japan-scan-pipeline.test.mjs
+```
+
+Observed failing output excerpt before the fix:
+
+```text
+✖ Structured-source failures map to explicit blocked/stale/incomplete/changed statuses
+  'changed' !== 'error'
+
+✖ Explicit source selection is authoritative when source and provider conflict
+  + actual - expected
+  + 'hellowork'
+  - 'tokyodev'
+
+✖ Unsupported explicit source and legacy provider diagnostics stay distinct
+  + actual - expected
+  + { provider: { id: 'hellowork', ... } }
+  - { error: 'unsupported source: not-a-provider' }
+```
+
+Green verification command:
+
+```bash
+node --test test/japan-scan-pipeline.test.mjs
+```
+
+Observed passing output:
+
+```text
+✔ Japan structured providers feed the scan pipeline with normalized metadata and URL dedup, without network access
+✔ Structured-source failures map to explicit blocked/stale/incomplete/changed statuses
+✔ Explicit source selection is authoritative when source and provider conflict
+✔ Unsupported explicit source and legacy provider diagnostics stay distinct
+✔ A pasted URL with an unrecognized source remains a usable bare pipeline entry
+ℹ pass 5
+ℹ fail 0
+```
+
+### Focused verification commands and outputs
+
+Command:
+
+```bash
+node --test test/japan-scan-pipeline.test.mjs
+```
+
+Output summary:
+
+```text
+ℹ pass 5
+ℹ fail 0
+```
+
+Command:
+
+```bash
+node --test tests/providers/tokyodev.test.mjs tests/providers/gaijinpot.test.mjs tests/providers/hellowork.test.mjs
+```
+
+Output summary:
+
+```text
+ℹ tests 24
+ℹ pass 24
+ℹ fail 0
+```
+
+Command:
+
+```bash
+node tests/scan-url-dedup.test.mjs && node tests/scan-company-role-dedup.test.mjs && node tests/liveness-core.test.mjs
+```
+
+Output summary:
+
+```text
+scan.mjs — normalizeUrlForDedup() ignores tracking params, preserves identity
+  ✅ ...
+
+scan.mjs — company+role dedupe survives between runs
+  ✅ ...
+
+liveness-core — "filled" reqs (incl. Phenom/ICF phrasing) classify as expired
+  ✅ ...
+```
+
+### Scoped diff inspection
+
+Inspected command:
+
+```bash
+git diff -- providers/_registry.mjs scan.mjs test/japan-scan-pipeline.test.mjs test/fixtures/japan-scan-results.json .superpowers/sdd/2026-07-29-career-ops-japan-implementation-plan/task-6-report.md
+```
+
+Confirmed:
+
+- `providers/_registry.mjs`: only explicit-resolution precedence/diagnostic fix
+- `scan.mjs`: only error-status refinement
+- `test/japan-scan-pipeline.test.mjs`: only review-requested focused coverage
+- `test/fixtures/japan-scan-results.json`: only added the new `error` fixture case
+- report append only
+
+### Notes
+
+- Unknown pasted URL behavior remains unchanged: still serialized as a bare `- [ ] {url}` row.
+- Public source safety remains unchanged: no adapter widening, no host-policy relaxation, no network requirement added to the new regression.

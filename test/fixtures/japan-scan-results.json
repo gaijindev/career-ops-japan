@@ -67,6 +67,11 @@
       "label": "changed",
       "message": "tokyodev: unrecognized page shape — no job cards found",
       "status": "changed"
+    },
+    {
+      "label": "error",
+      "message": "tokyodev: fetchText dependency was not provided",
+      "status": "error"
     }
   ],
   "manual_url": "https://unknown.example/jobs/123"

@@ -93,12 +93,12 @@ export function resolveProvider(entry, providers, { skipIds = [] } = {}) {
   const explicitProvider = typeof entry?.provider === 'string' && entry.provider.trim()
     ? entry.provider.trim()
     : null;
-  const explicitId = explicitProvider || explicitSource;
+  const explicitId = explicitSource || explicitProvider;
 
   if (explicitId) {
     const p = providers.get(explicitId);
     if (!p) {
-      const kind = explicitProvider ? 'provider' : 'source';
+      const kind = explicitSource ? 'source' : 'provider';
       return { error: `unsupported ${kind}: ${explicitId}` };
     }
     return { provider: p };
