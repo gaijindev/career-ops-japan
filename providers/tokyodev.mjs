@@ -24,6 +24,16 @@ function isTrustedTokyoDevUrl(rawUrl) {
   return url.protocol === 'https:' && TRUSTED_HOSTS.has(url.hostname.toLowerCase());
 }
 
+function deriveJobIdFromUrl(jobUrl) {
+  if (!isTrustedTokyoDevUrl(jobUrl)) return '';
+  const { pathname } = new URL(jobUrl);
+  const trimmed = pathname.replace(/^\/+|\/+$/g, '');
+  if (!trimmed) return '';
+  if (trimmed === 'jobs') return '';
+  if (!trimmed.startsWith('jobs/')) return '';
+  return decodeURIComponent(trimmed.slice('jobs/'.length));
+}
+
 function cleanText(html) {
   return decodeEntities(String(html || '').replace(/<[^>]*>/g, ' ')).replace(/\s+/g, ' ').trim();
 }
@@ -37,6 +47,40 @@ function getAttr(block, name) {
 
 function getDataAttr(block, name) {
   return getAttr(block, `data-${name}`);
+}
+
+function getTrustedJobUrl(block, sourceUrl) {
+  const href = getAttr(block, 'href') || getDataAttr(block, 'job-url');
+  if (!href) return { url: sourceUrl, fromHref: false };
+
+  let pageUrl;
+  try {
+    pageUrl = new URL(sourceUrl);
+  } catch {
+    throw new Error('tokyodev: source URL must be a trusted TokyoDev URL');
+  }
+  if (!isTrustedTokyoDevUrl(pageUrl.toString())) {
+    throw new Error('tokyodev: source URL must be a trusted TokyoDev URL');
+  }
+
+  let resolved;
+  try {
+    resolved = new URL(href, pageUrl);
+  } catch {
+    throw new Error('tokyodev: job card href is malformed');
+  }
+
+  if (resolved.protocol !== 'https:') {
+    throw new Error('tokyodev: job card href must use HTTPS');
+  }
+  if (!TRUSTED_HOSTS.has(resolved.hostname.toLowerCase())) {
+    throw new Error('tokyodev: job card href must stay on a trusted TokyoDev host');
+  }
+  if (resolved.hostname.toLowerCase() !== pageUrl.hostname.toLowerCase()) {
+    throw new Error('tokyodev: job card href must stay on the same TokyoDev host as the search page');
+  }
+
+  return { url: resolved.toString(), fromHref: true };
 }
 
 function slugify(text) {
@@ -108,10 +152,12 @@ function extractJobCardBlocks(documentText) {
 
 function parseJobCard(block, sourceUrl) {
   const text = cleanText(block);
+  const jobRef = getTrustedJobUrl(block, sourceUrl);
+  const jobUrl = jobRef.url;
   const title = getDataAttr(block, 'title') || cleanText(block.match(/<h1\b[^>]*>([\s\S]*?)<\/h1>/i)?.[1] || block.match(/<h2\b[^>]*>([\s\S]*?)<\/h2>/i)?.[1] || block.match(/<h3\b[^>]*>([\s\S]*?)<\/h3>/i)?.[1] || '');
   const companyName = getDataAttr(block, 'company-name') || cleanText(block.match(/<p\b[^>]*data-company-name\b[^>]*>([\s\S]*?)<\/p>/i)?.[1] || block.match(/<p\b[^>]*class="[^"]*company[^"]*"[^>]*>([\s\S]*?)<\/p>/i)?.[1] || '');
   const locationText = getDataAttr(block, 'location-text') || cleanText(block.match(/<p\b[^>]*data-location-text\b[^>]*>([\s\S]*?)<\/p>/i)?.[1] || '');
-  const sourceJobId = getDataAttr(block, 'source-job-id') || slugify([title, companyName, locationText].filter(Boolean).join(' '));
+  const sourceJobId = (jobRef.fromHref ? deriveJobIdFromUrl(jobUrl) : '') || getDataAttr(block, 'source-job-id') || slugify([title, companyName, locationText].filter(Boolean).join(' '));
 
   const salary = {
     ...parseSalaryText(text),
@@ -141,7 +187,7 @@ function parseJobCard(block, sourceUrl) {
 
   const raw = {
     source_platform: 'tokyodev',
-    source_url: sourceUrl,
+    source_url: jobUrl,
     source_job_id: sourceJobId,
     title: title || '',
     company_name: companyName || '',
@@ -150,6 +196,7 @@ function parseJobCard(block, sourceUrl) {
     raw_source_text: text,
     source_fields_present: [...sourceFieldsPresent].sort(),
   };
+  if (jobRef.fromHref) raw.raw_source_html = block;
   if (salary.salary_min !== undefined) raw.salary_min = salary.salary_min;
   if (salary.salary_max !== undefined) raw.salary_max = salary.salary_max;
   if (salary.salary_currency !== undefined) raw.salary_currency = salary.salary_currency;

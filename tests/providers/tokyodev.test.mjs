@@ -8,18 +8,35 @@ import { ROOT } from '../helpers.mjs';
 
 const moduleUrl = pathToFileURL(join(ROOT, 'providers/tokyodev.mjs')).href;
 const tokyodevModule = await import(moduleUrl);
+const contractUrl = pathToFileURL(join(ROOT, 'providers/_japan-adapter-contract.mjs')).href;
 const tokyodev = tokyodevModule.default;
 const {
   searchTokyoDev,
   parseTokyoDevListing,
   normalizeTokyoDevListing,
 } = tokyodevModule;
+const { createJapanAdapterContract } = await import(contractUrl);
 
 const fixturesDir = join(ROOT, 'tests/fixtures/tokyodev');
 const readFixture = (name) => readFileSync(join(fixturesDir, name), 'utf8');
 
 test('tokyodev provider exposes the expected id', () => {
   assert.equal(tokyodev.id, 'tokyodev');
+});
+
+test('tokyodev detect claims trusted TokyoDev URLs and rejects non-HTTPS or spoofed hosts', () => {
+  assert.deepEqual(
+    tokyodev.detect({ careers_url: 'https://www.tokyodev.com/jobs' }),
+    { url: 'https://www.tokyodev.com/jobs' },
+  );
+  assert.deepEqual(
+    tokyodev.detect({ api: 'https://tokyodev.com/jobs/software-engineer' }),
+    { url: 'https://tokyodev.com/jobs/software-engineer' },
+  );
+  assert.equal(tokyodev.detect({ careers_url: 'http://www.tokyodev.com/jobs' }), null);
+  assert.equal(tokyodev.detect({ careers_url: 'https://evil.example/tokyodev.com/jobs' }), null);
+  assert.equal(tokyodev.detect({ careers_url: 'https://www.tokyodev.com.evil.example/jobs' }), null);
+  assert.equal(tokyodev.detect({ careers_url: 42 }), null);
 });
 
 test('parseTokyoDevListing extracts the no-Japanese fixture fields', () => {
@@ -128,4 +145,80 @@ test('searchTokyoDev parses multiple injectable fixtures and rejects unknown pag
     ),
     /unrecognized/i,
   );
+});
+
+test('searchTokyoDev derives distinct per-card source URLs and job IDs from trusted TokyoDev hrefs', async () => {
+  const jobs = await searchTokyoDev(
+    { url: 'https://www.tokyodev.com/jobs' },
+    {
+      fetchText: async () => readFixture('search-results-two-jobs.html'),
+    },
+  );
+
+  assert.equal(jobs.length, 2);
+  assert.deepEqual(
+    jobs.map(job => ({ source_url: job.source_url, source_job_id: job.source_job_id })),
+    [
+      {
+        source_url: 'https://www.tokyodev.com/jobs/money-forward/senior-full-stack-engineer-ruby',
+        source_job_id: 'money-forward/senior-full-stack-engineer-ruby',
+      },
+      {
+        source_url: 'https://www.tokyodev.com/jobs/money-forward/engineering-manager-ai-platform',
+        source_job_id: 'money-forward/engineering-manager-ai-platform',
+      },
+    ],
+  );
+});
+
+test('searchTokyoDev forwards redirect error on public search fetch and fails closed on untrusted card hrefs', async () => {
+  const requested = [];
+
+  await assert.rejects(
+    () => searchTokyoDev(
+      { url: 'https://www.tokyodev.com/jobs' },
+      {
+        fetchText: async (url, options) => {
+          requested.push({ url, options });
+          return [
+            '<main>',
+            '  <article data-job-card data-title="Bad Job" data-company-name="Example" data-location-text="Tokyo">',
+            '    <a href="https://evil.example/jobs/bad-job">Bad Job</a>',
+            '  </article>',
+            '</main>',
+          ].join('\n');
+        },
+      },
+    ),
+    /trusted|unrecognized|href/i,
+  );
+
+  assert.deepEqual(requested, [
+    {
+      url: 'https://www.tokyodev.com/jobs',
+      options: { redirect: 'error' },
+    },
+  ]);
+});
+
+test('TokyoDev adapter satisfies the shared Japan adapter contract on distinct listings from one search page', async () => {
+  const adapter = createJapanAdapterContract({
+    search: searchTokyoDev,
+    parse: parseTokyoDevListing,
+    normalize: normalizeTokyoDevListing,
+  });
+
+  const rawJobs = await adapter.search(
+    { url: 'https://www.tokyodev.com/jobs' },
+    {
+      fetchText: async () => readFixture('search-results-two-jobs.html'),
+    },
+  );
+
+  const normalized = rawJobs.map((raw) => adapter.normalize(adapter.parse(raw.raw_source_html, raw.source_url)));
+
+  assert.equal(normalized.length, 2);
+  assert.equal(normalized[0].source_url, 'https://www.tokyodev.com/jobs/money-forward/senior-full-stack-engineer-ruby');
+  assert.equal(normalized[1].source_url, 'https://www.tokyodev.com/jobs/money-forward/engineering-manager-ai-platform');
+  assert.notEqual(normalized[0].source_job_id, normalized[1].source_job_id);
 });
