@@ -18,7 +18,9 @@ Pass `--limit <N>` to `batch-runner.sh` to cap the number of offers processed in
 
 ## 4. Can I run career-ops on a cheaper or local model?
 
-Yes — career-ops is fully AI-agnostic and works with any AI coding CLI or standalone script. See [docs/RUNNING_ON_A_BUDGET.md](RUNNING_ON_A_BUDGET.md) for a full guide covering OpenCode, Qwen CLI, DeepSeek, OpenRouter, Ollama, and other local or low-cost providers, along with recommended model sizes and token-saving best practices.
+Yes, if the selected CLI supports a local model or lower-cost provider. The
+Japan release does not publish standalone evaluator commands. See
+[docs/RUNNING_ON_A_BUDGET.md](RUNNING_ON_A_BUDGET.md) for the CLI-only guidance.
 
 ## 5. What does the "possible cross-listing" warning mean during a scan?
 
