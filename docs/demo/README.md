@@ -55,6 +55,28 @@ fixture jobs. HTML is a local review artifact, not an application page. The
 tracker is a demo-only Markdown table and is never merged into the user's
 real `data/applications.md`.
 
+### Sanitized Japan IT demo evidence
+
+The following committed images show the same local, fixture-only workflow. Each
+caption identifies the image as sanitized fixture output; the screenshots do
+not contain real user data, credentials, or application submissions.
+
+![Japan IT scan — sanitized fixture output](screenshots/japan-it-scan.png)
+
+*Sanitized fixture output — Japan IT job-search scan with deterministic public-source discovery and network disabled.*
+
+![Bilingual evaluation — sanitized fixture output](screenshots/bilingual-evaluation.png)
+
+*Sanitized fixture output — English/Japanese evaluation for a synthetic data analytics fixture role.*
+
+![Generated artifacts — sanitized fixture output](screenshots/generated-artifacts.png)
+
+*Sanitized fixture output — local Markdown/HTML artifacts and manifest from the fixture demo.*
+
+![Local tracker — sanitized fixture output](screenshots/local-tracker.png)
+
+*Sanitized fixture output — local Markdown tracker for synthetic Japan IT fixture listings.*
+
 ### Verification
 
 ```bash
@@ -65,9 +87,8 @@ node scripts/demo-japan.mjs --fixture-set evals/japan/demo --output-dir output/d
 
 The test runs the executable with credential-shaped environment variables,
 checks the output contract, and fails if the command exits non-zero. It also
-asserts that the summary reports network as disabled. No screenshots are
-claimed here: screenshot files belong to the later release-evidence task and
-are intentionally absent until they are captured from this synthetic output.
+asserts that the summary reports network as disabled. The committed screenshots
+above are review evidence captured from this synthetic output.
 
 This demo does not prove live-site freshness, hiring accuracy, immigration or
 legal compliance, or successful application submission. Live use remains
@@ -95,12 +116,33 @@ TokyoDev、GaijinPot Jobs、Hello Work を各 1 件ずつ使い、Markdown レ�
 生成します。既存の非空ディレクトリに ownership marker がなければ変更せず失敗し、
 marker がある demo ディレクトリだけを再作成するため、古いファイルは残りません。
 
+#### スクリーンショット / Screenshot evidence
+
+以下は同じローカル fixture デモから取得した、すべて合成データの証跡です。
+各キャプションは sanitized fixture output であることを示しており、実ユーザーの
+個人情報、資格情報、応募送信は含みません。
+
+![Japan IT scan — sanitized fixture output](screenshots/japan-it-scan.png)
+
+*Sanitized fixture output — 日本向け IT 求人スキャン（ネットワーク無効）。*
+
+![Bilingual evaluation — sanitized fixture output](screenshots/bilingual-evaluation.png)
+
+*Sanitized fixture output — 英日バイリンガル評価（合成 fixture）。*
+
+![Generated artifacts — sanitized fixture output](screenshots/generated-artifacts.png)
+
+*Sanitized fixture output — ローカル Markdown/HTML artifact と manifest。*
+
+![Local tracker — sanitized fixture output](screenshots/local-tracker.png)
+
+*Sanitized fixture output — 合成求人だけを含むローカル tracker。*
+
 ```bash
 npm install
 node --test test/demo-japan.test.mjs
 node scripts/demo-japan.mjs --fixture-set evals/japan/demo --output-dir output/demo
 ```
 
-スクリーンショットはまだ存在すると主張していません。後続の release-evidence task
-で、この合成デモ出力から取得するまでファイルはありません。デモは実サイトの最新性、
+上記のスクリーンショットは、この合成デモ出力から取得した release evidence です。デモは実サイトの最新性、
 採用精度、在留資格・法務、応募送信の成功を保証しません。

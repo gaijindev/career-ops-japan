@@ -216,6 +216,28 @@ node --test test/demo-japan.test.mjs
 node --test test/e2e/japan-career-ops.e2e.test.mjs
 ```
 
+### Sanitized Japan IT demo evidence
+
+These committed screenshots show the fixture-only Japan IT job-search workflow.
+Every caption states that the image is sanitized fixture output; no real user
+data, personal CV, credentials, or application submission is shown.
+
+![Japan IT scan — sanitized fixture output](docs/demo/screenshots/japan-it-scan.png)
+
+*Sanitized fixture output — deterministic Japan IT job-search scan with network disabled.*
+
+![Bilingual evaluation — sanitized fixture output](docs/demo/screenshots/bilingual-evaluation.png)
+
+*Sanitized fixture output — bilingual evaluation for a synthetic Japan data analytics role.*
+
+![Generated artifacts — sanitized fixture output](docs/demo/screenshots/generated-artifacts.png)
+
+*Sanitized fixture output — local Markdown/HTML artifacts and manifest.*
+
+![Local tracker — sanitized fixture output](docs/demo/screenshots/local-tracker.png)
+
+*Sanitized fixture output — local tracker for synthetic Japan IT fixture listings.*
+
 If a live source is blocked or its page shape changes, paste the visible URL or
 job description for evaluation instead. Pasting is not an instruction to log
 in or apply. career-ops does not bypass CAPTCHA, defeat login controls, send

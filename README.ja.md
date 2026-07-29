@@ -158,6 +158,28 @@ node --test test/demo-japan.test.mjs
 node --test test/e2e/japan-career-ops.e2e.test.mjs
 ```
 
+### Sanitized Japan IT demo evidence / 合成データによる日本 IT デモ証跡
+
+以下のコミット済みスクリーンショットは、fixture のみを使う日本 IT 求人検索フローを
+示します。各キャプションは sanitized fixture output であることを明記しています。
+実ユーザーの個人情報、個人 CV、資格情報、応募送信は含みません。
+
+![Japan IT scan — sanitized fixture output](docs/demo/screenshots/japan-it-scan.png)
+
+*Sanitized fixture output — ネットワークを無効にした決定的な日本 IT 求人スキャン。*
+
+![Bilingual evaluation — sanitized fixture output](docs/demo/screenshots/bilingual-evaluation.png)
+
+*Sanitized fixture output — 合成された日本のデータ分析職の英日バイリンガル評価。*
+
+![Generated artifacts — sanitized fixture output](docs/demo/screenshots/generated-artifacts.png)
+
+*Sanitized fixture output — ローカル Markdown/HTML artifact と manifest。*
+
+![Local tracker — sanitized fixture output](docs/demo/screenshots/local-tracker.png)
+
+*Sanitized fixture output — 合成された日本 IT 求人だけを含むローカル tracker。*
+
 実サイトがブロックされたり構造が変わったりした場合は、表示されている URL または求人票
 本文を貼り付けて評価に切り替えてください。貼り付けはログインや応募の指示ではありません。
 CAPTCHA 回避、ログイン制御の突破、メール送信、最終 Apply のクリック、自動応募は行わず、
