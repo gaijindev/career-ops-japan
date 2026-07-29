@@ -65,7 +65,7 @@ const PROFILE_PATH = process.env.CAREER_OPS_PROFILE || 'config/profile.yml';
 const SCAN_HISTORY_PATH = 'data/scan-history.tsv';
 const PIPELINE_PATH = 'data/pipeline.md';
 const APPLICATIONS_PATH = 'data/applications.md';
-const PROVIDERS_DIR = path.resolve(path.dirname(fileURLToPath(import.meta.url)), 'providers');
+export const PROVIDERS_DIR = path.resolve(path.dirname(fileURLToPath(import.meta.url)), 'providers');
 
 // Ensure required directories exist (fresh setup)
 mkdirSync('data', { recursive: true });
@@ -1258,6 +1258,7 @@ export function formatPipelineOffer(offer) {
   const url = sanitizePipelineUrl(offer.url);
   const company = sanitizeMarkdownField(offer.company);
   const title = sanitizeMarkdownField(offer.title);
+  if (!company && !title) return `- [ ] ${url}`;
   // Optional trailing columns, each sanitized like every other field:
   //   4th = location, 5th = compensation.
   // Gate location on an actual string so malformed provider data (a number or
@@ -1287,6 +1288,157 @@ export function formatPipelineOffer(offer) {
   // source-specific, and an offer without `note` produces byte-identical output.
   const note = typeof offer.note === 'string' ? sanitizeMarkdownField(offer.note) : '';
   return note ? `${line} | note: ${note}` : line;
+}
+
+export function providerSupportsStructuredSource(provider) {
+  return Boolean(
+    provider
+    && typeof provider.search === 'function'
+    && typeof provider.normalize === 'function',
+  );
+}
+
+function structuredSourceUrl(entry) {
+  return (
+    entry?.source_url
+    || entry?.sourceUrl
+    || entry?.url
+    || entry?.careers_url
+    || entry?.api
+    || ''
+  );
+}
+
+function structuredSourceDocument(entry) {
+  const value = entry?.document_text
+    || entry?.documentText
+    || entry?.pasted_jd
+    || entry?.pastedJD
+    || entry?.raw_document_text
+    || entry?.rawDocumentText;
+  return typeof value === 'string' && value.trim() ? value : '';
+}
+
+function structuredSourceConfig(entry, provider) {
+  const nested = entry?.[provider.id];
+  if (nested && typeof nested === 'object' && !Array.isArray(nested)) {
+    return { ...entry, ...nested };
+  }
+  return entry;
+}
+
+function normalizeStructuredOfferShape(normalized, providerId) {
+  if (!normalized || typeof normalized !== 'object') {
+    throw new Error(`${providerId}: normalized listing is incomplete: missing normalized job object`);
+  }
+  if (typeof normalized.source_url !== 'string' || !normalized.source_url.trim()) {
+    throw new Error(`${providerId}: normalized listing is incomplete: missing source_url`);
+  }
+  if (typeof normalized.title !== 'string' || !normalized.title.trim()) {
+    throw new Error(`${providerId}: normalized listing is incomplete: missing title`);
+  }
+  if (typeof normalized.company_name !== 'string' || !normalized.company_name.trim()) {
+    throw new Error(`${providerId}: normalized listing is incomplete: missing company_name`);
+  }
+  if (typeof normalized.location_text !== 'string' || !normalized.location_text.trim()) {
+    throw new Error(`${providerId}: normalized listing is incomplete: missing location_text`);
+  }
+  return {
+    ...normalized,
+    url: normalized.source_url,
+    company: normalized.company_name,
+    location: normalized.location_text,
+  };
+}
+
+function shouldReparseStructuredRaw(provider, raw) {
+  if (typeof provider?.parse !== 'function' || !raw || typeof raw !== 'object') return false;
+  if (typeof raw.raw_source_html === 'string' && raw.raw_source_html.trim()) return true;
+  return provider.id === 'hellowork'
+    && typeof raw.raw_source_text === 'string'
+    && raw.raw_source_text.trim();
+}
+
+function parseStructuredRaw(provider, raw, fallbackUrl = '') {
+  if (!shouldReparseStructuredRaw(provider, raw)) return raw;
+  const documentText = typeof raw.raw_source_html === 'string' && raw.raw_source_html.trim()
+    ? raw.raw_source_html
+    : raw.raw_source_text;
+  return provider.parse(documentText, raw.source_url || raw.url || fallbackUrl || structuredSourceUrl(raw));
+}
+
+export function classifyStructuredSourceError(error) {
+  const text = String(error?.message || error || '').toLowerCase();
+  if (/(bot check|captcha|access denied|access blocked|forbidden|login required|blocked)/.test(text)) {
+    return 'blocked';
+  }
+  if (/(expired|filled|no longer available|no longer open|gone|404|410|stale)/.test(text)) {
+    return 'stale';
+  }
+  if (/(missing title|missing company|missing company_name|missing location|missing location_text|incomplete)/.test(text)) {
+    return 'incomplete';
+  }
+  return 'changed';
+}
+
+async function fetchStructuredProviderOffers(entry, provider, ctx = {}) {
+  const manualDocument = structuredSourceDocument(entry);
+  if (manualDocument) {
+    if (typeof provider.parse !== 'function') {
+      throw new Error(`${provider.id}: pasted listing fallback requires parse()`);
+    }
+    const normalized = provider.normalize(provider.parse(manualDocument, structuredSourceUrl(entry)));
+    return [normalizeStructuredOfferShape(normalized, provider.id)];
+  }
+
+  let rawJobs;
+  try {
+    rawJobs = await provider.search(structuredSourceConfig(entry, provider), { fetchText: ctx.fetchText });
+  } catch (error) {
+    const sourceUrl = structuredSourceUrl(entry);
+    if (
+      typeof provider.parse === 'function'
+      && typeof ctx.fetchText === 'function'
+      && sourceUrl
+      && classifyStructuredSourceError(error) === 'changed'
+    ) {
+      const documentText = await ctx.fetchText(sourceUrl, { redirect: 'error' });
+      const normalized = provider.normalize(provider.parse(documentText, sourceUrl));
+      return [normalizeStructuredOfferShape(normalized, provider.id)];
+    }
+    throw error;
+  }
+  if (!Array.isArray(rawJobs)) {
+    throw new Error(`${provider.id}: search() did not return an array`);
+  }
+  return rawJobs.map((raw) => {
+    const parsed = parseStructuredRaw(provider, raw, structuredSourceUrl(entry));
+    const normalized = provider.normalize(parsed);
+    return normalizeStructuredOfferShape(normalized, provider.id);
+  });
+}
+
+export async function scanStructuredSource(entry, provider, ctx = {}) {
+  try {
+    const offers = providerSupportsStructuredSource(provider)
+      ? await fetchStructuredProviderOffers(entry, provider, ctx)
+      : await provider.fetch(entry, ctx);
+    return { status: 'ok', offers };
+  } catch (error) {
+    return {
+      status: classifyStructuredSourceError(error),
+      offers: [],
+      error: error?.message || String(error),
+    };
+  }
+}
+
+function toStructuredSourceError(providerId, result) {
+  const status = result?.status || 'changed';
+  const detail = result?.error || `${providerId}: source ${status}`;
+  const err = new Error(detail);
+  err.sourceStatus = status;
+  return err;
 }
 
 // postedAt arrives as epoch ms (or absent). Convert to 'YYYY-MM-DD', or '' when missing.
@@ -1887,18 +2039,22 @@ async function main() {
   const tasks = targets.map(company => async () => {
     let provider = company._provider;
     const ctx = makeHttpCtx();
-    let sourceName = provider.id === 'local-parser' ? 'local-parser' : `${provider.id}-api`;
+    let sourceName = provider.id;
     try {
       let jobs;
       try {
-        jobs = await provider.fetch(company, ctx);
+        const result = await scanStructuredSource(company, provider, ctx);
+        if (result.status !== 'ok') throw toStructuredSourceError(provider.id, result);
+        jobs = result.offers;
       } catch (parserErr) {
         if (provider.id !== 'local-parser') throw parserErr;
         const fallback = resolveProvider(company, providers, { skipIds: ['local-parser'] });
         if (!fallback || fallback.error) throw parserErr;
         provider = fallback.provider;
-        sourceName = `${provider.id}-api`;
-        jobs = await provider.fetch(company, ctx);
+        sourceName = provider.id;
+        const result = await scanStructuredSource(company, provider, ctx);
+        if (result.status !== 'ok') throw toStructuredSourceError(provider.id, result);
+        jobs = result.offers;
         errors.push({
           company: company.name,
           error: `local parser failed, used API fallback: ${parserErr.message}`,
@@ -2007,7 +2163,9 @@ async function main() {
     } catch (err) {
       errors.push({
         company: company.name,
-        error: err.message,
+        error: err.sourceStatus
+          ? `${err.message} [source-status:${err.sourceStatus}]`
+          : err.message,
         kind: classifyFetchError(err),
       });
     }

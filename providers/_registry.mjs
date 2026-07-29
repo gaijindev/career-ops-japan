@@ -11,6 +11,21 @@ import { existsSync, readdirSync } from 'fs';
 import path from 'path';
 import { pathToFileURL } from 'url';
 
+function normalizeStructuredExportName(value) {
+  return String(value || '').replace(/[^a-z0-9]/gi, '').toLowerCase();
+}
+
+function findStructuredExport(mod, prefix, providerId) {
+  const wanted = normalizeStructuredExportName(providerId);
+  for (const [name, value] of Object.entries(mod)) {
+    if (typeof value !== 'function') continue;
+    if (!name.startsWith(prefix)) continue;
+    const suffix = normalizeStructuredExportName(name.slice(prefix.length));
+    if (suffix === wanted || suffix.startsWith(wanted)) return value;
+  }
+  return null;
+}
+
 /**
  * Load every provider plugin in a directory into an id→provider Map.
  *
@@ -41,6 +56,15 @@ export async function loadProviders(dir) {
       console.error(`⚠️  ${file}: skipping — default export must be { id, fetch }`);
       continue;
     }
+    if (typeof p.search !== 'function') p.search = mod.search ?? findStructuredExport(mod, 'search', p.id);
+    if (typeof p.parse !== 'function') p.parse = mod.parse ?? findStructuredExport(mod, 'parse', p.id);
+    if (typeof p.normalize !== 'function') p.normalize = mod.normalize ?? findStructuredExport(mod, 'normalize', p.id);
+    const capabilities = new Set(Array.isArray(p.capabilities) ? p.capabilities : []);
+    for (const capability of ['detect', 'fetch', 'search', 'parse', 'normalize']) {
+      if (typeof p[capability] === 'function') capabilities.add(capability);
+    }
+    p.capabilities = [...capabilities].sort();
+    if (typeof p.label !== 'string' || !p.label.trim()) p.label = p.id;
     if (providers.has(p.id)) {
       console.error(`⚠️  ${file}: duplicate provider id "${p.id}" — keeping first`);
       continue;
@@ -63,9 +87,20 @@ export async function loadProviders(dir) {
  * @returns {{provider: object}|{error: string}|null}
  */
 export function resolveProvider(entry, providers, { skipIds = [] } = {}) {
-  if (entry.provider) {
-    const p = providers.get(entry.provider);
-    if (!p) return { error: `unknown provider: ${entry.provider}` };
+  const explicitSource = typeof entry?.source === 'string' && entry.source.trim()
+    ? entry.source.trim()
+    : null;
+  const explicitProvider = typeof entry?.provider === 'string' && entry.provider.trim()
+    ? entry.provider.trim()
+    : null;
+  const explicitId = explicitProvider || explicitSource;
+
+  if (explicitId) {
+    const p = providers.get(explicitId);
+    if (!p) {
+      const kind = explicitProvider ? 'provider' : 'source';
+      return { error: `unsupported ${kind}: ${explicitId}` };
+    }
     return { provider: p };
   }
 

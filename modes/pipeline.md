@@ -75,6 +75,11 @@ carrying compensation always includes the location cell (empty if unknown); a ro
 with only a location stays 4 columns. Existing shorter rows remain valid and are
 read as having empty values for the missing trailing columns.
 
+That bare one-column form is intentional: if the source is unrecognized or you
+only have a pasted URL/JD, keep the row as `- [ ] {url}` (or `local:jds/...`) and
+continue. Do not invent empty company/title cells just to match the scanner’s
+3-column shape.
+
 Beyond the positional cells, rows may carry optional **labeled** segments —
 `| {label}: {value}` — that ride on any row shape (bare URL, 3-, 4-, or 5-column),
 because the `{label}:` prefix identifies them regardless of column position. Three
@@ -98,6 +103,12 @@ are defined:
 - `| note: {text}` — a free-text ranking signal an importer attached to the offer
   (`- [ ] {url} | {company} | {title} | note: curated shortlist` is valid). The
   deterministic scanner never sets it.
+
+Structured-source ingestion may also fail before a row is written. Treat these
+statuses as blockers, not partial successes: `blocked` (anti-bot/login wall),
+`stale` (expired/filled page), `incomplete` (required normalized fields missing),
+and `changed` (markup drift / parser mismatch). A page in one of those states
+should not appear in `pipeline.md` as if it were a complete listing.
 
 When more than one is present the order is `posted:` → `trust:` → `note:`. Treat
 them as hints when triaging; none changes how you process the URL.

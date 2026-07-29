@@ -2,7 +2,9 @@
 
 Scans configured job portals, filters by title relevance, and adds new offers to the pipeline for subsequent evaluation.
 
-> **Note (v1.6+):** The default scanner (`scan.mjs` / `npm run scan`) is **zero-token** and uses structured sources: local parsers configured per company and public Greenhouse, Ashby, and Lever APIs. The levels with Playwright/WebSearch described below represent the **agent** workflow (executed by the AI agent), not what `scan.mjs` does. If a company does not have a local parser or a Greenhouse/Ashby/Lever API, `scan.mjs` will ignore it; in those cases, the agent must manually complete Level 1 (Playwright) or Level 3 (WebSearch).
+> **Note (v1.6+):** The default scanner (`scan.mjs` / `npm run scan`) is **zero-token** and uses structured sources: local parsers configured per company, public Greenhouse/Ashby/Lever APIs, plus the Japan adapters currently wired into the scan pipeline (`tokyodev`, `gaijinpot`, and `hellowork`). The levels with Playwright/WebSearch described below represent the **agent** workflow (executed by the AI agent), not what `scan.mjs` does. If a company does not have a supported zero-token source, `scan.mjs` will ignore it; in those cases, the agent must manually complete Level 1 (Playwright) or Level 3 (WebSearch).
+
+When you want to pin a specific non-ATS source in `portals.yml`, set `source:` (or the legacy `provider:`) explicitly. Unsupported values now fail closed with a clear `unsupported source:` / `unsupported provider:` diagnostic instead of silently falling through provider auto-detection.
 >
 > **Rule (v1.8+):** If a company's local parser completes successfully in Level 0, the agent **must not** repeat that company in Playwright (Level 1) or API (Level 2). In Level 3, general queries remain active, but results from companies already covered by a parser are discarded. See [Rule: Successful Local Parser](#rule-successful-local-parser--no-expensive-scraping-repetition).
 
@@ -259,9 +261,13 @@ Levels are additive — they are executed in order, and results are merged and d
    a. Add to the `pipeline.md` "Pending" section: `- [ ] {url} | {company} | {title}`
    b. Record in `scan-history.tsv`: `{url}\t{date}\t{query_name}\t{title}\t{company}\tadded`
 
+For the Japan structured sources, the scanner preserves the adapter-normalized source fields (`source_platform`, canonical `source_url`, `source_fields_present`, and raw-source provenance) on the in-memory offer record before it writes the normal `pipeline.md` / `scan-history.tsv` output. If a pasted listing is available, it bypasses source discovery and runs through the same adapter parse/normalize path.
+
 9. **Offers filtered by title**: record in `scan-history.tsv` with status `skipped_title`.
 10. **Duplicate offers**: record with status `skipped_dup`.
 11. **Expired offers (Level 3)**: record with status `skipped_expired`.
+
+If a structured source page cannot be trusted as a complete listing, fail it explicitly instead of writing a partial record: `blocked` (bot/login wall), `stale` (expired/filled page), `incomplete` (required normalized fields missing), or `changed` (markup drift / parser mismatch).
 
 ## Extraction of Title and Company from WebSearch Results
 

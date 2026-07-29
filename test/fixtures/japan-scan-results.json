@@ -1,0 +1,73 @@
+{
+  "sources": [
+    {
+      "provider": "tokyodev",
+      "entry": {
+        "name": "TokyoDev fixture",
+        "provider": "tokyodev",
+        "careers_url": "https://www.tokyodev.com/jobs/senior"
+      },
+      "responses": {
+        "https://www.tokyodev.com/jobs/senior": "tests/fixtures/tokyodev/job-no-japanese.html"
+      }
+    },
+    {
+      "provider": "gaijinpot",
+      "entry": {
+        "name": "GaijinPot fixture",
+        "provider": "gaijinpot",
+        "url": "https://jobs.gaijinpot.com/en/job/159289?order_by=latest"
+      },
+      "responses": {
+        "https://jobs.gaijinpot.com/en/job/159289?order_by=latest": "tests/fixtures/gaijinpot/job-marketing.html"
+      }
+    },
+    {
+      "provider": "hellowork",
+      "entry": {
+        "name": "Hello Work fixture",
+        "provider": "hellowork",
+        "hellowork": {
+          "urls": [
+            "https://www.hellowork.mhlw.go.jp/kensaku/GECA110010.do?kJNo=1310012345661"
+          ]
+        }
+      },
+      "responses": {
+        "https://www.hellowork.mhlw.go.jp/kensaku/GECA110010.do?kJNo=1310012345661": "tests/fixtures/hellowork/job-fulltime.html"
+      }
+    },
+    {
+      "provider": "tokyodev",
+      "entry": {
+        "name": "TokyoDev pasted duplicate",
+        "provider": "tokyodev",
+        "source_url": "https://www.tokyodev.com/jobs/senior",
+        "document_text": "<article data-job-card data-title=\"Senior Full-Stack Engineer (Ruby), Money Forward Cloud, Tokyo/Fukuoka\" data-company-name=\"Money Forward\" data-location-text=\"Tokyo/Fukuoka\" data-source-job-id=\"senior-full-stack-engineer-ruby-money-forward-cloud-tokyo-fukuoka\" data-salary-min=\"7000000\" data-salary-max=\"11000000\" data-salary-currency=\"JPY\" data-salary-period=\"year\" data-work-mode=\"hybrid\" data-visa-sponsorship=\"yes\" data-japanese-level=\"none\"><h2>Senior Full-Stack Engineer (Ruby), Money Forward Cloud, Tokyo/Fukuoka</h2><div>Money Forward</div><div>Tokyo/Fukuoka</div><div>¥7.0M ~ ¥11.0M No Japanese required Apply from abroad Partially remote</div></article>"
+      }
+    }
+  ],
+  "statuses": [
+    {
+      "label": "blocked",
+      "message": "gaijinpot: bot check blocked the public page",
+      "status": "blocked"
+    },
+    {
+      "label": "stale",
+      "message": "This job has expired",
+      "status": "stale"
+    },
+    {
+      "label": "incomplete",
+      "message": "normalized listing is incomplete: missing title",
+      "status": "incomplete"
+    },
+    {
+      "label": "changed",
+      "message": "tokyodev: unrecognized page shape — no job cards found",
+      "status": "changed"
+    }
+  ],
+  "manual_url": "https://unknown.example/jobs/123"
+}
