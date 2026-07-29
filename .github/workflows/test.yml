@@ -37,6 +37,23 @@ jobs:
       # never launch a browser, so the ~170 MB download is pure CI overhead.
       - run: npm install --ignore-scripts
       - run: node test-all.mjs --quick
+      - name: Japan fixture-only gates
+        run: |
+          node --test \
+            tests/providers/japan-job-schema.test.mjs \
+            tests/providers/japan-adapter-contract.test.mjs \
+            tests/providers/japan-loader-safety.test.mjs \
+            tests/providers/tokyodev.test.mjs \
+            tests/providers/gaijinpot.test.mjs \
+            tests/providers/hellowork.test.mjs
+          node --test test/japan-scan-pipeline.test.mjs
+          node --test test/japan-evaluation-contract.test.mjs
+          node --test test/japan-privacy-boundary.test.mjs
+          node --test test/e2e/japan-career-ops.e2e.test.mjs
+          node --test test/demo-japan.test.mjs
+          node updater-migration-tests.mjs
+          node validate-system-paths-coverage.mjs
+          node scripts/demo-japan.mjs --fixture-set evals/japan/demo --output-dir output/demo --no-network
       - name: Go dashboard tests
         run: go test ./...
         working-directory: dashboard

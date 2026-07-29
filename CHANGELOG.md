@@ -1,5 +1,26 @@
 # Changelog
 
+## Unreleased — career-ops-japan vertical slice
+
+This vertical slice retains upstream `career-ops` `1.23.0` as its release
+baseline; no new public release version is assigned because the Japan sources
+and markup remain subject to change and live platform smoke tests were not run.
+
+### Japan vertical slice
+
+* Add fixture-only TokyoDev, GaijinPot Jobs, and Hello Work adapters with
+  schema, pipeline, evaluation, privacy, updater, path-coverage, and offline
+  E2E/demo verification.
+* Include a deterministic sanitized demo with Markdown/HTML artifacts,
+  tracker output, documentation, and screenshot evidence.
+
+### Known limitations
+
+* Public permitted paths only; source markup can change.
+* No CAPTCHA or login bypass, credential use, or application automation.
+* Applications remain manual and require human review and submission.
+* CI gates are fixture-only; live platform smoke tests were not run.
+
 ## [1.23.0](https://github.com/santifer/career-ops/compare/career-ops-v1.22.0...career-ops-v1.23.0) (2026-07-28)
 
 
