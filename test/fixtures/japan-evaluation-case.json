@@ -6,6 +6,9 @@
       "authorized_in": ["United States"],
       "needs_sponsorship": true
     },
+    "target_roles": {
+      "primary": ["Senior Platform Engineer"]
+    },
     "language": {
       "output": "en",
       "modes_dir": "modes/ja"
@@ -28,7 +31,16 @@
   "expected_contract": {
     "role_fit": {
       "status": "strong",
-      "evidence": ["The role names platform engineering work relevant to the target role."],
+      "evidence": [
+        {
+          "source": "profile.target_roles.primary",
+          "quote": "Senior Platform Engineer"
+        },
+        {
+          "source": "cv.md#experience",
+          "quote": "Built reliable data and AI platform services."
+        }
+      ],
       "uncertainty": ["The fixture does not include the complete job description or CV."],
       "next_action": "Map the complete requirements to exact CV evidence."
     },
@@ -40,6 +52,7 @@
     },
     "offer_quality": {
       "status": "unknown",
+      "advertised_salary": null,
       "evidence": ["No salary fields are present in the source."],
       "uncertainty": ["Base salary, variable pay, and benefits cannot be assessed."],
       "next_action": "Verify the fixed base salary and compensation components with the employer.",
@@ -67,5 +80,22 @@
       "inference": false,
       "verification_action": "Request the fixed base, variable components, and benefits."
     }
-  ]
+  ],
+  "missing_authorization_case": {
+    "profile": {
+      "location": {
+        "country": "United States"
+      }
+    },
+    "job": {
+      "location_text": "Tokyo, Japan",
+      "visa_sponsorship": "unknown"
+    },
+    "expected": {
+      "eligibility": {
+        "status": "unknown",
+        "work_auth": "unstated"
+      }
+    }
+  }
 }

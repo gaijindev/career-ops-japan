@@ -20,10 +20,14 @@ test('Japan evaluation fixture keeps role fit independent from unknown eligibili
   assert.equal(sections.role_fit.status, 'strong');
   assert.equal(sections.eligibility.status, 'unknown');
   assert.equal(sections.offer_quality.status, 'unknown');
+  assert.equal(sections.offer_quality.advertised_salary, null);
   assert.equal(sections.offer_quality.salary_score, null);
   assert.equal(fixture.job.visa_sponsorship, 'unknown');
   assert.equal(fixture.job.salary_min, null);
   assert.equal(fixture.job.salary_max, null);
+  assert.ok(fixture.profile.target_roles.primary.includes('Senior Platform Engineer'));
+  assert.ok(sections.role_fit.evidence.some((item) => item.source === 'profile.target_roles.primary'));
+  assert.ok(sections.role_fit.evidence.some((item) => item.source === 'cv.md#experience'));
 
   for (const section of Object.values(sections)) {
     assert.ok(Array.isArray(section.evidence) && section.evidence.length > 0);
@@ -38,6 +42,22 @@ test('Japan evaluation fixture keeps role fit independent from unknown eligibili
     assert.equal(claim.inference, false);
     assert.ok(claim.verification_action.length > 0);
   }
+});
+
+test('missing authorization fields remain unknown and neutral instead of becoming not needed', () => {
+  const missing = fixture.missing_authorization_case;
+  assert.equal(Object.hasOwn(missing.profile.location, 'authorized_in'), false);
+  assert.equal(Object.hasOwn(missing.profile.location, 'needs_sponsorship'), false);
+  assert.equal(Object.hasOwn(missing.profile.location, 'visa_status'), false);
+  assert.equal(missing.expected.eligibility.status, 'unknown');
+  assert.equal(missing.expected.eligibility.work_auth, 'unstated');
+
+  const oferta = read('modes/oferta.md');
+  const profile = read('config/profile.example.yml');
+  requireText(oferta, /only[^\n]*explicit[^\n]*needs_sponsorship:\s*false[^\n]*Not needed/i);
+  requireText(oferta, /(?:missing|absent)[^\n]*unknown|(?:authorized_in|needs_sponsorship|visa_status)[^\n]*(?:absent|blank)[^\n]*unknown|(?:authorized_in|needs_sponsorship|visa_status)[^\n]*Unstated/i);
+  requireText(profile, /Omit[^\n]*(unknown|Unstated)/i);
+  requireText(profile, /explicitly declared[\s\S]{0,80}false|explicit[\s\S]{0,80}false[\s\S]{0,80}Not needed/i);
 });
 
 test('shared evaluation contract defines four sections, evidence discipline, and safe unknown handling', () => {

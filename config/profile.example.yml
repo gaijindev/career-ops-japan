@@ -84,7 +84,9 @@ location:
   authorized_in: ["United States"]
   # true if you need visa sponsorship for roles OUTSIDE authorized_in. When a JD
   # explicitly states it will not sponsor, that is a hard blocker (see
-  # modes/_profile.md "Your Location Policy"). Omit → treated as false.
+  # modes/_profile.md "Your Location Policy"). Only an explicitly declared
+  # `false` means sponsorship is not needed. Omit → eligibility is unknown /
+  # work authorization is Unstated (neutral), never false.
   needs_sponsorship: false
   # For remote roles outside your country:
   # onsite_availability: "1 week/month in any city"

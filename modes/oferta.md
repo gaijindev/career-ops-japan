@@ -115,14 +115,16 @@ The flag is an additive line only — Block B's existing content stays unchanged
 After the Role Summary table, compare the candidate's work authorization against what the JD says about sponsorship and work eligibility. Read the candidate's work rights from `config/profile.yml` → `location.authorized_in` (list of countries/regions where they already hold authorization) and `location.needs_sponsorship`, falling back to the free-text `location.visa_status` when those structured keys are absent. Classify into exactly one tier:
 
 - ✅ **Sponsors** — the JD explicitly offers visa sponsorship or relocation, and the role is in a country **not** in `authorized_in`.
-- ➖ **Not needed** — the role is in a country listed in `authorized_in` (or is genuinely location-agnostic remote the candidate can work from an authorized country), **or** `needs_sponsorship` is false.
+- ➖ **Not needed** — the role is in a **non-empty** `authorized_in` country (or is genuinely location-agnostic remote the candidate can work from an authorized country), **or** the profile explicitly declares `needs_sponsorship: false`.
 - ⚠️ **Unstated** — the role is outside `authorized_in` and the JD says nothing about sponsorship. Silence is absence of signal, not a refusal — this tier is **NEUTRAL**.
 - ⛔ **No sponsorship** — the JD explicitly states it will **not** sponsor (e.g. "no visa sponsorship", "must have existing work authorization", "we are unable to sponsor"), **and** the role is outside `authorized_in`.
 
 Rules (mirror the Geo-mismatch discipline):
 - Quote the JD **verbatim** — never paraphrase the sponsorship language.
 - A generic "must be authorized to work in {country}" where {country} **is** in `authorized_in` is ➖ Not needed, not ⛔.
-- If the profile has no `authorized_in`/`needs_sponsorship` keys and only the free-text `visa_status`, infer conservatively and default to ⚠️ Unstated rather than guessing a blocker.
+- Only an explicitly declared `needs_sponsorship: false` may use that profile flag for ➖ Not needed; an omitted key is not false.
+- If `authorized_in`, `needs_sponsorship`, and `visa_status` are all absent or blank, eligibility is `unknown` and the work-auth tier is ⚠️ Unstated (neutral). Never guess ➖ Not needed from the candidate's country, residence, job location, or title.
+- If the profile has no `authorized_in`/`needs_sponsorship` keys but has free-text `visa_status`, use it conservatively and default to ⚠️ Unstated rather than guessing a blocker.
 - **Scoring (aligns with `modes/_profile.md` "Your Location Policy"):** ✅ / ➖ / ⚠️ are score-neutral — do **not** apply a location or relocation penalty. Only ⛔ **No sponsorship** for a role the candidate cannot take from an authorized country is a genuine hard blocker: score location low and record it as a `hard_stop`.
 
 On a ⛔ determination, add exactly one flag line at the top of Block B in the report, quoting the evidence **verbatim**:

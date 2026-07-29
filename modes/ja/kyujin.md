@@ -35,6 +35,9 @@ data_confidence:
 `eligibility` は `role_fit` から導出しない。Absent field は `unknown` とし、高インパクトの
 主張には source evidence を付ける。解釈は `inference` と明示し、未確認事項には
 verification action を `next_action` として示す。スポンサーや就労資格を捏造してはならない。
+`authorized_in`、`needs_sponsorship`、`visa_status` がすべて absent / blank の場合は
+eligibility を `unknown`、work-auth を `Unstated`（neutral）とする。`needs_sponsorship: false`
+が明示された場合だけ profile flag による `Not needed` を使い、省略を false と解釈しない。
 給与が記載されていない場合は 0 や 0/5 にせず、給与と score を `null`、status を
 `unknown` にする。`language.output` controls human-facing prose and always wins。`language.modes_dir` は
 市場ルールだけを選ぶ。model/provider に依存した指示は追加しない。
