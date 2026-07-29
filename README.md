@@ -46,6 +46,7 @@ for the bilingual setup guide.
 
 For Codex, start `codex` in this directory and use plain-language prompts;
 slash commands are not guaranteed. See [CODEX.md](CODEX.md).
+For a one-shot run, use `codex exec`.
 
 ## What it produces
 
