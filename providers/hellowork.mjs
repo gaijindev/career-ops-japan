@@ -1,7 +1,6 @@
 // @ts-check
 /** @typedef {import('./_types.js').Provider} Provider */
 
-import { createJapanAdapterContract } from './_japan-adapter-contract.mjs';
 import { normalizeJapanJob } from './_japan-job-schema.mjs';
 
 const HELLOWORK_HOST_RE = /(^|\.)hellowork\.mhlw\.go\.jp$/i;
@@ -55,9 +54,9 @@ function firstField(fields, label) {
   return values && values.length ? values[0] : '';
 }
 
-function matchFirst(text, pattern) {
-  const match = String(text || '').match(pattern);
-  return match ? cleanText(match[1]) : '';
+function lastField(fields, label) {
+  const values = fields.get(label);
+  return values && values.length ? values[values.length - 1] : '';
 }
 
 function parseSalaryRange(text) {
@@ -80,30 +79,30 @@ function mapSalaryPeriod(text) {
 
 function mapJapaneseLevel(text) {
   const value = cleanText(text);
-  if (!value) return undefined;
-  if (/ネイティブ/.test(value)) return 'native';
-  if (/母語/.test(value) || /日本語ネイティブ/.test(value)) return 'native';
+  if (!value) return 'unknown';
+  if (/ネイティブ|母語|日本語ネイティブ/.test(value)) return 'native';
   if (/流暢|堪能|N1|上級/.test(value)) return 'fluent';
-  if (/ビジネス/.test(value)) return 'business';
-  if (/日常会話|N2|中級/.test(value)) return 'basic';
+  if (/ビジネス|N2|ＢＪＴ|BJT/.test(value)) return 'business';
+  if (/N3|N4|N5|日常会話|中級|初級/.test(value)) return 'basic';
   if (/不要|不問/.test(value)) return 'none';
-  return undefined;
+  return 'unknown';
 }
 
 function mapEmployerVisibility(text, fields) {
   const scope = firstField(fields, '公開範囲');
-  if (/^１/.test(scope) || /すべての利用者|すべての方/.test(scope)) return 'public';
-  if (/^２/.test(scope) || /求職者に限定/.test(scope)) return 'registered-users-only';
-  if (/^３/.test(scope) || /公開しない/.test(scope) || /含まない/.test(scope)) return 'hidden';
-  if (/求職登録した方のみ/.test(text)) return 'registered-users-only';
+  if (/^２/.test(scope) || /求職者に限定/.test(scope) || /求職登録した方のみ/.test(text)) return 'registered-users-only';
+  if (/^１/.test(scope) || /すべての利用者|すべての方|含む求人情報を公開/.test(scope)) return 'public';
+  if (/^３/.test(scope) || /公開しない|含まない/.test(scope)) return 'hidden';
   return 'unknown';
 }
 
-function canonicalCompanyName(fields, text) {
-  const company = firstField(fields, '事業所名');
+function canonicalCompanyName(fields, rawSourceText, visibility) {
+  if (visibility === 'registered-users-only' && /求職登録した方のみ/.test(rawSourceText)) {
+    return '求職者限定';
+  }
+  const company = lastField(fields, '事業所名');
   if (company) return company;
-  if (/求職登録した方のみ/.test(text)) return '求職者限定';
-  return '事業所名等非公開';
+  return visibility === 'registered-users-only' ? '求職者限定' : '事業所名等非公開';
 }
 
 function canonicalLocation(fields) {
@@ -123,8 +122,15 @@ function sourceFieldsPresent(record) {
 
 function listUrls(filters) {
   if (Array.isArray(filters)) return filters.filter((value) => typeof value === 'string' && value.trim());
-  const urls = filters?.urls ?? filters?.sourceUrls ?? filters?.hellowork?.urls ?? [];
-  return Array.isArray(urls) ? urls.filter((value) => typeof value === 'string' && value.trim()) : [];
+  const urls = [];
+  if (typeof filters?.sourceUrl === 'string' && filters.sourceUrl.trim()) urls.push(filters.sourceUrl.trim());
+  for (const value of [filters?.urls, filters?.sourceUrls, filters?.hellowork?.urls]) {
+    if (!Array.isArray(value)) continue;
+    for (const url of value) {
+      if (typeof url === 'string' && url.trim()) urls.push(url.trim());
+    }
+  }
+  return [...new Set(urls)];
 }
 
 export async function searchHelloWork(filters, { fetchText } = {}) {
@@ -145,25 +151,25 @@ export function parseHelloWorkListing(documentText, sourceUrl) {
   const fields = keyedFieldsFromText(raw_source_text);
   const salaryText = firstField(fields, 'ａ ＋ ｂ（固定残業代がある場合はａ ＋ ｂ ＋ ｃ）') || firstField(fields, 'ａ ＋ ｂ');
   const salaryShape = parseSalaryRange(salaryText);
+  const visibility = mapEmployerVisibility(raw_source_text, fields);
   const notesText = [
     firstField(fields, '求人に関する特記事項'),
     firstField(fields, '応募書類等'),
     firstField(fields, 'オンライン自主応募の受付'),
+    firstField(fields, '仕事内容'),
   ].filter(Boolean).join(' ');
   const japaneseEvidence = [
     firstField(fields, '必要な日本語レベル'),
     firstField(fields, '求人に関する特記事項'),
     firstField(fields, '必要な経験等'),
-    raw_source_text,
   ].filter(Boolean).join(' ');
-  const japaneseLevel = mapJapaneseLevel(japaneseEvidence) || 'unknown';
 
   const record = {
     source_platform: 'hellowork',
     source_url: String(sourceUrl || '').trim(),
     source_job_id: firstField(fields, '求人番号'),
     title: firstField(fields, '職種'),
-    company_name: canonicalCompanyName(fields, raw_source_text),
+    company_name: canonicalCompanyName(fields, raw_source_text, visibility),
     location_text: canonicalLocation(fields),
     scraped_at: new Date().toISOString(),
     raw_source_text,
@@ -173,9 +179,9 @@ export function parseHelloWorkListing(documentText, sourceUrl) {
     salary_period: mapSalaryPeriod(firstField(fields, '賃金形態等')),
     work_mode: 'unknown',
     visa_sponsorship: 'unknown',
-    japanese_level: japaneseLevel,
+    japanese_level: mapJapaneseLevel(japaneseEvidence),
     online_application_acceptance: firstField(fields, 'オンライン自主応募の受付'),
-    employer_visibility: mapEmployerVisibility(raw_source_text, fields),
+    employer_visibility: visibility,
     employment_type_text: firstField(fields, '雇用形態'),
     working_hours_text: firstField(fields, '就業時間'),
     overtime_text: firstField(fields, '時間外労働時間'),
@@ -197,11 +203,11 @@ export function classifyHelloWorkApplication(record) {
   const notes = cleanText(record?.application_instructions_text);
   const combined = `${docs} ${notes}`;
 
-  if (/可/.test(online) && /オンライン自主応募/.test(combined)) return 'online-self-application';
+  if (/可/.test(online) && !/不可/.test(online)) return 'online-self-application';
   if (/オンライン自主応募/.test(combined) && /紹介状は不要/.test(combined)) return 'online-self-application';
-  if (/ハローワーク紹介状/.test(docs) || /紹介状/.test(docs)) return 'hello-work-introduction';
-  if (/ハローワークより連絡/.test(notes) || /ハローワークを通じて/.test(notes)) return 'hello-work-introduction';
-  if (/電話連絡/.test(notes) || /事業所へ連絡/.test(notes) || /直接応募/.test(notes)) return 'manual-contact';
+  if (/ハローワーク紹介状|紹介状/.test(docs)) return 'hello-work-introduction';
+  if (/ハローワークより連絡|ハローワークを通じて/.test(notes)) return 'hello-work-introduction';
+  if (/電話連絡|事業所へ連絡|直接応募|郵送|Ｅメール|Eメール|持参/.test(notes)) return 'manual-contact';
   return 'unknown';
 }
 
@@ -226,14 +232,8 @@ export function normalizeHelloWorkListing(rawJob) {
   });
 }
 
-const adapter = createJapanAdapterContract({
-  search: searchHelloWork,
-  parse: parseHelloWorkListing,
-  normalize: normalizeHelloWorkListing,
-});
-
-/** @type {Provider} */
-export default {
+/** @type {Provider & {search: typeof searchHelloWork, parse: typeof parseHelloWorkListing, normalize: typeof normalizeHelloWorkListing}} */
+const provider = {
   id: 'hellowork',
 
   detect(entry) {
@@ -249,7 +249,7 @@ export default {
   },
 
   async fetch(entry, ctx) {
-    const records = await adapter.search(entry, ctx);
+    const records = await searchHelloWork(entry?.hellowork || entry || {}, ctx);
     return records.map((record) => ({
       title: record.title,
       url: record.source_url,
@@ -258,3 +258,9 @@ export default {
     }));
   },
 };
+
+provider.search = searchHelloWork;
+provider.parse = parseHelloWorkListing;
+provider.normalize = normalizeHelloWorkListing;
+
+export default provider;
