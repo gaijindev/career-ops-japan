@@ -56,13 +56,6 @@ node --test test/demo-japan.test.mjs
 node test-all.mjs
 ```
 
-```bash
-node --test tests/providers/tokyodev.test.mjs
-```
-
-For another provider, use the same command shape with its committed test
-filename; the command above is a current-checkout example.
-
 ### Review checklist
 
 - The adapter never calls global `fetch` in a fixture test.
@@ -118,14 +111,16 @@ separately and kept out of a documentation/demo-only change.
 
 ```bash
 node --test tests/providers/tokyodev.test.mjs
+node --test tests/providers/gaijinpot.test.mjs
+node --test tests/providers/hellowork.test.mjs
 node --test tests/providers/japan-adapter-contract.test.mjs
 node --test test/e2e/japan-career-ops.e2e.test.mjs
 node --test test/demo-japan.test.mjs
 node test-all.mjs
 ```
 
-`<source>` は実際のファイル名に置き換えるプレースホルダーです。アダプターは
-ログイン、CAPTCHA、最終 Apply、アップロード、メール送信などの外部操作を行いません。
+アダプターはログイン、CAPTCHA、最終 Apply、アップロード、メール送信などの外部操作を
+行いません。
 
 ### MIT と attribution
 

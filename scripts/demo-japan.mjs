@@ -1,14 +1,38 @@
 #!/usr/bin/env node
 
 import { execFile } from 'node:child_process';
-import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
+import { mkdir, mkdtemp, lstat, readFile, readdir, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
-import { isAbsolute, join, relative, resolve } from 'node:path';
+import { dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
 
 const execFileAsync = promisify(execFile);
 const ROOT = resolve(fileURLToPath(new URL('..', import.meta.url)));
+const REPOSITORY_OUTPUT_DIR = resolve(ROOT, 'output');
+const TEMP_ROOT = resolve(tmpdir());
+const DEMO_MARKER = '.career-ops-japan-demo.json';
+const DEMO_MARKER_CONTENT = {
+  format: 'career-ops-japan-demo-output-v1',
+  owner: 'scripts/demo-japan.mjs',
+};
+const USER_LAYER_PATHS = [
+  'data',
+  'reports',
+  'jds',
+  'config',
+  'cv.md',
+  'portals.yml',
+  'article-digest.md',
+  'voice-dna.md',
+  'local',
+  'modes/_profile.md',
+  'modes/_custom.md',
+  'interview-prep',
+  'writing-samples',
+  'batch/logs',
+  '.career-ops-web',
+].map((pathname) => resolve(ROOT, pathname));
 const ALLOWED_SOURCES = new Set(['tokyodev', 'gaijinpot', 'hellowork']);
 const SECRET_ENV_NAMES = /(?:API_KEY|TOKEN|PASSWORD|SECRET|CLIENT_SECRET)/i;
 
@@ -92,6 +116,92 @@ async function loadFixtureSet(fixtureSetPath) {
   return { manifest, fixtures };
 }
 
+function isWithin(pathname, parent) {
+  return pathname === parent || pathname.startsWith(`${parent}${sep}`);
+}
+
+function isRecognizedTemporaryDemoDirectory(pathname) {
+  if (!isWithin(pathname, TEMP_ROOT)) return false;
+  const firstSegment = relative(TEMP_ROOT, pathname).split(sep)[0];
+  return Boolean(firstSegment) && firstSegment.startsWith('career-ops-japan-demo-');
+}
+
+async function rejectSymlinkPath(pathname, stopAt) {
+  let current = pathname;
+  while (true) {
+    try {
+      if ((await lstat(current)).isSymbolicLink()) {
+        throw new Error(`unsafe output directory: symbolic links are not allowed (${current})`);
+      }
+    } catch (error) {
+      if (error?.code !== 'ENOENT') throw error;
+    }
+    const parent = dirname(current);
+    if (current === stopAt || parent === current) return;
+    current = parent;
+  }
+}
+
+async function validateOutputDirectory(pathname) {
+  if (USER_LAYER_PATHS.some((userPath) => isWithin(pathname, userPath))) {
+    throw new Error(`unsafe output directory: ${pathname} is inside a user-layer path; choose repository output/ or a career-ops-japan-demo-* temporary directory`);
+  }
+  if (!isWithin(pathname, REPOSITORY_OUTPUT_DIR) && !isRecognizedTemporaryDemoDirectory(pathname)) {
+    throw new Error(`unsafe output directory: ${pathname} is not repository output/ or a recognized career-ops-japan-demo-* temporary directory`);
+  }
+  const allowedBase = isWithin(pathname, REPOSITORY_OUTPUT_DIR) ? REPOSITORY_OUTPUT_DIR : TEMP_ROOT;
+  await rejectSymlinkPath(pathname, allowedBase);
+}
+
+function markerText() {
+  return `${JSON.stringify(DEMO_MARKER_CONTENT, null, 2)}\n`;
+}
+
+async function hasValidDemoMarker(pathname) {
+  try {
+    const marker = JSON.parse(await readFile(join(pathname, DEMO_MARKER), 'utf8'));
+    return marker?.format === DEMO_MARKER_CONTENT.format && marker?.owner === DEMO_MARKER_CONTENT.owner;
+  } catch {
+    return false;
+  }
+}
+
+async function prepareOutputDirectory(pathname) {
+  await validateOutputDirectory(pathname);
+  let existing;
+  try {
+    existing = await lstat(pathname);
+  } catch (error) {
+    if (error?.code !== 'ENOENT') throw error;
+  }
+
+  if (existing && !existing.isDirectory()) {
+    throw new Error(`unsafe output directory: target exists and is not a directory (${pathname})`);
+  }
+  if (existing) {
+    const entries = await readdir(pathname);
+    if (entries.length > 0) {
+      if (!(await hasValidDemoMarker(pathname))) {
+        throw new Error(`unsafe output directory: ${pathname} is non-empty and lacks the ${DEMO_MARKER} ownership marker; choose an empty directory or a prior demo output`);
+      }
+      await rm(pathname, { recursive: true, force: true });
+    }
+  }
+  await mkdir(pathname, { recursive: true });
+  await writeFile(join(pathname, DEMO_MARKER), markerText(), 'utf8');
+}
+
+async function loadJapanWorkflow() {
+  try {
+    return await import('../test/e2e/japan-career-ops-fixture.mjs');
+  } catch (error) {
+    if (error?.code === 'ERR_MODULE_NOT_FOUND' || /Cannot find package|Cannot find module/i.test(error?.message || '')) {
+      throw new Error('Demo dependencies are unavailable. Run `npm install` in the repository root, then rerun the demo.');
+    }
+    throw error;
+  }
+}
+
 function installNoNetworkGuard() {
   const originalFetch = globalThis.fetch;
   globalThis.fetch = async () => {
@@ -114,21 +224,22 @@ function trackerDocument(entries) {
 async function runDemo({ fixtureSet, outputDir, noNetwork = true }) {
   const fixtureSetPath = resolve(fixtureSet);
   const requestedOutputDir = resolve(outputDir);
+  await validateOutputDirectory(requestedOutputDir);
   const { fixtures } = await loadFixtureSet(fixtureSetPath);
 
   if (noNetwork !== true) throw new Error('Japan fixture demo only supports --no-network mode');
   const restoreNetworkGuard = installNoNetworkGuard();
   const previousCwd = process.cwd();
   const moduleSandbox = await mkdtemp(join(tmpdir(), 'career-ops-japan-demo-module-'));
+  await writeFile(join(moduleSandbox, DEMO_MARKER), markerText(), 'utf8');
   try {
     // scan.mjs loads dotenv during import. Import the shared E2E harness from
     // a fresh directory so a user's repository .env is never read by demo
     // startup, while the actual fixture output remains under requestedOutputDir.
     process.chdir(moduleSandbox);
-    const { runJapanFixtureWorkflow } = await import('../test/e2e/japan-career-ops-fixture.mjs');
+    const { runJapanFixtureWorkflow } = await loadJapanWorkflow();
     process.chdir(previousCwd);
-    await rm(requestedOutputDir, { recursive: true, force: true });
-    await mkdir(requestedOutputDir, { recursive: true });
+    await prepareOutputDirectory(requestedOutputDir);
     console.log(`Japan fixture demo (network: disabled)`);
     console.log(`[1/4] loaded ${fixtures.length} committed synthetic fixtures`);
 
@@ -175,7 +286,9 @@ async function runDemo({ fixtureSet, outputDir, noNetwork = true }) {
     return { results, trackerPath, manifestPath };
   } finally {
     process.chdir(previousCwd);
-    await rm(moduleSandbox, { recursive: true, force: true });
+    if (await hasValidDemoMarker(moduleSandbox)) {
+      await rm(moduleSandbox, { recursive: true, force: true });
+    }
     restoreNetworkGuard();
   }
 }

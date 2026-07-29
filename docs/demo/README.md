@@ -4,7 +4,10 @@
 
 Run this from the repository root:
 
+Install dependencies first:
+
 ```bash
+npm install
 node scripts/demo-japan.mjs --fixture-set evals/japan/demo --output-dir output/demo
 ```
 
@@ -26,11 +29,15 @@ adapter:
 
 ### Output contract
 
-The requested directory is replaced on each run so stale demo files cannot
-survive. The command writes:
+The requested directory is safe by policy: repository `output/` and an
+explicitly recognized `career-ops-japan-demo-*` temporary directory are
+allowed. An existing non-empty directory without the demo ownership marker is
+rejected without modification. A marked directory is replaced on each run so
+stale demo files cannot survive. The command writes:
 
 ```text
 output/demo/
+├── .career-ops-japan-demo.json
 ├── reports/
 │   ├── demo-gaijinpot.html
 │   ├── demo-gaijinpot.md
@@ -51,6 +58,7 @@ real `data/applications.md`.
 ### Verification
 
 ```bash
+npm install
 node --test test/demo-japan.test.mjs
 node scripts/demo-japan.mjs --fixture-set evals/japan/demo --output-dir output/demo
 ```
@@ -72,19 +80,23 @@ subject to each source's terms and human review. See
 リポジトリのルートで次を実行します。
 
 ```bash
+npm install
 node scripts/demo-japan.mjs --fixture-set evals/japan/demo --output-dir output/demo
 ```
 
-このデモは fixture のみを使い、既定で `--no-network` です。manifest と各 fixture
+実行前に `npm install` を実行してください。依存関係エラーが出た場合は、ルートで
+`npm install` 後に再実行します。このデモは fixture のみを使い、既定で `--no-network` です。manifest と各 fixture
 が Git に追跡されていること、credential らしい内容がないことを確認し、global
 `fetch` を失敗する guard に置き換えます。`cv.md`、`config/profile.yml`、
 `portals.yml`、API キー、cookie、ログインセッションは読みません。
 
 TokyoDev、GaijinPot Jobs、Hello Work を各 1 件ずつ使い、Markdown レポート、HTML
 レビュー用 artifact、demo 専用 tracker、manifest、summary を `output/demo` 以下に
-生成します。再実行時は指定ディレクトリを作り直すため、古いファイルは残りません。
+生成します。既存の非空ディレクトリに ownership marker がなければ変更せず失敗し、
+marker がある demo ディレクトリだけを再作成するため、古いファイルは残りません。
 
 ```bash
+npm install
 node --test test/demo-japan.test.mjs
 node scripts/demo-japan.mjs --fixture-set evals/japan/demo --output-dir output/demo
 ```

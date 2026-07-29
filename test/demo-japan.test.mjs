@@ -1,8 +1,9 @@
 import assert from 'node:assert/strict';
 import { execFile } from 'node:child_process';
-import { mkdtemp, readFile, readdir } from 'node:fs/promises';
+import { createHash } from 'node:crypto';
+import { mkdir, mkdtemp, readFile, readdir, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { join, relative } from 'node:path';
 import test from 'node:test';
 import { promisify } from 'node:util';
 
@@ -10,6 +11,30 @@ const ROOT = join(import.meta.dirname, '..');
 const DEMO_SCRIPT = join(ROOT, 'scripts', 'demo-japan.mjs');
 const FIXTURE_SET = join(ROOT, 'evals', 'japan', 'demo');
 const execFileAsync = promisify(execFile);
+
+async function snapshotTree(root) {
+  const files = [];
+  async function visit(directory) {
+    for (const entry of (await readdir(directory, { withFileTypes: true })).sort((a, b) => a.name.localeCompare(b.name))) {
+      const pathname = join(directory, entry.name);
+      if (entry.isDirectory()) {
+        await visit(pathname);
+      } else {
+        const bytes = await readFile(pathname);
+        files.push([
+          relative(root, pathname),
+          {
+            byteLength: bytes.length,
+            sha256: createHash('sha256').update(bytes).digest('hex'),
+            bytes,
+          },
+        ]);
+      }
+    }
+  }
+  await visit(root);
+  return files;
+}
 
 test('Japan fixture demo is deterministic, offline, and writes the documented artifact set', async () => {
   const outputDir = await mkdtemp(join(tmpdir(), 'career-ops-japan-demo-'));
@@ -55,7 +80,8 @@ test('Japan fixture demo is deterministic, offline, and writes the documented ar
     network: 'disabled',
   });
 
-  const firstSummary = await readFile(join(outputDir, 'summary.json'), 'utf8');
+  const firstTree = await snapshotTree(outputDir);
+  assert.ok(firstTree.some(([pathname]) => pathname === '.career-ops-japan-demo.json'));
   const secondRun = await execFileAsync(process.execPath, [
     DEMO_SCRIPT,
     '--fixture-set', 'evals/japan/demo',
@@ -63,5 +89,29 @@ test('Japan fixture demo is deterministic, offline, and writes the documented ar
   ], { cwd: ROOT, env: process.env });
   assert.equal(secondRun.stderr, '');
   assert.equal(secondRun.stdout, stdout);
-  assert.equal(await readFile(join(outputDir, 'summary.json'), 'utf8'), firstSummary);
+  assert.deepEqual(await snapshotTree(outputDir), firstTree);
+});
+
+test('Japan fixture demo rejects a user-layer output target without touching its sentinel', async () => {
+  const outputDir = join(ROOT, 'data', 'task-10-review-sentinel');
+  const sentinelPath = join(outputDir, 'sentinel.txt');
+  await mkdir(outputDir, { recursive: true });
+  await writeFile(sentinelPath, 'must survive\n', 'utf8');
+
+  try {
+    await assert.rejects(
+      execFileAsync(process.execPath, [
+        DEMO_SCRIPT,
+        '--fixture-set', 'evals/japan/demo',
+        '--output-dir', outputDir,
+      ], { cwd: ROOT }),
+      (error) => {
+        assert.match(error.stderr, /unsafe output directory|user-layer/i);
+        return true;
+      },
+    );
+    assert.equal(await readFile(sentinelPath, 'utf8'), 'must survive\n');
+  } finally {
+    await rm(outputDir, { recursive: true, force: true });
+  }
 });

@@ -40,14 +40,20 @@ reports committed to a branch, or pull requests.
 The demo is the safest first check. It uses three committed synthetic listings
 and never needs a profile, API key, login, browser, or live URL:
 
+> **Install first:** from the repository root, run `npm install`. If the demo
+> reports missing dependencies, run that command and retry.
+
 ```bash
+npm install
 node scripts/demo-japan.mjs --fixture-set evals/japan/demo --output-dir output/demo
 ```
 
 Network is disabled by default. The command rejects untracked fixture files,
 rejects credential-like fixture content, blocks global `fetch`, and writes all
 generated files below `output/demo`. Re-running the command produces the same
-reports, HTML, tracker, and manifests.
+reports, HTML, tracker, marker, and manifests. An existing non-empty target is
+only cleared when its demo ownership marker is valid; an unmarked target fails
+without modification.
 
 Expected output includes:
 
@@ -221,13 +227,19 @@ fixture、テスト、コミット済みレポート、Pull Request には実デ
 デモは、コミット済みの合成求人 3 件だけを使います。プロフィール、API キー、
 ログイン、ブラウザー、実在 URL は不要です。
 
+> **先にインストール:** リポジトリのルートで `npm install` を実行してください。
+> 依存関係エラーが出た場合は、そのコマンド後に再実行します。
+
 ```bash
+npm install
 node scripts/demo-japan.mjs --fixture-set evals/japan/demo --output-dir output/demo
 ```
 
 既定でネットワークは無効です。未追跡 fixture、credential らしい値、global
 `fetch` の呼び出しを拒否し、生成物はすべて `output/demo` 以下に置きます。同じ
-コマンドを再実行してもレポート、HTML、tracker、manifest は同じになります。
+コマンドを再実行してもレポート、HTML、tracker、marker、manifest は同じになります。
+既存の非空ディレクトリは ownership marker がある場合だけ消去し、marker がなければ
+変更せず失敗します。
 
 ### Codex / Claude Code / OpenCode
 
