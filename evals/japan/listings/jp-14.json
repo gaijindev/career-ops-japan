@@ -1,0 +1,14 @@
+{
+  "id": "jp-14",
+  "source": "gaijinpot",
+  "category": "data-analytics",
+  "scenario": "blocked",
+  "title": "data analytics fixture role 14",
+  "company": "Fixture GaijinPot Labs 14",
+  "location": "Tokyo, Japan",
+  "source_url": "https://jobs.gaijinpot.com/en/job/20014",
+  "label_file": "jp-14.json",
+  "document_html": "<!doctype html><html><head><link rel=\"canonical\" href=\"https://jobs.gaijinpot.com/en/job/20014\"><script type=\"application/ld+json\">{\"@context\":\"https://schema.org/\",\"@type\":\"JobPosting\",\"title\":\"data analytics fixture role 14\",\"description\":\"<h3>Requirements</h3><ul><li>English: Business level</li><li>Japanese: Basic level</li><li>Visa sponsorship available</li></ul><h3>Description</h3><p>Fixture sanitized listing.</p>\",\"identifier\":{\"@type\":\"PropertyValue\",\"name\":\"Fixture GaijinPot Labs 14\",\"value\":\"20014\"},\"datePosted\":\"2026-07-20\",\"hiringOrganization\":{\"@type\":\"Organization\",\"name\":\"Fixture GaijinPot Labs 14\"},\"jobLocation\":{\"@type\":\"Place\",\"address\":{\"@type\":\"PostalAddress\",\"addressLocality\":\"Tokyo\",\"addressCountry\":\"JP\"}},\"baseSalary\":{\"@type\":\"MonetaryAmount\",\"currency\":\"JPY\",\"value\":{\"@type\":\"QuantitativeValue\",\"minValue\":428333.3333333333,\"maxValue\":678333.3333333334,\"unitText\":\"MONTH\"}}}</script></head><body><div class=\"card card--spotlight\"><div class=\"card-header\"><h1 class=\"card-heading text-xlarge\">data analytics fixture role 14</h1></div><div class=\"card-item\"><dl class=\"mb-0\"><dt>Company</dt><dd>Fixture GaijinPot Labs 14</dd><dt>Job ID</dt><dd>20014</dd><dt>Location</dt><dd>Tokyo, Japan</dd><dt>Industries</dt><dd>Fixture Professional Services</dd><dt>Work Type</dt><dd>Full Time / Experienced</dd><dt>Salary</dt><dd>¥5140000 ~ ¥8140000 / Year</dd></dl></div><div class=\"card-item\"><h3>Requirements</h3><ul><li>English: Business level</li><li>Japanese: Basic level</li><li>Fixture sanitized listing</li></ul></div><div class=\"card-item\"><h3>Description</h3><p>Fixture sanitized listing.</p></div></div></body></html>",
+  "tracker_status": "review",
+  "scan_error": "Fixture bot check blocked the public page"
+}

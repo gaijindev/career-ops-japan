@@ -1,0 +1,14 @@
+{
+  "id": "jp-01",
+  "source": "tokyodev",
+  "category": "software-engineering",
+  "scenario": "normal",
+  "title": "software engineering fixture role 01",
+  "company": "Fixture TokyoDev Labs 1",
+  "location": "Tokyo, Japan",
+  "source_url": "https://www.tokyodev.com/jobs/jp-01",
+  "label_file": "jp-01.json",
+  "document_html": "<!doctype html><html><body><article data-job-card data-source-job-id=\"jp-01\" data-title=\"software engineering fixture role 01\" data-company-name=\"Fixture TokyoDev Labs 1\" data-location-text=\"Tokyo, Japan\" data-salary-min=\"5010000\" data-salary-max=\"8010000\" data-salary-currency=\"JPY\" data-salary-period=\"year\" data-work-mode=\"hybrid\" data-visa-sponsorship=\"yes\" data-japanese-level=\"basic\"><h2>software engineering fixture role 01</h2><p>Fixture TokyoDev Labs 1</p><p>Tokyo, Japan</p><p>Fixture sanitized listing</p><p>Apply from abroad; fixture evidence</p></article></body></html>",
+  "tracker_status": "review",
+  "generate_pdf": true
+}

@@ -1,0 +1,13 @@
+{
+  "id": "jp-10",
+  "source": "tokyodev",
+  "category": "education",
+  "scenario": "normal",
+  "title": "education fixture role 10",
+  "company": "Fixture TokyoDev Labs 10",
+  "location": "Tokyo, Japan",
+  "source_url": "https://www.tokyodev.com/jobs/jp-10",
+  "label_file": "jp-10.json",
+  "document_html": "<!doctype html><html><body><article data-job-card data-source-job-id=\"jp-10\" data-title=\"education fixture role 10\" data-company-name=\"Fixture TokyoDev Labs 10\" data-location-text=\"Tokyo, Japan\" data-salary-min=\"5100000\" data-salary-max=\"8100000\" data-salary-currency=\"JPY\" data-salary-period=\"year\" data-work-mode=\"remote\" data-visa-sponsorship=\"yes\" data-japanese-level=\"basic\"><h2>education fixture role 10</h2><p>Fixture TokyoDev Labs 10</p><p>Tokyo, Japan</p><p>Fixture sanitized listing</p><p>Apply from abroad; fixture evidence</p></article></body></html>",
+  "tracker_status": "review"
+}

@@ -1,0 +1,13 @@
+{
+  "id": "jp-05",
+  "source": "tokyodev",
+  "category": "customer-success",
+  "scenario": "no-sponsorship",
+  "title": "customer success fixture role 05",
+  "company": "Fixture TokyoDev Labs 5",
+  "location": "Tokyo, Japan",
+  "source_url": "https://www.tokyodev.com/jobs/jp-05",
+  "label_file": "jp-05.json",
+  "document_html": "<!doctype html><html><body><article data-job-card data-source-job-id=\"jp-05\" data-title=\"customer success fixture role 05\" data-company-name=\"Fixture TokyoDev Labs 5\" data-location-text=\"Tokyo, Japan\" data-salary-min=\"5050000\" data-salary-max=\"8050000\" data-salary-currency=\"JPY\" data-salary-period=\"year\" data-work-mode=\"hybrid\" data-visa-sponsorship=\"no\" data-japanese-level=\"none\"><h2>customer success fixture role 05</h2><p>Fixture TokyoDev Labs 5</p><p>Tokyo, Japan</p><p>Fixture sanitized listing</p><p>Residents only; no sponsorship</p></article></body></html>",
+  "tracker_status": "review"
+}

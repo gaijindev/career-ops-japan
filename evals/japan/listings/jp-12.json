@@ -1,0 +1,13 @@
+{
+  "id": "jp-12",
+  "source": "tokyodev",
+  "category": "logistics",
+  "scenario": "normal",
+  "title": "logistics fixture role 12",
+  "company": "Fixture TokyoDev Labs 12",
+  "location": "Tokyo, Japan",
+  "source_url": "https://www.tokyodev.com/jobs/jp-12",
+  "label_file": "jp-12.json",
+  "document_html": "<!doctype html><html><body><article data-job-card data-source-job-id=\"jp-12\" data-title=\"logistics fixture role 12\" data-company-name=\"Fixture TokyoDev Labs 12\" data-location-text=\"Tokyo, Japan\" data-salary-min=\"5120000\" data-salary-max=\"8120000\" data-salary-currency=\"JPY\" data-salary-period=\"year\" data-work-mode=\"remote\" data-visa-sponsorship=\"yes\" data-japanese-level=\"basic\"><h2>logistics fixture role 12</h2><p>Fixture TokyoDev Labs 12</p><p>Tokyo, Japan</p><p>Fixture sanitized listing</p><p>Apply from abroad; fixture evidence</p></article></body></html>",
+  "tracker_status": "review"
+}

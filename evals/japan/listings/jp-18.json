@@ -1,0 +1,13 @@
+{
+  "id": "jp-18",
+  "source": "gaijinpot",
+  "category": "marketing",
+  "scenario": "normal",
+  "title": "marketing fixture role 18",
+  "company": "Fixture GaijinPot Labs 18",
+  "location": "Tokyo, Japan",
+  "source_url": "https://jobs.gaijinpot.com/en/job/20018",
+  "label_file": "jp-18.json",
+  "document_html": "<!doctype html><html><head><link rel=\"canonical\" href=\"https://jobs.gaijinpot.com/en/job/20018\"><script type=\"application/ld+json\">{\"@context\":\"https://schema.org/\",\"@type\":\"JobPosting\",\"title\":\"marketing fixture role 18\",\"description\":\"<h3>Requirements</h3><ul><li>English: Business level</li><li>Japanese: Basic level</li><li>Visa sponsorship available</li></ul><h3>Description</h3><p>Fixture sanitized listing.</p>\",\"identifier\":{\"@type\":\"PropertyValue\",\"name\":\"Fixture GaijinPot Labs 18\",\"value\":\"20018\"},\"datePosted\":\"2026-07-20\",\"hiringOrganization\":{\"@type\":\"Organization\",\"name\":\"Fixture GaijinPot Labs 18\"},\"jobLocation\":{\"@type\":\"Place\",\"address\":{\"@type\":\"PostalAddress\",\"addressLocality\":\"Tokyo\",\"addressCountry\":\"JP\"}},\"baseSalary\":{\"@type\":\"MonetaryAmount\",\"currency\":\"JPY\",\"value\":{\"@type\":\"QuantitativeValue\",\"minValue\":431666.6666666667,\"maxValue\":681666.6666666666,\"unitText\":\"MONTH\"}}}</script></head><body><div class=\"card card--spotlight\"><div class=\"card-header\"><h1 class=\"card-heading text-xlarge\">marketing fixture role 18</h1></div><div class=\"card-item\"><dl class=\"mb-0\"><dt>Company</dt><dd>Fixture GaijinPot Labs 18</dd><dt>Job ID</dt><dd>20018</dd><dt>Location</dt><dd>Tokyo, Japan</dd><dt>Industries</dt><dd>Fixture Professional Services</dd><dt>Work Type</dt><dd>Full Time / Experienced</dd><dt>Salary</dt><dd>¥5180000 ~ ¥8180000 / Year</dd></dl></div><div class=\"card-item\"><h3>Requirements</h3><ul><li>English: Business level</li><li>Japanese: Basic level</li><li>Fixture sanitized listing</li></ul></div><div class=\"card-item\"><h3>Description</h3><p>Fixture sanitized listing.</p></div></div></body></html>",
+  "tracker_status": "review"
+}

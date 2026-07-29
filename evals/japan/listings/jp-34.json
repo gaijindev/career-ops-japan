@@ -1,0 +1,13 @@
+{
+  "id": "jp-34",
+  "source": "hellowork",
+  "category": "education",
+  "scenario": "normal",
+  "title": "education fixture role 34",
+  "company": "Fixture Hello Work Labs 34",
+  "location": "東京都千代田区",
+  "source_url": "https://www.hellowork.mhlw.go.jp/kensaku/GECA110010.do?kJNo=1310000000034",
+  "label_file": "jp-34.json",
+  "document_html": "<!doctype html><html lang=\"ja\"><body><div>求人番号 | 1310000000034</div><div>受付年月日 | 2026年7月1日</div><div>公開範囲 | １．事業所名等を含む求人情報を公開する</div><h2>仕事内容</h2><div>職種 | education fixture role 34</div><div>仕事内容 | Fixture sanitized listing; professional operations support</div><div>雇用形態 | 正社員</div><div>就業場所 | 東京都千代田区 受動喫煙対策あり</div><div>必要な経験等 | 関連する実務経験 必須</div><div>必要な日本語レベル | ビジネス</div><h2>賃金・手当</h2>\n    <div>ａ ＋ ｂ | 5,340,000円〜8,340,000円</div>\n    <div>基本給（ａ） | 5,340,000円〜8,340,000円</div><div>賃金形態等 | 月給</div><h2>会社の情報</h2>\n    <div>事業所名 | Fixture Hello Work Labs 34</div><h2>選考等</h2><div>応募書類等 | ハローワーク紹介状、履歴書</div><div>オンライン自主応募の受付 | 不可</div></body></html>",
+  "tracker_status": "review"
+}

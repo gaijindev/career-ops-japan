@@ -1,0 +1,14 @@
+{
+  "id": "jp-03",
+  "source": "tokyodev",
+  "category": "product-management",
+  "scenario": "duplicate",
+  "title": "product management fixture role 03",
+  "company": "Fixture TokyoDev Labs 3",
+  "location": "Tokyo, Japan",
+  "source_url": "https://www.tokyodev.com/jobs/jp-03",
+  "label_file": "jp-03.json",
+  "document_html": "<!doctype html><html><body><article data-job-card data-source-job-id=\"jp-03\" data-title=\"product management fixture role 03\" data-company-name=\"Fixture TokyoDev Labs 3\" data-location-text=\"Tokyo, Japan\" data-salary-min=\"5030000\" data-salary-max=\"8030000\" data-salary-currency=\"JPY\" data-salary-period=\"year\" data-work-mode=\"hybrid\" data-visa-sponsorship=\"yes\" data-japanese-level=\"basic\"><h2>product management fixture role 03</h2><p>Fixture TokyoDev Labs 3</p><p>Tokyo, Japan</p><p>Fixture sanitized listing</p><p>Apply from abroad; fixture evidence</p></article></body></html>",
+  "tracker_status": "review",
+  "duplicate_document_html": "<!doctype html><html><body><article data-job-card data-source-job-id=\"jp-03\" data-title=\"product management fixture role 03\" data-company-name=\"Fixture TokyoDev Labs 3\" data-location-text=\"Tokyo, Japan\" data-salary-min=\"5030000\" data-salary-max=\"8030000\" data-salary-currency=\"JPY\" data-salary-period=\"year\" data-work-mode=\"hybrid\" data-visa-sponsorship=\"yes\" data-japanese-level=\"basic\"><h2>product management fixture role 03</h2><p>Fixture TokyoDev Labs 3</p><p>Tokyo, Japan</p><p>Fixture sanitized listing</p><p>Apply from abroad; fixture evidence</p></article></body></html>"
+}

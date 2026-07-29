@@ -1,0 +1,13 @@
+{
+  "id": "jp-07",
+  "source": "tokyodev",
+  "category": "sales",
+  "scenario": "normal",
+  "title": "sales fixture role 07",
+  "company": "Fixture TokyoDev Labs 7",
+  "location": "Tokyo, Japan",
+  "source_url": "https://www.tokyodev.com/jobs/jp-07",
+  "label_file": "jp-07.json",
+  "document_html": "<!doctype html><html><body><article data-job-card data-source-job-id=\"jp-07\" data-title=\"sales fixture role 07\" data-company-name=\"Fixture TokyoDev Labs 7\" data-location-text=\"Tokyo, Japan\" data-salary-min=\"5070000\" data-salary-max=\"8070000\" data-salary-currency=\"JPY\" data-salary-period=\"year\" data-work-mode=\"hybrid\" data-visa-sponsorship=\"yes\" data-japanese-level=\"basic\"><h2>sales fixture role 07</h2><p>Fixture TokyoDev Labs 7</p><p>Tokyo, Japan</p><p>Fixture sanitized listing</p><p>Apply from abroad; fixture evidence</p></article></body></html>",
+  "tracker_status": "review"
+}

@@ -1,0 +1,13 @@
+{
+  "id": "jp-09",
+  "source": "tokyodev",
+  "category": "operations",
+  "scenario": "normal",
+  "title": "operations fixture role 09",
+  "company": "Fixture TokyoDev Labs 9",
+  "location": "Tokyo, Japan",
+  "source_url": "https://www.tokyodev.com/jobs/jp-09",
+  "label_file": "jp-09.json",
+  "document_html": "<!doctype html><html><body><article data-job-card data-source-job-id=\"jp-09\" data-title=\"operations fixture role 09\" data-company-name=\"Fixture TokyoDev Labs 9\" data-location-text=\"Tokyo, Japan\" data-salary-min=\"5090000\" data-salary-max=\"8090000\" data-salary-currency=\"JPY\" data-salary-period=\"year\" data-work-mode=\"hybrid\" data-visa-sponsorship=\"yes\" data-japanese-level=\"basic\"><h2>operations fixture role 09</h2><p>Fixture TokyoDev Labs 9</p><p>Tokyo, Japan</p><p>Fixture sanitized listing</p><p>Apply from abroad; fixture evidence</p></article></body></html>",
+  "tracker_status": "review"
+}

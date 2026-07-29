@@ -1,0 +1,23 @@
+candidate:
+  name: Fixture Candidate
+location:
+  current: Tokyo, Japan
+  authorized_in: Japan
+  needs_sponsorship: true
+  visa_status: requires employer sponsorship
+target_roles:
+  primary:
+    - software engineer
+    - data analyst
+    - product manager
+  seniority: mid-level
+language:
+  english: fluent
+  japanese: business
+preferences:
+  work_modes:
+    - remote
+    - hybrid
+  salary_floor_jpy: 5000000
+  industries:
+    - technology

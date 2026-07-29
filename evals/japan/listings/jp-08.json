@@ -1,0 +1,13 @@
+{
+  "id": "jp-08",
+  "source": "tokyodev",
+  "category": "finance",
+  "scenario": "normal",
+  "title": "finance fixture role 08",
+  "company": "Fixture TokyoDev Labs 8",
+  "location": "Tokyo, Japan",
+  "source_url": "https://www.tokyodev.com/jobs/jp-08",
+  "label_file": "jp-08.json",
+  "document_html": "<!doctype html><html><body><article data-job-card data-source-job-id=\"jp-08\" data-title=\"finance fixture role 08\" data-company-name=\"Fixture TokyoDev Labs 8\" data-location-text=\"Tokyo, Japan\" data-salary-min=\"5080000\" data-salary-max=\"8080000\" data-salary-currency=\"JPY\" data-salary-period=\"year\" data-work-mode=\"remote\" data-visa-sponsorship=\"yes\" data-japanese-level=\"basic\"><h2>finance fixture role 08</h2><p>Fixture TokyoDev Labs 8</p><p>Tokyo, Japan</p><p>Fixture sanitized listing</p><p>Apply from abroad; fixture evidence</p></article></body></html>",
+  "tracker_status": "review"
+}

@@ -1,0 +1,75 @@
+{
+  "listing_id": "jp-01",
+  "source": "tokyodev",
+  "category": "software-engineering",
+  "role_fit": {
+    "judgment": "strong",
+    "evidence": [
+      {
+        "source": "listing.title",
+        "quote": "software engineering fixture role 01"
+      },
+      {
+        "source": "listing.raw_source_text",
+        "quote": "Fixture sanitized listing"
+      }
+    ],
+    "uncertainty": "Human label is fixture evidence, not a hiring prediction."
+  },
+  "eligibility": {
+    "judgment": "review",
+    "evidence": [
+      {
+        "source": "listing.title",
+        "quote": "software engineering fixture role 01"
+      },
+      {
+        "source": "listing.raw_source_text",
+        "quote": "Fixture sanitized listing"
+      }
+    ],
+    "uncertainty": "Verify authorization, language, residency, and sponsorship with the employer."
+  },
+  "offer_quality": {
+    "judgment": "moderate",
+    "evidence": [
+      {
+        "source": "listing.title",
+        "quote": "software engineering fixture role 01"
+      },
+      {
+        "source": "listing.raw_source_text",
+        "quote": "Fixture sanitized listing"
+      }
+    ],
+    "uncertainty": "Verify compensation, hours, benefits, and employment conditions."
+  },
+  "confidence": {
+    "judgment": "high",
+    "evidence": [
+      {
+        "source": "listing.title",
+        "quote": "software engineering fixture role 01"
+      },
+      {
+        "source": "listing.raw_source_text",
+        "quote": "Fixture sanitized listing"
+      }
+    ],
+    "uncertainty": "Confidence reflects source completeness and freshness only."
+  },
+  "recommendation": {
+    "judgment": "advance",
+    "evidence": [
+      {
+        "source": "listing.title",
+        "quote": "software engineering fixture role 01"
+      },
+      {
+        "source": "listing.raw_source_text",
+        "quote": "Fixture sanitized listing"
+      }
+    ],
+    "uncertainty": "Recommendation is a triage label for benchmark regression review."
+  }
+}

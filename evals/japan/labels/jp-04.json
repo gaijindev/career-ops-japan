@@ -1,0 +1,75 @@
+{
+  "listing_id": "jp-04",
+  "source": "tokyodev",
+  "category": "design",
+  "role_fit": {
+    "judgment": "unknown",
+    "evidence": [
+      {
+        "source": "listing.title",
+        "quote": "design fixture role 04"
+      },
+      {
+        "source": "listing.raw_source_text",
+        "quote": "Fixture sanitized listing"
+      }
+    ],
+    "uncertainty": "Human label is fixture evidence, not a hiring prediction."
+  },
+  "eligibility": {
+    "judgment": "unknown",
+    "evidence": [
+      {
+        "source": "listing.title",
+        "quote": "design fixture role 04"
+      },
+      {
+        "source": "listing.raw_source_text",
+        "quote": "Fixture sanitized listing"
+      }
+    ],
+    "uncertainty": "Verify authorization, language, residency, and sponsorship with the employer."
+  },
+  "offer_quality": {
+    "judgment": "unknown",
+    "evidence": [
+      {
+        "source": "listing.title",
+        "quote": "design fixture role 04"
+      },
+      {
+        "source": "listing.raw_source_text",
+        "quote": "Fixture sanitized listing"
+      }
+    ],
+    "uncertainty": "Verify compensation, hours, benefits, and employment conditions."
+  },
+  "confidence": {
+    "judgment": "low",
+    "evidence": [
+      {
+        "source": "listing.title",
+        "quote": "design fixture role 04"
+      },
+      {
+        "source": "listing.raw_source_text",
+        "quote": "Fixture sanitized listing"
+      }
+    ],
+    "uncertainty": "Confidence reflects source completeness and freshness only."
+  },
+  "recommendation": {
+    "judgment": "reject",
+    "evidence": [
+      {
+        "source": "listing.title",
+        "quote": "design fixture role 04"
+      },
+      {
+        "source": "listing.raw_source_text",
+        "quote": "Fixture sanitized listing"
+      }
+    ],
+    "uncertainty": "Recommendation is a triage label for benchmark regression review."
+  }
+}

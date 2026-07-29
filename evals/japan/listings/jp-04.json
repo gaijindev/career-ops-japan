@@ -1,0 +1,13 @@
+{
+  "id": "jp-04",
+  "source": "tokyodev",
+  "category": "design",
+  "scenario": "malformed-html",
+  "title": "design fixture role 04",
+  "company": "Fixture TokyoDev Labs 4",
+  "location": "Tokyo, Japan",
+  "source_url": "https://www.tokyodev.com/jobs/jp-04",
+  "label_file": "jp-04.json",
+  "document_html": "<!doctype html><html><body><p>Fixture sanitized malformed listing</p></body></html>",
+  "tracker_status": "review"
+}

@@ -1,0 +1,13 @@
+{
+  "id": "jp-02",
+  "source": "tokyodev",
+  "category": "data-analytics",
+  "scenario": "missing-salary",
+  "title": "data analytics fixture role 02",
+  "company": "Fixture TokyoDev Labs 2",
+  "location": "Tokyo, Japan",
+  "source_url": "https://www.tokyodev.com/jobs/jp-02",
+  "label_file": "jp-02.json",
+  "document_html": "<!doctype html><html><body><article data-job-card data-source-job-id=\"jp-02\" data-title=\"data analytics fixture role 02\" data-company-name=\"Fixture TokyoDev Labs 2\" data-location-text=\"Tokyo, Japan\" data-work-mode=\"remote\" data-visa-sponsorship=\"yes\" data-japanese-level=\"basic\"><h2>data analytics fixture role 02</h2><p>Fixture TokyoDev Labs 2</p><p>Tokyo, Japan</p><p>Fixture sanitized listing</p><p>Apply from abroad; fixture evidence</p></article></body></html>",
+  "tracker_status": "review"
+}

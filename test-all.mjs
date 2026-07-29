@@ -264,6 +264,18 @@ try {
   rmSync(scriptTmp, { recursive: true, force: true });
 }
 
+// Japan fixture E2E lives under test/e2e by contract, so register it here
+// explicitly rather than moving it into the tests/ auto-discovery tree.
+const japanE2eResult = run(NODE, ['--test', join(ROOT, 'test/e2e/japan-career-ops.e2e.test.mjs')], {
+  cwd: ROOT,
+  stdio: ['pipe', 'pipe', 'pipe'],
+});
+if (japanE2eResult !== null) {
+  pass('test/e2e/japan-career-ops.e2e.test.mjs runs offline');
+} else {
+  fail('test/e2e/japan-career-ops.e2e.test.mjs failed');
+}
+
 try {
   const tmp = mkdtempSync(join(tmpdir(), 'career-ops-cv-facts-'));
   const hiddenScriptMetric = join(tmp, 'hidden-script-metric.html');
