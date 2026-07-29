@@ -6,6 +6,10 @@
 
 </div>
 
+# career-ops-japan
+
+> Based on [santifer/career-ops](https://github.com/santifer/career-ops).
+
 <p align="center">
   <a href="https://x.com/santifer"><img src="docs/hero-banner.jpg" alt="career-ops マルチエージェント求職システム" width="800"></a>
 </p>
