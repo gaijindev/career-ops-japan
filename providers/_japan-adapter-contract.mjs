@@ -1,7 +1,7 @@
 import {
   assertNormalizedJapanJob,
   fingerprintJapanJob,
-} from './japan-job-schema.mjs';
+} from './_japan-job-schema.mjs';
 
 const SENSITIVE_OPTIONAL_FIELDS = new Set([
   'posted_at',

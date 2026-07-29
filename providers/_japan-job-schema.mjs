@@ -58,7 +58,7 @@ function normalizeOptionalString(value, field) {
   if (value == null) return undefined;
   const trimmed = trimString(value);
   if (typeof trimmed !== 'string' || trimmed.length === 0) {
-    throw new Error(`Missing required field: ${field}`);
+    throw new Error(`Blank optional field: ${field}`);
   }
   return trimmed;
 }
@@ -113,6 +113,10 @@ function normalizeSourceFieldsPresent(value) {
   return [...unique].sort();
 }
 
+function requiresSourceJobId(sourceFieldsPresent) {
+  return Array.isArray(sourceFieldsPresent) && sourceFieldsPresent.includes('source_job_id');
+}
+
 export function canonicalizeJapanJobUrl(url) {
   const raw = normalizeRequiredString(url, 'source_url');
   const parsed = new URL(raw);
@@ -157,7 +161,13 @@ export function assertNormalizedJapanJob(job) {
   normalizeTimestamp(job.scraped_at, 'scraped_at', true);
   if (job.posted_at !== undefined) normalizeTimestamp(job.posted_at, 'posted_at');
   if (job.updated_at !== undefined) normalizeTimestamp(job.updated_at, 'updated_at');
+  const sourceFieldsPresent = job.source_fields_present !== undefined
+    ? normalizeSourceFieldsPresent(job.source_fields_present)
+    : undefined;
   if (job.source_job_id !== undefined) normalizeOptionalString(job.source_job_id, 'source_job_id');
+  if (requiresSourceJobId(sourceFieldsPresent) && job.source_job_id === undefined) {
+    throw new Error('Missing required field: source_job_id');
+  }
   if (job.salary_min !== undefined) normalizeNumeric(job.salary_min, 'salary_min');
   if (job.salary_max !== undefined) normalizeNumeric(job.salary_max, 'salary_max');
   if (job.salary_currency !== undefined) normalizeOptionalString(job.salary_currency, 'salary_currency');
@@ -169,6 +179,7 @@ export function assertNormalizedJapanJob(job) {
 }
 
 export function normalizeJapanJob(input) {
+  const sourceFieldsPresent = normalizeSourceFieldsPresent(input?.source_fields_present);
   const normalized = {
     source_platform: normalizeRequiredString(input?.source_platform, 'source_platform'),
     source_url: normalizeRequiredString(input?.source_url, 'source_url'),
@@ -182,6 +193,9 @@ export function normalizeJapanJob(input) {
 
   const sourceJobId = normalizeOptionalString(input?.source_job_id, 'source_job_id');
   if (sourceJobId !== undefined) normalized.source_job_id = sourceJobId;
+  if (requiresSourceJobId(sourceFieldsPresent) && sourceJobId === undefined) {
+    throw new Error('Missing required field: source_job_id');
+  }
 
   const postedAt = normalizeTimestamp(input?.posted_at, 'posted_at');
   if (postedAt !== undefined) normalized.posted_at = postedAt;
@@ -212,7 +226,6 @@ export function normalizeJapanJob(input) {
   const japaneseLevel = normalizeStatus(input?.japanese_level, 'japanese_level');
   if (japaneseLevel !== undefined) normalized.japanese_level = japaneseLevel;
 
-  const sourceFieldsPresent = normalizeSourceFieldsPresent(input?.source_fields_present);
   if (sourceFieldsPresent !== undefined) normalized.source_fields_present = sourceFieldsPresent;
 
   assertNormalizedJapanJob(normalized);

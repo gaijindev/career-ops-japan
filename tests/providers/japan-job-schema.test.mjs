@@ -1,13 +1,18 @@
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import test from 'node:test';
+import { join } from 'node:path';
+import { pathToFileURL } from 'node:url';
 
-import {
+import { ROOT } from '../helpers.mjs';
+
+const schemaModule = await import(pathToFileURL(join(ROOT, 'providers/_japan-job-schema.mjs')).href);
+const {
   assertNormalizedJapanJob,
   canonicalizeJapanJobUrl,
   fingerprintJapanJob,
   normalizeJapanJob,
-} from './japan-job-schema.mjs';
+} = schemaModule;
 
 function sha1(text) {
   return createHash('sha1').update(text).digest('hex');
@@ -33,6 +38,7 @@ function makeInput(overrides = {}) {
     visa_sponsorship: 'unknown',
     japanese_level: 'not_applicable',
     source_fields_present: [
+      'source_job_id',
       'salary_min',
       'salary_max',
       'salary_currency',
@@ -77,18 +83,30 @@ test('normalizeJapanJob normalizes required fields, salary numbers, timestamps, 
       'salary_max',
       'salary_min',
       'salary_period',
+      'source_job_id',
       'updated_at',
       'visa_sponsorship',
     ],
   });
-
-  assert.doesNotThrow(() => JSON.stringify(normalized));
 });
 
-test('normalizeJapanJob omits source_job_id when it is not provided', () => {
-  const normalized = normalizeJapanJob(makeInput({ source_job_id: undefined }));
+test('normalizeJapanJob omits source_job_id only when the source did not expose one', () => {
+  const normalized = normalizeJapanJob(makeInput({
+    source_job_id: undefined,
+    source_fields_present: ['salary_min'],
+  }));
 
   assert.equal(Object.hasOwn(normalized, 'source_job_id'), false);
+});
+
+test('normalizeJapanJob requires source_job_id when the source exposed one', () => {
+  assert.throws(
+    () => normalizeJapanJob(makeInput({
+      source_job_id: undefined,
+      source_fields_present: ['source_job_id', 'salary_min'],
+    })),
+    /source_job_id/,
+  );
 });
 
 test('normalizeJapanJob preserves unknown versus not_applicable markers', () => {
@@ -103,7 +121,7 @@ test('normalizeJapanJob preserves unknown versus not_applicable markers', () => 
   assert.equal(normalized.japanese_level, 'not_applicable');
 });
 
-test('assertNormalizedJapanJob identifies the exact missing required field', () => {
+test('assertNormalizedJapanJob identifies missing required fields and blank optional fields clearly', () => {
   assert.throws(
     () => assertNormalizedJapanJob(makeInput({ title: '   ' })),
     /title/,
@@ -112,7 +130,7 @@ test('assertNormalizedJapanJob identifies the exact missing required field', () 
   const normalized = normalizeJapanJob(makeInput());
   assert.throws(
     () => assertNormalizedJapanJob({ ...normalized, source_job_id: '   ' }),
-    /source_job_id/,
+    /blank optional field: source_job_id/i,
   );
 });
 

@@ -1,8 +1,12 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
+import { join } from 'node:path';
+import { pathToFileURL } from 'node:url';
 
-import { createJapanAdapterContract } from './japan-adapter-contract.mjs';
-import { normalizeJapanJob } from './japan-job-schema.mjs';
+import { ROOT } from '../helpers.mjs';
+
+const { createJapanAdapterContract } = await import(pathToFileURL(join(ROOT, 'providers/_japan-adapter-contract.mjs')).href);
+const { normalizeJapanJob } = await import(pathToFileURL(join(ROOT, 'providers/_japan-job-schema.mjs')).href);
 
 function makeParsedRecord(overrides = {}) {
   return {
@@ -14,7 +18,7 @@ function makeParsedRecord(overrides = {}) {
     location_text: 'Tokyo, Japan',
     scraped_at: '2026-07-29T00:00:00.000Z',
     raw_source_text: 'source text',
-    source_fields_present: ['visa_sponsorship', 'japanese_level'],
+    source_fields_present: ['source_job_id', 'visa_sponsorship', 'japanese_level'],
     visa_sponsorship: 'unknown',
     japanese_level: 'not_applicable',
     ...overrides,
@@ -80,7 +84,7 @@ test('adapter contract rejects guessed values for fields absent from the parsed 
     search() { return []; },
     parse() {
       return makeParsedRecord({
-        source_fields_present: ['japanese_level'],
+        source_fields_present: ['source_job_id', 'japanese_level'],
         visa_sponsorship: undefined,
       });
     },
@@ -93,4 +97,21 @@ test('adapter contract rejects guessed values for fields absent from the parsed 
   });
 
   assert.throws(() => adapter.normalize(adapter.parse({})), /visa_sponsorship/);
+});
+
+test('adapter contract rejects omitting source_job_id when the parsed source exposed it', () => {
+  const adapter = createJapanAdapterContract({
+    search() { return []; },
+    parse() {
+      return makeParsedRecord({
+        source_fields_present: ['source_job_id'],
+        source_job_id: undefined,
+      });
+    },
+    normalize(parsed) {
+      return normalizeJapanJob(parsed);
+    },
+  });
+
+  assert.throws(() => adapter.normalize(adapter.parse({})), /source_job_id/);
 });
