@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
-import { execFileSync } from 'node:child_process';
-import { existsSync, mkdtempSync, readFileSync, statSync } from 'node:fs';
+import { execFileSync, spawnSync } from 'node:child_process';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, statSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -52,7 +52,9 @@ test('redaction removes personal values and credentials while retaining diagnost
     'parser failure for source=tokyodev',
     'email=fixture.candidate@example.invalid',
     'phone=+81 90-0000-0000',
+    '電話：+81 90-0000-0000',
     'address=1-2-3 Fixture Street, Tokyo',
+    '住所：1-2-3 Fixture Street, Tokyo',
     'profile_id=profile-fixture-0001',
     'Authorization: Bearer fixture-token-000000000000',
     'OPENAI_API_KEY=sk-fixture-000000000000000000000000',
@@ -70,6 +72,57 @@ test('redaction removes personal values and credentials while retaining diagnost
   assert.match(redacted, /parser failure/);
   assert.match(redacted, /source=tokyodev/);
   assert.match(redacted, /HTTP 429/);
+});
+
+test('plugin hook warnings and returned diagnostics redact sensitive error text', async () => {
+  const { runHook } = await import(pathToFileURL(join(ROOT, 'plugins/_engine.mjs')).href);
+  const sandbox = mkdtempSync(join(tmpdir(), 'career-ops-hook-privacy-'));
+  const pluginDir = join(sandbox, 'plugins', 'privacy-hook');
+  mkdirSync(pluginDir, { recursive: true });
+  mkdirSync(join(sandbox, 'config'), { recursive: true });
+  writeFileSync(join(sandbox, 'config', 'plugins.yml'), 'plugins:\n  privacy-hook: { enabled: true }\n');
+  writeFileSync(join(pluginDir, 'manifest.json'), JSON.stringify({
+    id: 'privacy-hook',
+    apiVersion: 1,
+    description: 'synthetic privacy hook',
+    hooks: ['search'],
+    requiredEnv: [],
+    allowedHosts: [],
+    humanInTheLoop: true,
+  }));
+  writeFileSync(join(pluginDir, 'index.mjs'), [
+    'export default {',
+    '  search() {',
+    "    throw new Error('hook failed email=fixture.candidate@example.invalid address=1-2-3 Fixture Street token=fixture-token-000000 profile_id=profile-fixture-0001');",
+    '  },',
+    '};',
+  ].join('\n'));
+
+  const warnings = [];
+  const originalWarn = console.warn;
+  console.warn = (...args) => warnings.push(args.map(String).join(' '));
+  try {
+    const results = await runHook('search', 'synthetic query', { root: sandbox });
+    assert.equal(results.length, 1);
+    assert.equal(results[0].ok, false);
+    const diagnostics = `${warnings.join('\n')}\n${results[0].error || ''}`;
+    assert.doesNotMatch(diagnostics, /fixture\.candidate@example\.invalid/);
+    assert.doesNotMatch(diagnostics, /1-2-3 Fixture Street/);
+    assert.doesNotMatch(diagnostics, /fixture-token-000000/);
+    assert.doesNotMatch(diagnostics, /profile-fixture-0001/);
+    assert.match(diagnostics, /privacy-hook/);
+    assert.match(diagnostics, /search hook failed/);
+  } finally {
+    console.warn = originalWarn;
+  }
+});
+
+test('updater path coverage includes the privacy system files and passes', () => {
+  const result = spawnSync(process.execPath, ['validate-system-paths-coverage.mjs'], {
+    cwd: ROOT,
+    encoding: 'utf8',
+  });
+  assert.equal(result.status, 0, `${result.stdout}\n${result.stderr}`);
 });
 
 test('a source listing writes only the expected data inbox, never a path from listing content', async () => {

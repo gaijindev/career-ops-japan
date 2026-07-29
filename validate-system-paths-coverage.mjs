@@ -59,7 +59,12 @@ const EXCLUDES = [
 // web/ is the experimental web UI — its own release-please component, never
 // shipped by update-system.mjs, never in the npm package. Excluding it here is
 // part of that isolation contract, not a coverage gap.
-const EXCLUDE_PREFIXES = ['web/'];
+const EXCLUDE_PREFIXES = [
+  'web/',
+  // Local SDD reports are ignored planning artifacts, not shipped system files
+  // or user data, so they do not belong to either updater manifest.
+  '.superpowers/sdd/',
+];
 
 function covered(file) {
   // If explicitly excluded, it is covered

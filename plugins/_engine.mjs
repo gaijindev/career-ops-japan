@@ -70,8 +70,8 @@ export function redactSensitiveText(value) {
     .replace(/\/Users\/[^/\s"']+/g, '~')
     .replace(/\/home\/[^/\s"']+/g, '~')
     .replace(/\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/gi, '[email redacted]')
-    .replace(/((?:phone|tel|mobile|電話)\s*[:=]\s*)[+()0-9][0-9(). \t-]{6,}/gi, '$1[phone redacted]')
-    .replace(/((?:address|street address|住所|所在地)\s*[:=]\s*)[^\r\n]+/gi, '$1[address redacted]')
+    .replace(/((?:phone|tel|mobile|電話)\s*[:=：]\s*)[+()0-9][0-9(). \t-]{6,}/gi, '$1[phone redacted]')
+    .replace(/((?:address|street address|住所|所在地)\s*[:=：]\s*)[^\r\n]+/gi, '$1[address redacted]')
     .replace(/((?:profile|candidate|user|resume)[ _-]?id\s*[:=]\s*)[A-Za-z0-9][A-Za-z0-9._-]*/gi, '$1[identifier redacted]')
     .replace(/(bearer\s+)[A-Za-z0-9._~+/=-]{8,}/gi, '$1[token redacted]')
     .replace(/\b(?:sk-(?:or-v1-)?|AIza|gh[pousr]_|xox[baprs]-)[A-Za-z0-9._-]{10,}\b/g, '[api key redacted]')
@@ -649,8 +649,9 @@ export async function runHook(kind, payload, { root, dryRun = false, timeoutMs =
       const result = await Promise.race([invoke, timeout]);
       results.push({ id, ok: true, result });
     } catch (err) {
-      warnSkip(id, `${kind} hook failed — ${err.message}`);
-      results.push({ id, ok: false, error: err.message });
+      const errorMessage = redactSensitiveText(err instanceof Error ? err.message : err);
+      warnSkip(id, `${kind} hook failed — ${errorMessage}`);
+      results.push({ id, ok: false, error: errorMessage });
     } finally {
       clearTimeout(timer);
     }
