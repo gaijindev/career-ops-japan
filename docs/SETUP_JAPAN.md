@@ -8,12 +8,12 @@ and safety rules.
 
 ### Prerequisites and installation
 
-- Node.js 20 or newer: `node --version`
+- Node.js 22.5 or newer: `node --version`
 - npm: `npm --version`
 - One supported AI coding CLI if you want agent-assisted evaluation: Codex,
   Claude Code, or OpenCode
-- Chromium is optional. Install it only for browser/PDF workflows:
-  `npx playwright install chromium`
+- `npm install` installs the Playwright Chromium browser for PDF/browser
+  workflows. If lifecycle scripts are disabled, run `npx playwright install chromium`.
 
 From the repository root:
 
@@ -157,7 +157,7 @@ records and the employer's current page.
   stays unknown. Unknown is not a negative judgment.
 - Benchmark/demo judgments are deterministic regression signals, not hiring
   accuracy, legal, immigration, tax, or career advice.
-- Browser/PDF paths need the optional Chromium installation and may need an
+- Browser/PDF paths use the Chromium installed by `npm install` and may need an
   available browser tool in the active CLI.
 - Live scanning is subject to each source's robots rules, rate limits, terms,
   and availability. Use narrow, respectful requests.
@@ -165,7 +165,7 @@ records and the employer's current page.
 ### Troubleshooting
 
 `node: command not found` means Node.js is not installed or is not on `PATH`.
-Install Node.js 20+ and reopen the terminal.
+Install Node.js 22.5+ and reopen the terminal.
 
 `fixture is not committed` means the demo manifest or one of its JSON files is
 not tracked by Git. Use the committed `evals/japan/demo` set, or stage/commit a
@@ -196,11 +196,11 @@ before using live sources.
 
 ### 前提条件とインストール
 
-- Node.js 20 以上: `node --version`
+- Node.js 22.5 以上: `node --version`
 - npm: `npm --version`
 - エージェント評価を使う場合は Codex、Claude Code、または OpenCode
-- ブラウザー/PDF が必要な場合だけ Chromium を追加:
-  `npx playwright install chromium`
+- `npm install` はブラウザー/PDF 用の Playwright Chromium をインストールします。
+  lifecycle script を無効にしている場合は `npx playwright install chromium` を実行します。
 
 リポジトリのルートで実行します。
 

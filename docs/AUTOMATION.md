@@ -16,12 +16,13 @@ Two independent pieces, smallest first. You can use either on its own.
   `config/profile.yml`, and writes a shortlist you actually open. No web, no JD
   extraction, no PDFs, no subagents.
 
-> Everything here is **local-first**: your CV, profile, and pipeline stay on your
-> machine — none of your data is uploaded. The scan does reach out to *public*
-> job-board APIs to read listings (the same zero-key reads the manual scan makes),
-> but it sends none of your personal data with them, and the triage only reads your
-> local files. Evaluating a shortlisted role later (`/career-ops pipeline`) is the
-> only step that spends tokens.
+> Everything here is **local-first**: the scanner and triage read your CV,
+> profile, and pipeline from the local checkout. The scanner sends requests only
+> to the configured public job sources and does not include those personal files
+> in those requests. A later evaluation through the selected CLI may transmit
+> selected local inputs to that CLI's model provider; review its policies before
+> using personal data. Evaluating a shortlisted role later (`/career-ops pipeline`)
+> is the step that spends model tokens.
 
 ---
 

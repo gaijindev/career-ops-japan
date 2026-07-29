@@ -158,7 +158,13 @@ $env:QWEN_API_KEY="your_deepseek_api_key_here"
 
 ---
 
-## 4. Recommended Cost-Efficient Models
+## 4. Upstream reference: cost-efficient model options
+
+This document is retained from the broader upstream project. The published
+Japan workflow is CLI-only and does not support the standalone evaluator
+commands shown below; use your selected AI coding CLI instead. If you adapt
+these sections, review provider transmission, retention, and cost terms before
+using personal data.
 
 When choosing a budget-friendly model, you need strong reasoning capabilities to handle the multi-dimensional scoring and resume tailoring. Here are the recommended models that hold up well under evaluation:
 

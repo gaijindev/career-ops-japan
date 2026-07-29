@@ -19,9 +19,8 @@ npm パッケージ、単独のモデル API、Web UI をこのリポジトリ�
 </p>
 
 <p align="center">
-  <em>何ヶ月も泥臭く求職活動をしてきた。だから、当時欲しかったシステムを自分で作った。</em><br>
-  企業はAIで候補者をフィルタリングしている。<strong>ならば候補者にもAIを渡し、企業を<em>選ばせる</em>側にした。</strong><br>
-  <em>そして今、それをオープンソースにした。</em>
+  <strong>日本向け求人を扱う、ローカルで動く fixture ベースの CLI ワークフロー。</strong><br>
+  公開求人を評価し、不明点を保持し、確認用の成果物を作成します。
 </p>
 
 ---
@@ -37,7 +36,7 @@ npm パッケージ、単独のモデル API、Web UI をこのリポジトリ�
 <p align="center">
   <sub>対応するエージェントスキル標準準拠 CLI から選択して利用できます</sub><br>
   <img src="https://img.shields.io/badge/OpenCode-111827?style=flat&logo=terminal&logoColor=white" alt="OpenCode">
-  <img src="https://img.shields.io/badge/Gemini_CLI-4285F4?style=flat&logo=google&logoColor=white" alt="Gemini CLI">
+  <img src="https://img.shields.io/badge/Antigravity_CLI-4285F4?style=flat&logo=google&logoColor=white" alt="Antigravity CLI">
   <img src="https://img.shields.io/badge/Codex-412991?style=flat&logo=openai&logoColor=white" alt="Codex">
   <img src="https://img.shields.io/badge/Qwen-615CED?style=flat" alt="Qwen">
   <img src="https://img.shields.io/badge/GitHub_Copilot-000?style=flat&logo=githubcopilot&logoColor=white" alt="GitHub Copilot">
@@ -76,7 +75,7 @@ career-ops-japan は、日本向け求人を評価し、確認可能な成果物
 | **ポータルスキャナー**   | 維持対象の企業・検索クエリは [`templates/portals.example.yml`](templates/portals.example.yml) の現在の内容を参照 |
 | **バッチ処理**           | 対応する場合、選択した CLI の headless worker で並列評価                               |
 | **ダッシュボードTUI**    | パイプラインを閲覧・フィルター・ソートするターミナルUI                                                                           |
-| **Human-in-the-Loop**    | AIは評価と推奨を行い、決定と実行はあなたが行います。システムが応募を自動送信することは絶対になく、最終判断は常にあなたが下します |
+| **Human-in-the-Loop**    | AIは評価と推奨を下書きします。リポジトリの既定の応募フローは送信前に停止し、最終確認と実行は本人が行います。CLI やモデルを変更した場合は挙動を確認してください |
 | **パイプラインの整合性** | 自動マージ、重複排除、ステータス正規化、ヘルスチェック                                                                           |
 
 ## クイックスタート
@@ -84,7 +83,7 @@ career-ops-japan は、日本向け求人を評価し、確認可能な成果物
 この日本向け checkout をクローンし、依存関係をインストールして、決定的なデモとテストを実行します:
 
 ```bash
-git clone https://github.com/santifer/career-ops-japan.git
+git clone https://github.com/gaijindev/career-ops-japan.git
 cd career-ops-japan
 npm install
 node scripts/demo-japan.mjs --fixture-set evals/japan/demo --output-dir output/demo
@@ -166,8 +165,9 @@ node --test test/e2e/japan-career-ops.e2e.test.mjs
 
 実サイトがブロックされたり構造が変わったりした場合は、表示されている URL または求人票
 本文を貼り付けて評価に切り替えてください。貼り付けはログインや応募の指示ではありません。
-CAPTCHA 回避、ログイン制御の突破、メール送信、最終 Apply のクリック、自動応募は行わず、
-最後の確認と応募は本人が手動で行います。制限、プライバシー、アダプター追加手順、MIT
+リポジトリのスクリプトと既定のワークフローは CAPTCHA 回避、ログイン制御の突破、メール送信、
+最終 Apply のクリック、自動応募を行わず、最後の確認と応募は本人が手動で行います。
+CLI やモデルの指示・ツールを変更した場合の挙動は別途確認が必要です。制限、プライバシー、アダプター追加手順、MIT
 attribution は [docs/SETUP_JAPAN.md](docs/SETUP_JAPAN.md)、
 [docs/ADAPTERS_JAPAN.md](docs/ADAPTERS_JAPAN.md)、[LEGAL_DISCLAIMER.md](LEGAL_DISCLAIMER.md)
 を参照してください。
@@ -180,7 +180,8 @@ attribution は [docs/SETUP_JAPAN.md](docs/SETUP_JAPAN.md)、
 
 ## 使い方
 
-career-opsは複数のモードを持つ単一のスラッシュコマンドです:
+CLI によりスラッシュコマンドの登録方法は異なります。対応する CLI では、複数のモードを
+共通のルーターから呼び出せます:
 
 ```
 /career-ops                → 利用可能なすべてのコマンドを表示
@@ -220,7 +221,7 @@ career-opsは複数のモードを持つ単一のスラッシュコマンドで�
     ┌────┼────┐
     ▼    ▼    ▼
  レポート PDF トラッカー
-  .md   .pdf   .tsv
+  .md   .pdf   .md
 ```
 
 ## 事前設定済みポータル

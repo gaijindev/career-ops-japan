@@ -19,9 +19,8 @@ publish an npm package, a standalone model API, or a web UI.
 </p>
 
 <p align="center">
-  <em>I spent months applying to jobs the hard way. So I engineered the system I wish I had.</em><br>
-  Companies use AI to filter candidates. <strong>I just gave candidates AI to <em>choose</em> companies.</strong><br>
-  <em>Now it's open source.</em>
+  <strong>A local, fixture-backed CLI workflow for Japan-focused job search.</strong><br>
+  Evaluate public listings, preserve unknowns, and prepare artifacts for review.
 </p>
 
 ---
@@ -100,7 +99,7 @@ Clone this Japan checkout, install its dependencies, run the deterministic
 demo, and then use a supported AI coding CLI:
 
 ```bash
-git clone https://github.com/santifer/career-ops-japan.git
+git clone https://github.com/gaijindev/career-ops-japan.git
 cd career-ops-japan
 npm install
 node scripts/demo-japan.mjs --fixture-set evals/japan/demo --output-dir output/demo
@@ -186,9 +185,11 @@ data, personal CV, credentials, or application submission is shown.
 
 If a live source is blocked or its page shape changes, paste the visible URL or
 job description for evaluation instead. Pasting is not an instruction to log
-in or apply. career-ops does not bypass CAPTCHA, defeat login controls, send
-email, click a final Apply button, or auto-submit applications; a person must
-review and submit manually. See [the adapter guide](docs/ADAPTERS_JAPAN.md),
+in or apply. The repository scripts and documented default workflow do not
+bypass CAPTCHA, defeat login controls, send email, click a final Apply button,
+or auto-submit applications; a person must review and submit manually. A
+selected CLI or model can behave differently if its instructions or tools are
+changed. See [the adapter guide](docs/ADAPTERS_JAPAN.md),
 [the demo contract](docs/demo/README.md), and
 [LEGAL_DISCLAIMER.md](LEGAL_DISCLAIMER.md) for limitations, privacy, tests,
 and MIT attribution.
@@ -440,7 +441,10 @@ OpenCode examples.
 career-ops runs on Windows. If skills fail to load with a symlink error during install, the fix is in [docs/FAQ.md](docs/FAQ.md). Full steps are in [docs/SETUP.md](docs/SETUP.md).
 
 **Does career-ops auto-apply to jobs for me?**
-No. career-ops is a filter, not a spray-and-pray auto-applier. The AI evaluates, ranks and drafts; you review and decide. It never submits, sends, or clicks anything — you always have the final call. That human-in-the-loop design is the whole point.
+No. The documented repository workflow evaluates, ranks, and drafts; you review
+and decide. Its application paths stop before sending, clicking a final Apply
+button, or submitting. A selected CLI or model can behave differently if its
+instructions or tools are changed, so review the active setup before use.
 
 **Is career-ops free and open source?**
 Yes. career-ops is free and open source, and for the candidate it always will be — it is the first reference implementation of the [CareerOps Manifesto](https://career-ops.org/manifesto). Read it, and if it says what you believe, sign it.
