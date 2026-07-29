@@ -108,6 +108,10 @@ function parseLanguageLevel(text) {
 
 function resolveGaijinPotUrl(filters = {}) {
   const raw = filters.url || filters.careers_url || filters.api || filters.search_url || filters.source_url || DEFAULT_SEARCH_URL;
+  return assertTrustedGaijinPotUrl(raw);
+}
+
+function assertTrustedGaijinPotUrl(raw) {
   let parsed;
   try {
     parsed = new URL(raw, DEFAULT_ORIGIN);
@@ -127,6 +131,11 @@ function extractListingLinks(html, baseUrl) {
     let abs;
     try {
       abs = new URL(href, baseUrl).href;
+    } catch {
+      continue;
+    }
+    try {
+      abs = assertTrustedGaijinPotUrl(abs);
     } catch {
       continue;
     }
@@ -226,7 +235,18 @@ function buildRawJob(html, sourceUrl) {
       const actionMatch = String(html || '').match(/<form\b[^>]*id=["']login-form["'][^>]*action=(["'])([\s\S]*?)\1/i);
       const action = actionMatch?.[2] || '';
       if (!action) return canonical;
-      try { return new URL(decodeEntities(action), sourceUrl).href; } catch { return canonical; }
+      let resolved;
+      try {
+        resolved = new URL(decodeEntities(action), sourceUrl).href;
+      } catch {
+        return canonical;
+      }
+      if (/\/en\/(?:login|register)\b/i.test(resolved)) return undefined;
+      try {
+        return assertTrustedGaijinPotUrl(resolved);
+      } catch {
+        return undefined;
+      }
     })(),
     industry: normalizeWhitespace(textFromHtml(detail.industries || '')) || undefined,
     employment_term: normalizeWhitespace(textFromHtml(detail['work type'] || '')) || undefined,
@@ -249,7 +269,9 @@ function buildRawJob(html, sourceUrl) {
 
   const requirementText = [description, requirements.join(' \n '), parsed.salary_text].filter(Boolean).join(' \n ').toLowerCase();
   if (/visa sponsorship available|visa sponsor/.test(requirementText)) parsed.visa_sponsorship = 'yes';
-  if (/must currently reside in japan|applicants currently living in japan|reside in japan/.test(requirementText)) parsed.residency_requirement = 'must currently reside in Japan';
+  if (/must currently reside in japan|must reside in japan|japan residency required|applicants must currently live in japan/.test(requirementText)) {
+    parsed.residency_requirement = 'must currently reside in Japan';
+  }
   if (/applying from overseas|overseas application ok|overseas applicants interested/.test(requirementText)) parsed.overseas_application = true;
 
   for (const item of requirements) {
