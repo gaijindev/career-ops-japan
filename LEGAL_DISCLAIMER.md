@@ -2,18 +2,34 @@
 
 ## 1. Nature of the Project
 
-`career-ops` is a collection of Markdown prompts, Node.js scripts, and HTML templates. It is strictly a local execution tool. The maintainers do not host, deploy, or operate an AI system, nor do we provide API access to Large Language Models (LLMs).
+`career-ops` is a collection of Markdown prompts, Node.js scripts, and HTML
+templates. Its core scripts run locally. The maintainers do not host, deploy,
+or operate an AI system, nor do we provide project-hosted API access to Large
+Language Models (LLMs); a selected CLI or model provider may still receive
+selected inputs as described below.
 
 Users download the code, run it on their own machines, and connect it to their own AI provider (Anthropic, OpenAI, or any other). The maintainers have no visibility into, control over, or responsibility for how the tool is used after download.
 
-## 2. Data Privacy (GDPR)
+## 2. Data Privacy and Provider Transmission
 
-The maintainers do not act as a Data Controller or Data Processor under GDPR or any other data protection regulation.
+Project files are created and stored under the user's local project control by
+default. That local execution model does not mean that every input remains on
+the device: the selected AI coding CLI or model may transmit prompts, CVs,
+profiles, pasted job descriptions, or other selected files to its provider.
+Provider retention, training, security, and deletion policies therefore apply;
+review the provider's current terms and configure available controls before
+using personal data.
 
-- All Personal Identifiable Information (PII) you input — CVs, contact details, career history — is processed locally on your machine.
-- When you use an AI CLI tool (Claude Code, Codex, OpenCode), your data is sent directly to the AI provider you chose. Review their privacy policies.
-- We do not collect analytics, telemetry, or usage data of any kind.
-- API keys, credentials, and personal files are gitignored by default. Never commit them to a public fork.
+The project does not operate a hosted career-ops API or claim to collect
+project telemetry. Those facts alone do not determine whether a user or
+organization is a controller, processor, deployer, provider, or otherwise has
+obligations under GDPR, the EU AI Act, or another law. This document is
+informational guidance, not legal advice; consult qualified privacy and
+technology counsel about the particular deployment.
+
+API keys, credentials, and personal files are gitignored by default, but users
+remain responsible for checking repository contents before committing or
+sharing them.
 
 ## 3. AI Model Behavior
 
@@ -51,11 +67,18 @@ Unacceptable use includes:
 
 ## 6. EU AI Act
 
-Because this tool runs locally, is free, and is open-source, the maintainers are not placing an AI system on the market or putting one into service under the EU AI Act. Users who deploy the tool in a commercial or organizational context should assess their own obligations under the AI Act.
+Local, open-source execution may affect how a particular deployment is
+classified, but it does not by itself establish the user's or maintainers'
+status under the EU AI Act. Users and organizations should assess their own
+roles, use case, and obligations with qualified counsel. This section is
+general information, not a legal conclusion.
 
 ## 7. Indemnification
 
-By using career-ops, you agree to indemnify, defend, and hold harmless the authors, contributors, and any affiliated parties from and against any and all claims, damages, losses, liabilities, costs, and expenses (including reasonable attorneys' fees) arising from your use of this software, your violation of these terms, or your violation of any third-party terms of service.
+This document is not a substitute for reviewing the [MIT License](LICENSE), a
+separate contract, or applicable law, and it does not make a categorical
+indemnification determination. Users should obtain qualified counsel before
+relying on any indemnification language in a contract or deployment context.
 
 ## 8. Cost Responsibility
 

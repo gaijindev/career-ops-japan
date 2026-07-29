@@ -1,25 +1,32 @@
 # Contributing to Career-Ops
 
-Thanks for your interest in contributing! Career-Ops is built with Claude Code, and you can use it for development too.
+Thanks for your interest in contributing! Career-Ops is maintained as a local,
+human-reviewed CLI project, and contributors may use the development tools
+that work best for them.
 
 ## Why contribute here
 
-career-ops is a great place to make your **first open-source contribution** — and a great line on your résumé.
+career-ops welcomes focused contributions that improve the local CLI workflow,
+documentation, fixtures, tests, or supported integrations.
 
-- **You already get it.** This is a job-search tool. If you're job-hunting, you understand the problem better than most — which makes you a better contributor.
-- **A real merged PR, on something people use.** 55K+ stars, shipping most weeks. Your name in the history of a real project, not a toy repo.
-- **We answer fast.** Open an issue or PR and you'll hear back, usually within a day or two. No black holes.
-- **Tiny on-ramps.** Browse [`good first issue`](https://github.com/santifer/career-ops/contribute) — each is scoped small, with a time estimate, the pattern to copy, and a clear "done", so your first PR is a win, not a maze.
-- **Your human work gets a real review.** We read every PR. We don't drown contributors in bot noise, and we don't merge AI-slop — put thought in, get thought back.
-- **A path forward.** Consistent, high-quality contributors get credited publicly and invited into bigger roles (reviewer, then maintainer).
+- **User context helps.** If you use the workflow, describe the concrete problem and the evidence that would help another contributor reproduce it.
+- **A concrete contribution path.** Docs, fixtures, tests, translations, provider adapters, and CLI support are all useful ways to improve the project.
+- **Review based on evidence.** Maintainers review issues and PRs according to scope, correctness, safety, and available review capacity.
+- **Small entry points.** Browse [`good first issue`](https://github.com/santifer/career-ops/contribute) for focused work with a stated scope.
+- **Clear, reviewable changes.** Explain the user impact, include relevant test or fixture evidence, and disclose generated material when it matters to review.
+- **A clear review path.** Contributions are evaluated for scope, correctness, safety, and maintainability; broader responsibilities can follow demonstrated ownership.
 
-New to all this? That's the point. Claim an issue with a comment, ask anything in [Discord](https://discord.gg/8pRpHETxa4), and we'll help you land it.
+New to open source? Start with the contribution guidelines, ask questions in
+[Discord](https://discord.gg/8pRpHETxa4), or open a focused issue.
 
 ## Before Submitting a PR
 
 **For a new feature, a new mode or command, or an architecture change, please open an issue first.** It saves you from investing time in something we'd have to redirect, and lets us align on direction before you write code.
 
-**Going straight to a PR is welcome — no issue needed — for:** bug fixes, new zero-auth scanner providers, docs, and translations. Don't let process slow these down; these are the contributions we most want.
+**Going straight to a PR is welcome — no issue required — for:** bug fixes, new
+zero-auth scanner providers, docs, tests, and translations. For a feature, new
+mode or command, or architecture change, open an issue first so scope can be
+discussed before implementation.
 
 A large *feature* PR that skipped this step may be asked to start with an issue if it doesn't fit the architecture or roadmap — that's a scope conversation, never a judgment on your work.
 
@@ -33,13 +40,13 @@ The review process you'll experience here is documented end-to-end in [Agentic m
 
 ## Quick Start
 
-1. Open an issue to discuss your idea
+1. For a feature, mode, command, or architecture change, open an issue first; for docs, tests, translations, and bug fixes, this is optional.
 2. Fork the repo
 3. Create a branch (`git checkout -b feature/my-feature`)
 4. Make your changes
 5. Test with a fresh clone (see [docs/SETUP.md](docs/SETUP.md))
 6. Commit and push
-7. Open a Pull Request referencing the issue
+7. Open a Pull Request, linking the issue when one exists
 
 ## What to Contribute
 
@@ -87,7 +94,7 @@ Rule of thumb before you build: **provider modules, languages, CLI support, mode
 - **PRs that add external API dependencies** without prior discussion in an issue.
 - **Feature PRs against bundled plugins** (`plugins/apify`, `plugins/gmail`, `plugins/notion`). Bundled plugins are stable *reference seeds* — to extend one, publish your own `career-ops-plugin-<id>` and we'll register it as the maintained successor that takes precedence once installed (see [docs/PLUGINS.md](docs/PLUGINS.md)). Bundled plugins only take security/compat fixes.
 - **PRs that add centralized or hosted infrastructure to the core** (proxies, aggregation services, shared Workers). That's the separate opt-in service, not the open-core — bring it to the [direction discussion](https://github.com/santifer/career-ops/discussions/904) first.
-- **Integrations that send your data to a third-party service** — providers or sync features that require a third-party account or push your CV, pipeline, or notes out to an external service. career-ops is local-first and zero-keys: your job-search data stays on your machine. Reading *public* job-listing APIs locally is welcome (that's how the built-in providers work); routing your personal data through someone else's service is not.
+- **Integrations that send your data to a third-party service** — providers or sync features that require a third-party account or push your CV, pipeline, or notes out to an external service. The core has no project-hosted API key requirement and does not operate a hosted data service; a selected CLI/model may still transmit selected files to its provider, whose retention and training policies apply. Reading *public* job-listing APIs locally is welcome (that's how the built-in providers work); routing personal data through an unreviewed service is not.
 - **PRs that add third-party hosted entry-points or service badges to the README** — links or embeds that route users' resumes or job data through a service the project doesn't operate. The README stays to assets the project controls, and the official online experience is something we keep first-party (see [The Vision](https://github.com/santifer/career-ops/discussions/156)). Projects built on career-ops are welcome — share them in the [Discord](https://discord.gg/8pRpHETxa4) or Discussions, just not on the front page.
 - **PRs containing personal data** (real CVs, emails, phone numbers). Use `examples/` with fictional data instead.
 

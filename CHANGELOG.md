@@ -2,21 +2,23 @@
 
 ## Unreleased — career-ops-japan vertical slice
 
-This vertical slice retains upstream `career-ops` `1.23.0` as its release
-baseline; no new public release version is assigned because the Japan sources
-and markup remain subject to change and live platform smoke tests were not run.
+This checkout is based on upstream `career-ops` `1.23.0`. No new public
+release version is assigned here because the Japan sources and markup remain
+subject to change. The upstream release history is retained below without
+duplicating it in this entry.
 
 ### Japan vertical slice
 
-* Add fixture-only TokyoDev, GaijinPot Jobs, and Hello Work adapters with
-  schema, pipeline, evaluation, privacy, updater, path-coverage, and offline
-  E2E/demo verification.
-* Include a deterministic sanitized demo with Markdown/HTML artifacts,
-  tracker output, documentation, and screenshot evidence.
+* Add public-source TokyoDev, GaijinPot Jobs, and Hello Work adapters with
+  shared-schema and fixture-based verification.
+* Include a deterministic fixture demo that writes Markdown/HTML artifacts,
+  tracker output, and manifests under a disposable output directory.
+* Document the Japan workflow as local and CLI-only, with manual application
+  review and submission boundaries.
 
 ### Known limitations
 
-* Public permitted paths only; source markup can change.
+* Public permitted paths only; source markup and terms can change.
 * No CAPTCHA or login bypass, credential use, or application automation.
 * Applications remain manual and require human review and submission.
 * CI gates are fixture-only; live platform smoke tests were not run.

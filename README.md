@@ -10,6 +10,10 @@
 
 > Based on [santifer/career-ops](https://github.com/santifer/career-ops).
 
+This repository is the Japan vertical slice. Its published workflow is local
+and CLI-only: Node.js scripts plus a selected AI coding CLI. It does not
+publish an npm package, a standalone model API, or a web UI.
+
 <p align="center">
   <a href="https://x.com/santifer"><img src="docs/hero-banner.jpg" alt="career-ops Multi-Agent Job Search System" width="800"></a>
 </p>
@@ -20,54 +24,20 @@
   <em>Now it's open source.</em>
 </p>
 
-<p align="center">
-  <a href="https://trendshift.io/repositories/25195" target="_blank" rel="noopener noreferrer"><img src="https://trendshift.io/api/badge/repositories/25195" alt="santifer%2Fcareer-ops | Trendshift" style="width: 250px; height: 55px;" width="250" height="55"/></a>
-</p>
-
-<p align="center">
-  <a href="https://www.producthunt.com/products/santifer-io?utm_source=badge-featured&utm_medium=badge" target="_blank" rel="noopener noreferrer"><img src="docs/press/producthunt.svg" alt="career-ops on Claude | Product Hunt" style="width: 206px; height: 54px; vertical-align: middle;" width="206" height="54"/></a>
-</p>
-
-<p align="center"><sub>FEATURED IN</sub></p>
-
-<p align="center">
-  <a href="https://wired.com.gr/article/to-ai-ergaleio-pou-fernei-epanastasi-ston-tropo-pou-psachnoume-douleia/" rel="noopener noreferrer nofollow"><picture><source media="(prefers-color-scheme: dark)" srcset="docs/press/wired-dark.svg"><img src="docs/press/wired.svg" alt="WIRED" height="32"></picture></a>
-  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-  <a href="https://www.businessinsider.com/how-i-built-tool-filter-job-listings-landed-head-ai-2026-4" rel="noopener noreferrer nofollow"><picture><source media="(prefers-color-scheme: dark)" srcset="docs/press/business-insider-dark.svg"><img src="docs/press/business-insider.svg" alt="Business Insider" height="32"></picture></a>
-</p>
-
 ---
 
 <p align="center">
   <img src="docs/demo.gif" alt="career-ops Demo" width="800">
 </p>
 
-<p align="center"><strong>740+ job listings evaluated · 100+ personalized CVs · 1 dream role landed</strong></p>
-
-<p align="center">
-  <a href="https://warpchart.dev/hq">
-    <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="https://warpchart.dev/api/chart?theme=dark&v=3">
-      <img alt="Live star telemetry of santifer/career-ops" src="https://warpchart.dev/api/chart?theme=light&v=3" loading="lazy">
-    </picture>
-  </a>
-</p>
+<p align="center"><strong>Japan-focused local CLI workflow · fixture-backed demo · manual application review</strong></p>
 
 <p align="center">
   <a href="https://discord.gg/8pRpHETxa4"><img src="https://img.shields.io/badge/Join_the_community-Discord-5865F2?style=for-the-badge&logo=discord&logoColor=white" alt="Discord"></a>
 </p>
 
 <p align="center">
-  <a href="https://github.com/santifer/career-ops/releases/latest"><img src="https://img.shields.io/npm/v/%40santifer%2Fcareer-ops?style=for-the-badge&labelColor=2b3137&color=2ea44f&label=release" alt="Latest release"></a>
-</p>
-
-<p align="center">
-  <a href="https://claude.com/claude-code"><img src="https://img.shields.io/badge/Built_with-Claude_Code-000?style=for-the-badge&logo=anthropic&logoColor=white" alt="Built with Claude Code"></a>
-</p>
-
-<p align="center">
   <sub>Also runs on any agent-skill-standard CLI. See <a href="docs/SUPPORTED_CLIS.md">Supported CLIs</a>.</sub><br>
-  <img src="https://img.shields.io/badge/Claude_Code-000?style=flat&logo=anthropic&logoColor=white" alt="Claude Code">
   <img src="https://img.shields.io/badge/OpenCode-111827?style=flat&logo=terminal&logoColor=white" alt="OpenCode">
   <img src="https://img.shields.io/badge/Antigravity_CLI-4285F4?style=flat&logo=google&logoColor=white" alt="Antigravity CLI">
   <img src="https://img.shields.io/badge/Codex-412991?style=flat&logo=openai&logoColor=white" alt="Codex">
@@ -86,117 +56,93 @@
 
 ## What Is This
 
-career-ops ([career-ops.org](https://career-ops.org), also known as **careerops**) turns any AI coding CLI into a full job search command center. Instead of manually tracking applications in a spreadsheet, you get an AI-powered pipeline that:
+career-ops-japan is a local, CLI-first workflow for evaluating Japan-focused
+job listings and preparing reviewable artifacts. It can:
 
-- **Evaluates offers** with a structured evaluation -- blocks A-F scored across 5 weighted dimensions, plus block G, a separate posting-legitimacy assessment that never affects the 1-5 score
-- **Generates tailored PDFs** -- ATS-optimized CVs customized per job description
-- **Scans portals** automatically (Greenhouse, Ashby, Lever, company pages)
-- **Processes in batch** -- evaluate 10+ offers in parallel with sub-agents
-- **Tracks everything** in a single source of truth with integrity checks
-- **Researches companies and finds the right person to contact** -- applications get you in the queue; research gets you a conversation
+- **Evaluate listings** with a structured A–F assessment plus a separate G
+  posting-legitimacy check
+- **Generate job-specific CV PDFs** from the local templates and user-provided
+  facts
+- **Read permitted public listing pages** through the Japan adapters and
+  preserve unstated facts as unknown
+- **Write local reports and tracker entries** with integrity checks
 
-> **Important: This is NOT a spray-and-pray tool.** career-ops is a filter -- it helps you find the few offers worth your time out of hundreds. The system strongly recommends against applying to anything scoring below 4.0/5. Your time is valuable, and so is the recruiter's. Always review before submitting.
-
-career-ops is agentic: whichever AI coding CLI you choose navigates career pages with Playwright, evaluates fit by reasoning about your CV vs the job description (not keyword matching), and adapts your resume per listing.
-
-> **Heads up: the first evaluations won't be great.** The system doesn't know you yet. Feed it context -- your CV, your career story, your proof points, your preferences, what you're good at, what you want to avoid. The more you nurture it, the better it gets. Think of it as onboarding a new recruiter: the first week they need to learn about you, then they become invaluable.
-
-Built by someone who used it to evaluate 740+ job offers, generate 100+ tailored CVs, and land a Head of Applied AI role. [Read the full case study](https://santifer.io/career-ops-system).
-
-## The CareerOps Manifesto
-
-career-ops is the first reference implementation of [the CareerOps Manifesto](https://career-ops.org/manifesto?utm_source=readme). read it. if it says what you believe, sign it. your signature becomes a commit.
+The selected AI coding CLI drafts and explains results; the user decides what
+to edit, upload, and submit. Quality depends on the profile, source evidence,
+and model selected, so every generated artifact needs human review.
 
 ## Features
 
 | Feature                  | Description                                                                                                                              |
 | ------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------- |
-| **Auto-Pipeline**        | Paste a URL, get a full evaluation + PDF + tracker entry                                                                                 |
-| **A-G Evaluation**       | Role summary, CV match, level strategy, comp research, personalization, interview prep (STAR+R) -- plus a Block G posting-legitimacy check that flags scams and ghost jobs, and a Work-Auth signal that flags an explicit no-sponsorship JD as a hard blocker |
+| **Auto-Pipeline**        | Paste a URL, get a structured evaluation + PDF + tracker entry                                                                         |
+| **A–F Evaluation + G**   | Role summary, CV match, level strategy, comp research, personalization, interview prep (STAR+R), plus a separate G posting-legitimacy check and Work-Auth signal |
 | **Interview Story Bank** | Accumulates STAR+Reflection stories across evaluations -- 5-10 master stories that answer any behavioral question                        |
 | **Negotiation Scripts**  | Salary negotiation frameworks, geographic discount pushback, competing offer leverage                                                    |
-| **ATS PDF Generation**   | Keyword-injected CVs with Space Grotesk + DM Sans design                                                                                 |
-| **Cover Letter Generator** | Research-backed cover letters with keyword mirroring, four interactive angle prompts (why/problems/approach/tone), draft-in-chat approval gate, and A4 PDF via the same HTML + Playwright pipeline as CVs. Auto-drafts on every evaluation; complete and generate on demand via `/career-ops cover` |
+| **CV PDF Generation**    | Job-specific CV PDFs from the HTML/LaTeX templates, with human review before use                                                    |
+| **Cover Letter Generator** | Draft cover letters from the job description and profile, with a draft-in-chat approval gate and A4 PDF output via the HTML + Playwright pipeline |
 | **Application Email Drafts** | Formal recruiter/referral/cold application emails from a report or pasted JD, with subject line, attachment checklist, source-backed fit points, and a profile-driven contact block. Draft-only -- career-ops never sends, submits, or clicks anything. |
-| **Portal Scanner**       | 100+ companies pre-configured (Anthropic, OpenAI, ElevenLabs, Retool, n8n...) + custom queries across Ashby, Greenhouse, Lever, Wellfound |
-| **Batch Processing**     | Parallel evaluation with headless CLI workers (`claude -p` / `opencode run`)                                                             |
+| **Portal Scanner**       | Maintained companies and queries in [`templates/portals.example.yml`](templates/portals.example.yml), with adapters for supported public sources |
+| **Batch Processing**     | Parallel evaluation with headless workers for the selected CLI, where supported                                                        |
 | **Dashboard TUI**        | Terminal UI to browse, filter, and sort your pipeline                                                                                    |
-| **Human-in-the-Loop**    | AI evaluates and recommends, you decide and act. The system never submits an application -- you always have the final call               |
+| **Human-in-the-Loop**    | AI drafts and recommends; you perform login, uploads, final review, and submission                                                   |
 | **Pipeline Integrity**   | Automated merge, dedup, status normalization, health checks                                                                              |
 | **Interview Suite**      | Time-blocked prep plans, practice sessions with feedback, post-interview debriefs ([`interview/`](modes/interview/README.md)), and a company red-flag detector ([`interview-redflag`](modes/interview-redflag.md)) |
 | **Offer Stage**          | Contract reading companion -- clause walk plus a lawyer question list ([`offer-prep`](modes/offer-prep.md)) -- and a desired/advertised/actual salary-gap analyzer (`salary-gap.mjs`) |
 | **Follow-ups & Replies** | Follow-up cadence calculator and seeded reminders (`followup-cadence.mjs`, `followup-seed.mjs`); employer reply classification into tracker updates ([`reply-watch`](modes/reply-watch.md)) |
 | **Pattern Analysis**     | Rejection patterns and per-ATS-channel advance rates (`analyze-patterns.mjs`), lifetime funnel stats (`stats.mjs`), repost/ghost-job detection (`detect-reposts.mjs`) |
 | **Plugin System**        | Opt-in integrations (Gmail, Notion, Apify + a community registry), disabled by default -- see [docs/PLUGINS.md](docs/PLUGINS.md)        |
-| **Beyond the CV**        | Company research ([`deep`](modes/deep.md)) surfaces AI strategy, recent moves, engineering culture, and the angle your profile should take. Contact discovery ([`contacto`](modes/contacto.md)) identifies the hiring manager, recruiter, or team peer worth reaching out to and drafts a ≤300-character LinkedIn message tuned to each contact type. Formal application email drafts ([`email`](modes/email.md)) turn an evaluated report or pasted JD into a subject line, body, and attachment checklist without sending, submitting, or clicking anything. Applications get you in the queue; research gets you a conversation. |
+| **Beyond the CV**        | Company research, contact research, and draft outreach or application emails for human review. These modes do not send, submit, or click anything. |
 
 ## Quick Start
 
-**Fastest way — one command:**
+Clone this Japan checkout, install its dependencies, run the deterministic
+demo, and then use a supported AI coding CLI:
 
 ```bash
-npx @santifer/career-ops init
+git clone https://github.com/santifer/career-ops-japan.git
+cd career-ops-japan
+npm install
+node scripts/demo-japan.mjs --fixture-set evals/japan/demo --output-dir output/demo
+node --test test/demo-japan.test.mjs
+node --test test/e2e/japan-career-ops.e2e.test.mjs
 ```
 
-> 💡 `npx` ships with [Node.js](https://nodejs.org) — it runs the installer once,
-> without installing anything globally. No Node yet? Install it first.
-> (Already using a Claude Code / Gemini / Codex CLI? Then you already have it.)
-
-This clones the latest release into `./career-ops` and installs dependencies. Then:
+The demo is fixture-only and network-disabled by default. For agent-assisted
+work, start the selected CLI from this directory. For example:
 
 ```bash
-cd career-ops
-claude   # or codex / qwen / opencode / agy / grok — open your AI CLI here
+codex
+# Ask it: Run the career-ops Japan kyujin mode for this pasted job description;
+# show evidence and unknowns, and stop before login or application submission.
 ```
 
-**On first launch, career-ops walks you through setup — your CV, profile and target roles — just by chatting. Nothing to edit by hand.**
+On first launch, the selected CLI can guide conversational setup for your CV,
+profile, and target roles. Manual configuration is also supported; edit the
+copied profile and portal templates when you need precise control.
 
 <details>
-<summary><b>Prefer to set it up manually? (git clone)</b></summary>
+<summary><b>Manual configuration</b></summary>
 
 ```bash
-git clone https://github.com/santifer/career-ops.git
-cd career-ops && npm install
-npx playwright install chromium   # only needed for PDF generation
-
-# 2. Check setup
-npm run doctor                     # Validates all prerequisites
-
-# 3. Configure
-cp config/profile.example.yml config/profile.yml  # Edit with your details
-cp templates/portals.example.yml portals.yml       # Customize companies
-
-# 4. Add your CV
-# Create cv.md in the project root with your CV in markdown
-
-# 5. Open your AI CLI in this directory
-claude   # or codex / opencode / qwen / agy / grok
-
-# Then ask your CLI to adapt the system to you:
-# "Change the archetypes to backend engineering roles"
-# "Translate the modes to English"
-# "Add these 5 companies to portals.yml"
-# "Update my profile with this CV I'm pasting"
-
-# 6. Start using
-# Paste a job URL or JD text to trigger auto-pipeline
-# If your CLI supports slash commands, use /career-ops (or its CLI-specific alias)
-# In Codex, ask for the same mode in plain language, e.g.:
-# "Run the career-ops scan mode"
-# "Run the career-ops pipeline mode for data/pipeline.md"
-# "Run the career-ops pdf mode for the latest evaluated role"
-# "Run the career-ops tracker mode and summarize the current statuses"
+npm run doctor
+cp config/profile.example.yml config/profile.yml
+cp templates/portals.example.yml portals.yml
+# Create cv.md in the project root with your CV in markdown.
 ```
 
 </details>
 
-> **The system is designed to be customized by your AI coding CLI itself.** Modes, archetypes, scoring weights, negotiation scripts -- just ask it to change them. It reads the same files it uses, so it knows exactly what to edit.
+> The workflow can be customized conversationally through your selected AI
+> coding CLI, or by editing the documented local configuration files yourself.
 
-See [docs/SETUP.md](docs/SETUP.md) for the full setup guide, [docs/RUNNING_ON_A_BUDGET.md](docs/RUNNING_ON_A_BUDGET.md) for instructions on running career-ops cheaply using custom or local models, [docs/AUTOMATION.md](docs/AUTOMATION.md) for scheduling recurring scans and a zero-token triage-to-shortlist recipe, [docs/APPLY_AUTOFILL.md](docs/APPLY_AUTOFILL.md) for details on the ATS auto-fill flow, and [docs/FAQ.md](docs/FAQ.md) for answers to common setup questions. Design principles live in [ARCHITECTURE.md](ARCHITECTURE.md); runtime flows in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
+See [docs/SETUP_JAPAN.md](docs/SETUP_JAPAN.md) for the Japan setup guide and
+CLI examples. Design principles live in [ARCHITECTURE.md](ARCHITECTURE.md);
+runtime flows live in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
 ## Japan setup and reproducible demo
 
-The Japan vertical has first-class adapters for TokyoDev, GaijinPot Jobs, and
+The Japan vertical has supported adapters for TokyoDev, GaijinPot Jobs, and
 Hello Work. It keeps salary, sponsorship, employer identity, Japanese level,
 and work mode unknown when a public listing does not state them. Start with the
 [bilingual Japan setup guide](docs/SETUP_JAPAN.md):
@@ -322,24 +268,12 @@ grok
 
 For headless batch workers, use `grok -p "prompt"` (add `--yolo` to auto-approve tool executions).
 
-### Standalone Gemini API Script (No CLI install needed)
+### Upstream/inherited: standalone Gemini API (out of scope)
 
-```bash
-# 1. Get a free API key at https://aistudio.google.com/apikey
-cp .env.example .env
-# Edit .env, set GEMINI_API_KEY=your_key_here
-
-# 2. Install dependencies
-npm install
-
-# 3. Evaluate a job description
-node gemini-eval.mjs "We are looking for a Senior AI Engineer..."
-node gemini-eval.mjs --file ./jds/my-job.txt
-node agent-inbox.mjs add "..."   # queue a request for the next session
-npm run gemini:eval -- "JD text here"
-```
-
-> **Free tier:** Both options work without billing. Native CLI uses Google OAuth; the API script uses `gemini-3.6-flash` (rate limits are model- and tier-dependent; see Google AI docs for current quotas).
+The standalone Gemini API script is retained in the upstream source tree, but
+it is not part of the published `career-ops-japan` workflow. This Japan slice
+documents the local CLI path only; provider access, keys, retention, and
+training policies are governed by the selected CLI/model provider.
 
 ## Usage
 
@@ -347,14 +281,14 @@ career-ops uses a shared command router. In CLIs that register slash commands, i
 
 ```
 /career-ops                → Show all available commands
-/career-ops {paste a JD}   → Full auto-pipeline (evaluate + PDF + tracker)
+/career-ops {paste a JD}   → Evaluation pipeline (evaluate + PDF + tracker)
 /career-ops scan           → Scan portals for new offers
-/career-ops pdf            → Generate ATS-optimized CV
+/career-ops pdf            → Generate a job-specific CV PDF for review
 /career-ops cover          → Cover letter generator (paste JD or /career-ops cover {slug})
 /career-ops email          → Formal application email draft (draft-only; never sends, submits, or clicks)
 /career-ops batch          → Batch evaluate multiple offers
 /career-ops tracker        → View application status
-/career-ops apply          → Fill application forms with AI
+/career-ops apply          → Draft application answers for human review; you perform login, upload, final review, and submission
 /career-ops pipeline       → Process pending URLs
 /career-ops contacto       → Find hiring manager / recruiter / peer + draft a ≤300-char LinkedIn message per contact type
 /career-ops deep           → Generate a structured 6-axis research prompt (AI strategy, recent moves, culture, challenges, competitors, candidate angle)
@@ -362,7 +296,7 @@ career-ops uses a shared command router. In CLIs that register slash commands, i
 /career-ops project        → Evaluate a portfolio project
 ```
 
-Or just paste a job URL or description directly -- career-ops auto-detects it and runs the full pipeline.
+Or paste a job URL or description directly -- career-ops can detect it and run the evaluation pipeline.
 
 In Codex, slash commands are not guaranteed. Use the same mode names in a prompt instead, or call them from `codex exec`.
 
@@ -378,7 +312,8 @@ You paste a job URL or description
 └────────┬─────────┘
          │
 ┌────────▼─────────┐
-│  A-G Evaluation  │  Match, gaps, comp research, STAR stories, legitimacy
+│  A-F Evaluation  │  Match, gaps, comp research, STAR stories
+│  G (separate)    │  Posting legitimacy and work-authorization signals
 │  (reads cv.md)   │
 └────────┬─────────┘
          │
@@ -390,26 +325,27 @@ You paste a job URL or description
 
 ## Pre-configured Portals
 
-The scanner comes with **100+ companies** ready to scan and **45+ search queries** across major job boards. Copy `templates/portals.example.yml` to `portals.yml` and add your own:
+The maintained company list and search queries are in the current
+[`templates/portals.example.yml`](templates/portals.example.yml). Copy it to
+`portals.yml` and add your own:
 
-**AI Labs:** Anthropic, OpenAI, Mistral, Cohere, LangChain, Pinecone
-**Voice AI:** ElevenLabs, PolyAI, Parloa, Hume AI, Deepgram, Vapi, Bland AI
-**AI Platforms:** Retool, Airtable, Vercel, Temporal, Glean, Arize AI
-**Contact Center:** Ada, LivePerson, Sierra, Decagon, Talkdesk, Genesys
-**Enterprise:** Salesforce, Twilio, Gong, Dialpad
-**LLMOps:** Langfuse, Weights & Biases, Lindy, Cognigy, Speechmatics
-**Automation:** n8n, Zapier, Make.com
-**European:** Factorial, Attio, Tinybird, Clarity AI, Travelperk
+The template contains the maintained company and query list. Supported
+provider modules cover ATS APIs, board-wide feeds, XML/RSS feeds, markdown
+feeds, and local parsers; see [Supported job boards](docs/SUPPORTED_JOB_BOARDS.md)
+for the current table.
 
-**Job boards searched:** 55+ provider modules cover ATS APIs, board-wide feeds, XML/RSS feeds, markdown feeds, and local parsers. See [Supported job boards](docs/SUPPORTED_JOB_BOARDS.md) for the full table.
-
-By default `node scan.mjs` (a.k.a. `npm run scan`) trusts what each ATS feed returns. Some companies leave stale postings in their public API even after the role is closed, so those expired entries can leak into `pipeline.md`. Pass `--verify` to launch Playwright after the API pass and drop expired postings before they hit the pipeline:
+By default `node scan.mjs` (a.k.a. `npm run scan`) trusts what each permitted
+public feed returns. Some sources leave stale postings in their public API even
+after the role is closed, so those expired entries can leak into `pipeline.md`.
+Pass `--verify` to use Playwright for a bounded public-page liveness check:
 
 ```bash
-node scan.mjs --verify          # zero-token discovery + Playwright liveness check
+node scan.mjs --verify          # public-source discovery + permitted public-page check
 ```
 
-The verification is sequential and only runs against new offers (after dedup), so the cost stays bounded.
+The verification is sequential and only runs against new offers (after dedup).
+It does not log in, access private pages, bypass CAPTCHA, upload files, or
+submit applications.
 
 ## Dashboard TUI
 
@@ -422,14 +358,18 @@ npm run build:dashboard   # optional: build the standalone binary
 
 Features: 6 filter tabs, 4 sort modes, grouped/flat view, lazy-loaded previews, inline status changes.
 
-There is also an **experimental web UI** (alpha, opt-in — nothing runs unless you start it): see [`web/README.md`](web/README.md).
+### Upstream/inherited: experimental web UI (out of scope)
+
+The experimental web UI is an upstream/parallel surface and is not part of the
+published `career-ops-japan` vertical slice. Japan documentation and release
+verification cover the local CLI workflow only.
 
 ## Project Structure
 
 ```
-career-ops/
+career-ops-japan/
 ├── AGENTS.md                    # Canonical agent instructions (all CLIs)
-├── CLAUDE.md                    # Claude Code wrapper (imports AGENTS.md)
+├── CLAUDE.md                    # CLI wrapper (imports AGENTS.md)
 ├── CODEX.md                     # Codex wrapper (imports AGENTS.md)
 ├── OPENCODE.md                  # OpenCode wrapper (imports AGENTS.md)
 ├── GEMINI.md                    # Legacy no-op guard to avoid Antigravity duplicate context
@@ -447,7 +387,7 @@ career-ops/
 │   ├── batch.md                 # Batch processing
 │   └── ...
 ├── templates/
-│   ├── cv-template.html         # ATS-optimized CV template
+│   ├── cv-template.html         # CV HTML template
 │   ├── portals.example.yml      # Scanner config template
 │   └── states.yml               # Canonical statuses
 ├── batch/
@@ -470,10 +410,10 @@ career-ops/
 ![Go](https://img.shields.io/badge/Go-00ADD8?style=flat&logo=go&logoColor=white)
 ![Bubble Tea](https://img.shields.io/badge/Bubble_Tea-FF75B5?style=flat&logo=go&logoColor=white)
 
-- **Agent**: AI coding CLI with shared skills and modes (`AGENTS.md` + CLI wrapper)
+- **Agent**: selected AI coding CLI with shared skills and modes (`AGENTS.md` + CLI wrapper)
 - **PDF**: Playwright + HTML template
-- **Cover letters**: HTML template + Playwright (A4 PDF, same pipeline as CVs)
-- **Scanner**: Playwright + Greenhouse API + WebSearch
+- **Cover letters**: HTML template + Playwright (A4 PDF)
+- **Scanner**: permitted public-source adapters and optional Playwright checks
 - **Dashboard**: Go + Bubble Tea + Lipgloss (Catppuccin Mocha theme)
 - **Data**: Markdown tables + YAML config + TSV batch files
 
@@ -483,14 +423,18 @@ career-ops/
 
 ## FAQ
 
-**What is career-ops?**
-career-ops is an open-source, CLI-agnostic job-search command center. It turns any AI coding CLI into a pipeline that evaluates job offers against your CV, generates ATS-tailored PDFs, finds the right person to contact, and tracks everything in one place — while you keep the final decision. It is the first reference implementation of the CareerOps Manifesto. More at [career-ops.org](https://career-ops.org).
+**What is career-ops-japan?**
+career-ops-japan is an open-source, local CLI workflow for Japan-focused job
+listing evaluation. It produces reviewable reports, job-specific CV artifacts,
+and local tracker entries from the facts and source evidence you provide.
 
 **Can I run career-ops for free, or on a cheaper / local model?**
 Yes. career-ops is CLI-agnostic and runs on free and local models — via OpenRouter free models, Ollama, or any OpenAI-compatible endpoint — so you are not tied to a paid subscription. See [docs/RUNNING_ON_A_BUDGET.md](docs/RUNNING_ON_A_BUDGET.md) for the full setup.
 
-**Which AI CLIs does career-ops work with?**
-career-ops runs on any major AI coding CLI — Claude Code, Codex, Gemini / Antigravity, OpenCode, Grok, Qwen and more — through the open Agent Skill Standard, so it is never locked to a single vendor. Use the CLI you already have.
+**Which AI CLI does career-ops-japan use?**
+Use a supported AI coding CLI selected for your environment. Exact command
+syntax varies by CLI; the Japan setup guide shows Codex, Claude Code, and
+OpenCode examples.
 
 **How do I install career-ops on Windows?**
 career-ops runs on Windows. If skills fail to load with a symlink error during install, the fix is in [docs/FAQ.md](docs/FAQ.md). Full steps are in [docs/SETUP.md](docs/SETUP.md).
@@ -503,19 +447,13 @@ Yes. career-ops is free and open source, and for the candidate it always will be
 
 ## About the Author
 
-I'm [Santiago Fernández de Valderrama Aparicio](https://santifer.io/about) (santifer) -- Head of Applied AI, former founder (built and sold a business that still runs with my name on it). I built career-ops to manage my own job search. It worked: I used it to land my current role.
-
-Curious how this repo is maintained in ~4 hours a week? Read [Agentic maintenance: how career-ops is run by a fleet of AI agents](https://santifer.io/ai-agent-fleet).
-
-My portfolio and other open source projects → [santifer.io](https://santifer.io)
-
-Wikidata: [Santiago Fernández de Valderrama Aparicio](https://www.wikidata.org/wiki/Q138710224) · [career-ops](https://www.wikidata.org/wiki/Q139007988).
+This Japan slice is based on the upstream [career-ops repository](https://github.com/santifer/career-ops). See the upstream project for its broader history and integrations.
 
 ## Disclaimer
 
 **career-ops is a local, open-source tool, NOT a hosted service.** By using this software, you acknowledge:
 
-1. **You control your data.** Your CV, contact info, and personal data stay on your machine and are sent directly to the AI provider you choose (Anthropic, OpenAI, etc.). We do not collect, store, or have access to any of your data.
+1. **You control local project files.** Your CV, contact info, and other files remain under your local project control by default. The selected CLI/model may transmit prompts or selected files to its provider; review that provider's retention, training, security, and deletion policies before use. This project does not operate a hosted career-ops API or collect project telemetry.
 2. **You control the AI.** The default prompts instruct the AI not to auto-submit applications, but AI models can behave unpredictably. If you modify the prompts or use different models, you do so at your own risk. **Always review AI-generated content for accuracy before submitting.**
 3. **You comply with third-party ToS.** You must use this tool in accordance with the Terms of Service of the career portals you interact with (Greenhouse, Lever, Workday, LinkedIn, etc.). Do not use this tool to spam employers or overwhelm ATS systems.
 4. **No guarantees.** Evaluations are recommendations, not truth. AI models may hallucinate skills or experience. The authors are not liable for employment outcomes, rejected applications, account restrictions, or any other consequences.
