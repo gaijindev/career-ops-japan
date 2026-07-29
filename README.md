@@ -44,6 +44,9 @@ Start your selected CLI in the repository and ask it to evaluate a pasted job
 description or run the Japan scan. See [docs/SETUP_JAPAN.md](docs/SETUP_JAPAN.md)
 for the bilingual setup guide.
 
+For Codex, start `codex` in this directory and use plain-language prompts;
+slash commands are not guaranteed. See [CODEX.md](CODEX.md).
+
 ## What it produces
 
 - structured A–F evaluation plus a separate G posting-legitimacy check
