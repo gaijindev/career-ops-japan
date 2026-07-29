@@ -40,6 +40,8 @@ These files contain your personal data, customizations, and work product. Update
 | `data/upskill/*` | Your skill-gap analysis reports (written by the `upskill` mode) |
 | `data/blacklist.md` | Your do-not-apply company list (opt-in — absence = no filtering; never auto-populated: only you, or the agent on your explicit instruction, write to it. Respected by `scan.mjs` and the `auto-pipeline`/`oferta`/`apply` gates; never a scoring input) |
 | `data/assessments.tsv` | Your append-only skills-assessment log: `{date}\t{company}\t{report#\|-}\t{platform}\t{subject}\t{threshold%\|-}\t{score%\|-}\t{stale_note}`. Appended by `node assessment-log.mjs add`; never edited in place. Empty stale_note = no staleness observed. Read by `assessment-log.mjs` |
+| `.career-ops-web/` | Web runtime state, worker/model request logs, and local caches. These files may contain prompts, responses, or user identifiers and are never committed. |
+| `batch/logs/*`, `data/model-requests/*`, `data/request-logs/*` | Model/request diagnostics and traces. Keep them local; redact sensitive text before sharing any diagnostic excerpt. |
 | `writing-samples/*` | Your personal writing samples for style calibration (except `writing-samples/README.md`, which is system-owned documentation delivered by updates) |
 | `reports/*` | Your evaluation reports |
 | `output/*` | Your generated PDFs |
@@ -134,5 +136,11 @@ These files contain system logic, scripts, templates, and instructions that impr
 ## The Rule
 
 **If a file is in the User Layer, no update process may read, modify, or delete it.**
+
+User-layer content, including profile text, reports, generated outputs, application
+trackers, and model/request logs, stays local by default. Diagnostic output must
+use the existing redaction utilities for email addresses, phone numbers, physical
+addresses, tokens, API keys, and profile identifiers while retaining parser/source
+labels and status information needed for debugging.
 
 **If a file is in the System Layer, it can be safely replaced with the latest version from the upstream repo.**

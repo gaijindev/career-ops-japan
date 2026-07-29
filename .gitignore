@@ -16,12 +16,18 @@ data/parser-output/**
 !data/parser-output/**/
 !data/parser-output/.gitkeep
 !data/parser-output/**/.gitkeep
-reports/*.md
+# Generated evaluations and any nested report copies are user-layer data.
+reports/*
 !reports/.gitkeep
 output/*
 !output/.gitkeep
 batch/logs/*
 !batch/logs/.gitkeep
+# Model/request traces can contain prompts, responses, and credentials.
+data/model-requests/*
+data/request-logs/*
+model-requests/*
+request-logs/*
 batch/batch-state.tsv
 batch/batch-input.tsv
 batch/tracker-additions/**/*.tsv

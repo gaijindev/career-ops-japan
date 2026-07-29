@@ -5,12 +5,20 @@ const REPO = "santifer/career-ops";
 /** Strip PII / secrets that could ride in error text, paths or logs BEFORE anything
  *  leaves the machine. Defence-in-depth — the user also reviews the full payload
  *  (preview-then-confirm) before the issue opens. */
-export function scrub(s: string): string {
-  return (s || "")
+export function redactSensitiveText(value: unknown): string {
+  return (typeof value === "string" ? value : String(value ?? ""))
     .replace(/\/Users\/[^/\s"']+/g, "~")
     .replace(/\/home\/[^/\s"']+/g, "~")
-    .replace(/(sk|key|token|secret|bearer|api[-_]?key)([-_=:\s"']+)[A-Za-z0-9._-]{8,}/gi, "$1$2[redacted]");
+    .replace(/\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/gi, "[email redacted]")
+    .replace(/((?:phone|tel|mobile|電話)\s*[:=]\s*)[+()0-9][0-9(). \t-]{6,}/gi, "$1[phone redacted]")
+    .replace(/((?:address|street address|住所|所在地)\s*[:=]\s*)[^\r\n]+/gi, "$1[address redacted]")
+    .replace(/((?:profile|candidate|user|resume)[ _-]?id\s*[:=]\s*)[A-Za-z0-9][A-Za-z0-9._-]*/gi, "$1[identifier redacted]")
+    .replace(/(bearer\s+)[A-Za-z0-9._~+/=-]{8,}/gi, "$1[token redacted]")
+    .replace(/\b(?:sk-(?:or-v1-)?|AIza|gh[pousr]_|xox[baprs]-)[A-Za-z0-9._-]{10,}\b/g, "[api key redacted]")
+    .replace(/((?:api[-_ ]?key|token|secret|password|credential)\s*[:=]\s*)(?!\[(?:email|phone|address|identifier|token|api key) redacted\])[^\s,;]+/gi, "$1[secret redacted]");
 }
+
+export const scrub = redactSensitiveText;
 
 /** Structural fingerprint from /api/report/shape — shapes/counts, never contents. */
 export type Shape = {

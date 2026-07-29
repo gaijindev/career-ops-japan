@@ -58,6 +58,27 @@ function isReservedEnv(name) {
   return RESERVED_ENV.has(name) || /^AWS_/.test(name);
 }
 
+/**
+ * Remove user identifiers and credentials from diagnostic text while keeping
+ * labels and parser/source context useful to a maintainer.
+ * @param {unknown} value
+ * @returns {string}
+ */
+export function redactSensitiveText(value) {
+  let text = typeof value === 'string' ? value : String(value ?? '');
+  text = text
+    .replace(/\/Users\/[^/\s"']+/g, '~')
+    .replace(/\/home\/[^/\s"']+/g, '~')
+    .replace(/\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/gi, '[email redacted]')
+    .replace(/((?:phone|tel|mobile|電話)\s*[:=]\s*)[+()0-9][0-9(). \t-]{6,}/gi, '$1[phone redacted]')
+    .replace(/((?:address|street address|住所|所在地)\s*[:=]\s*)[^\r\n]+/gi, '$1[address redacted]')
+    .replace(/((?:profile|candidate|user|resume)[ _-]?id\s*[:=]\s*)[A-Za-z0-9][A-Za-z0-9._-]*/gi, '$1[identifier redacted]')
+    .replace(/(bearer\s+)[A-Za-z0-9._~+/=-]{8,}/gi, '$1[token redacted]')
+    .replace(/\b(?:sk-(?:or-v1-)?|AIza|gh[pousr]_|xox[baprs]-)[A-Za-z0-9._-]{10,}\b/g, '[api key redacted]')
+    .replace(/((?:api[-_ ]?key|token|secret|password|credential)\s*[:=]\s*)(?!\[(?:email|phone|address|identifier|token|api key) redacted\])[^\s,;]+/gi, '$1[secret redacted]');
+  return text;
+}
+
 function warnSkip(label, reason) {
   console.warn(`⚠️  ${label}: skipping — ${reason}`);
 }
@@ -437,7 +458,7 @@ export function buildCtx(manifest, opts = {}) {
   const guarded = makeGuardedFetch(manifest.allowedHosts, { allowsLocalhost: manifest.allowsLocalhost === true });
   const log = (...args) => {
     const redact = (s) => {
-      let out = typeof s === 'string' ? s : String(s);
+      let out = redactSensitiveText(s);
       for (const sec of secrets) out = out.split(sec).join('«redacted»');
       return out;
     };
