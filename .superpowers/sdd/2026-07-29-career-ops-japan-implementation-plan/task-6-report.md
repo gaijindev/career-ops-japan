@@ -376,3 +376,113 @@ The unrelated pre-existing modification to `.superpowers/sdd/2026-07-29-career-o
 - No docs were modified.
 - Tests use injected fixtures and do not access the network.
 - Unknown pasted URL formatting and public host/source safety remain unchanged.
+
+## Fix round 3 — review findings addressed (2026-07-29)
+
+### Review scope
+
+This round addressed the remaining scoped findings without changing adapters or publishing:
+
+- `verifyCompanies()` now routes an explicit `source:` through `resolveProvider()` before Greenhouse/Ashby/Lever URL heuristics;
+- unsupported explicit sources remain visible as `unsupported source: ...` diagnostics and do not fall through to ATS probing;
+- provider-only legacy entries retain the existing ATS-first behavior;
+- GaijinPot's explicit `parse failed — no job links found` page-shape failure maps to `changed`, while generic config parse failures remain `error`;
+- scan-level source precedence and `resolveProvider()`'s canonical routed entry are documented in JSDoc.
+
+### TDD evidence
+
+Red tests were added first in `test/japan-scan-pipeline.test.mjs` and `test/fixtures/japan-scan-results.json`.
+
+Command:
+
+```bash
+node --test test/japan-scan-pipeline.test.mjs
+```
+
+Observed red output before implementation:
+
+```text
+✖ Structured-source failures map to explicit blocked/stale/incomplete/changed statuses
+  'error' !== 'changed'
+
+✖ Explicit source bypasses ATS liveness shortcuts while provider-only entries retain legacy routing
+  + actual - expected
+  + undefined
+  - 'teamtailor'
+ℹ pass 5
+ℹ fail 2
+```
+
+### Focused green verification
+
+Command:
+
+```bash
+node --test test/japan-scan-pipeline.test.mjs
+```
+
+Output:
+
+```text
+ℹ tests 7
+ℹ pass 7
+ℹ fail 0
+```
+
+Command:
+
+```bash
+node --test tests/providers/tokyodev.test.mjs tests/providers/gaijinpot.test.mjs tests/providers/hellowork.test.mjs tests/providers/teamtailor.test.mjs
+```
+
+Output:
+
+```text
+ℹ tests 25
+ℹ pass 25
+ℹ fail 0
+```
+
+Command:
+
+```bash
+node tests/scan-url-dedup.test.mjs && node tests/scan-company-role-dedup.test.mjs && node tests/liveness-core.test.mjs
+```
+
+Output:
+
+```text
+scan.mjs — normalizeUrlForDedup() ignores tracking params, preserves identity
+  ✅ all 8 checks passed
+
+scan.mjs — company+role dedupe survives between runs
+  ✅ all 11 checks passed
+
+liveness-core — "filled" reqs (incl. Phenom/ICF phrasing) classify as expired
+  ✅ all 5 checks passed
+```
+
+### Diff inspection
+
+Commands:
+
+```bash
+git diff --check
+git diff -- providers/_registry.mjs scan.mjs verify-portals.mjs test/japan-scan-pipeline.test.mjs test/fixtures/japan-scan-results.json
+```
+
+Output/result:
+
+```text
+git diff --check: no output; exit 0
+Scoped diff: only explicit-source liveness routing, classifier/JSDoc updates,
+focused tests, and fixture data.
+```
+
+The unrelated pre-existing modification to `.superpowers/sdd/2026-07-29-career-ops-japan-implementation-plan/task-4-report.md` remained outside this fix.
+
+### Fix-round concerns
+
+- No provider adapter implementation files were modified.
+- No docs outside the requested scan/registry JSDoc were modified.
+- All new routing tests use stubs and injected contexts; no network access is required.

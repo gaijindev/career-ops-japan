@@ -371,6 +371,30 @@ export async function verifyCompanies(
     if (!company || typeof company !== 'object') continue;
     if (company.enabled === false) continue;
     const name = typeof company.name === 'string' ? company.name : '(unnamed)';
+
+    // An explicit source is authoritative across the whole liveness path.
+    // Resolve it before ATS URL heuristics so a stale provider field or an
+    // ATS-looking careers URL cannot steal the probe from the selected plugin.
+    const explicitSource = typeof company.source === 'string' && company.source.trim()
+      ? company.source.trim()
+      : null;
+    if (explicitSource) {
+      if (!providers || providers.size === 0) {
+        results.push({ name, status: 'skipped', reason: `unsupported source: ${explicitSource}` });
+        continue;
+      }
+      const resolved = resolveProvider(company, providers, { skipIds: ['local-parser'] });
+      if (resolved?.error) {
+        results.push({ name, status: 'skipped', reason: resolved.error });
+        continue;
+      }
+      if (resolved?.provider) {
+        const probe = await probeProvider(resolved.entry || company, resolved.provider, httpCtx || makeHttpCtx());
+        results.push({ name, ...probe });
+        continue;
+      }
+    }
+
     const match =
       parseAtsSlug(company.api) || parseAtsSlug(company.careers_url);
     if (match) {

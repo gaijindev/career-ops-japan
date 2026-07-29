@@ -18,6 +18,7 @@ const {
   normalizeUrlForDedup,
   scanStructuredSource,
 } = await import(pathToFileURL(join(ROOT, 'scan.mjs')).href);
+const { verifyCompanies } = await import(pathToFileURL(join(ROOT, 'verify-portals.mjs')).href);
 
 function readLocalFixture(relativePath) {
   return readFileSync(join(ROOT, relativePath), 'utf8');
@@ -129,6 +130,56 @@ test('Explicit source overlays provider for legacy detector and fetch compatibil
 
   assert.equal(result.status, 'ok');
   assert.equal(result.offers[0]?.title, 'Platform Engineer');
+});
+
+test('Explicit source bypasses ATS liveness shortcuts while provider-only entries retain legacy routing', async () => {
+  const routingFixture = fixture.verify_source_routing;
+  const atsCalls = [];
+  const providerCalls = [];
+  const providers = new Map([
+    ['teamtailor', {
+      id: routingFixture.provider,
+      fetch: async (entry, ctx) => {
+        providerCalls.push({ entry, maxPages: ctx.maxPages });
+        return [{ title: 'Teamtailor fixture job' }];
+      },
+    }],
+    ['greenhouse', {
+      id: 'greenhouse',
+      fetch: async () => [],
+    }],
+  ]);
+  const fetchJson = async (url) => {
+    atsCalls.push(url);
+    return { jobs: [{ id: 'ats-should-not-run' }] };
+  };
+  const httpCtx = {
+    fetchJson: async () => ({ jobs: [] }),
+    fetchText: async () => '',
+  };
+
+  const sourceResults = await verifyCompanies([routingFixture.entry], { fetchJson, providers, httpCtx });
+  assert.equal(sourceResults[0]?.provider, 'teamtailor');
+  assert.equal(sourceResults[0]?.status, 'live');
+  assert.equal(atsCalls.length, 0);
+  assert.equal(providerCalls.length, 1);
+  assert.equal(providerCalls[0].entry.provider, 'teamtailor');
+  assert.equal(providerCalls[0].maxPages, 1);
+
+  const unsupportedResults = await verifyCompanies([
+    { ...routingFixture.entry, source: 'missing-source' },
+  ], { fetchJson, providers, httpCtx });
+  assert.equal(unsupportedResults[0]?.status, 'skipped');
+  assert.equal(unsupportedResults[0]?.reason, 'unsupported source: missing-source');
+  assert.equal(atsCalls.length, 0);
+
+  const legacyResults = await verifyCompanies([
+    { ...routingFixture.entry, source: undefined, provider: 'greenhouse' },
+  ], { fetchJson, providers, httpCtx });
+  assert.equal(legacyResults[0]?.ats, 'greenhouse');
+  assert.equal(legacyResults[0]?.status, 'live');
+  assert.equal(atsCalls.length, 1);
+  assert.equal(providerCalls.length, 1);
 });
 
 test('Unsupported explicit source and legacy provider diagnostics stay distinct', async () => {

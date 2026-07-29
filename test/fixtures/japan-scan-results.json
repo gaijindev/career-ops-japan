@@ -69,6 +69,11 @@
       "status": "changed"
     },
     {
+      "label": "changed page with no job links",
+      "message": "gaijinpot: parse failed — no job links found on the public search page",
+      "status": "changed"
+    },
+    {
       "label": "generic error",
       "message": "tokyodev: config parse failed: invalid source configuration",
       "status": "error"
@@ -79,5 +84,14 @@
       "status": "error"
     }
   ],
-  "manual_url": "https://unknown.example/jobs/123"
+  "manual_url": "https://unknown.example/jobs/123",
+  "verify_source_routing": {
+    "entry": {
+      "name": "Teamtailor source precedence fixture",
+      "source": "teamtailor",
+      "provider": "greenhouse",
+      "careers_url": "https://boards-api.greenhouse.io/v1/boards/teamtailor/jobs"
+    },
+    "provider": "teamtailor"
+  }
 }

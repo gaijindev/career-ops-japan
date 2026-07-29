@@ -14,9 +14,12 @@
  * providers/. Local executable parsers use `providers/local-parser.mjs` when
  * `parser.command` + `parser.script` are set in portals.yml.
  *
- * A tracked_companies entry can set `provider:` explicitly to bypass
- * URL-based auto-detection. The `transport:` field is reserved for future
- * transports — Phase A only ships the http transport.
+ * A tracked_companies entry can set `source:` explicitly to bypass URL-based
+ * auto-detection and ATS shortcuts; when both `source:` and the legacy
+ * `provider:` are present, `source:` wins and is overlaid onto the provider
+ * field before provider detection/fetch/liveness. A provider-only entry keeps
+ * the legacy `provider:` behavior. The `transport:` field is reserved for
+ * future transports — Phase A only ships the http transport.
  *
  * Zero Claude API tokens — pure HTTP + JSON.
  *
@@ -1378,7 +1381,7 @@ export function classifyStructuredSourceError(error) {
   if (/(missing title|missing company|missing company_name|missing location|missing location_text|incomplete)/.test(text)) {
     return 'incomplete';
   }
-  if (/(unrecognized page shape|shape likely changed|no job cards found|(?:changed|drift|unexpected) (?:page )?markup|(?:page )?markup (?:changed|drifted|unexpected)|page (?:shape|markup) (?:changed|drifted|unexpected))/.test(text)) {
+  if (/(unrecognized page shape|shape likely changed|no job cards found|gaijinpot:.*no job links found|(?:changed|drift|unexpected) (?:page )?markup|(?:page )?markup (?:changed|drifted|unexpected)|page (?:shape|markup) (?:changed|drifted|unexpected))/.test(text)) {
     return 'changed';
   }
   return 'error';

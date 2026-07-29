@@ -100,7 +100,9 @@ export function canonicalizeProviderEntry(entry) {
  * @param {Map<string, object>} providers - id→provider Map from loadProviders().
  * @param {{skipIds?: string[]}} [opts] - Provider ids to skip (e.g. 'local-parser'
  *   so a network-only health check never execs a configured local command).
- * @returns {{provider: object}|{error: string}|null}
+ * @returns {{provider: object, entry: object}|{error: string}|null} The routed
+ *   entry overlays authoritative `source:` onto legacy `provider:` for every
+ *   provider consumer; unsupported explicit ids return a diagnostic error.
  */
 export function resolveProvider(entry, providers, { skipIds = [] } = {}) {
   const explicitSource = typeof entry?.source === 'string' && entry.source.trim()
