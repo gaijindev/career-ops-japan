@@ -27,7 +27,11 @@ test('Japan evaluation fixture keeps role fit independent from unknown eligibili
   assert.equal(fixture.job.salary_max, null);
   assert.ok(fixture.profile.target_roles.primary.includes('Senior Platform Engineer'));
   assert.ok(sections.role_fit.evidence.some((item) => item.source === 'profile.target_roles.primary'));
-  assert.ok(sections.role_fit.evidence.some((item) => item.source === 'cv.md#experience'));
+  const cvEvidence = sections.role_fit.evidence.find((item) => item.source === 'cv.md#experience');
+  assert.ok(cvEvidence);
+  assert.equal(fixture.synthetic_cv.source, 'cv.md');
+  assert.ok(fixture.synthetic_cv.content.includes(cvEvidence.quote));
+  assert.equal(cvEvidence.quote, 'Built reliable data and AI platform services.');
 
   for (const section of Object.values(sections)) {
     assert.ok(Array.isArray(section.evidence) && section.evidence.length > 0);

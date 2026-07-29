@@ -14,6 +14,10 @@
       "modes_dir": "modes/ja"
     }
   },
+  "synthetic_cv": {
+    "source": "cv.md",
+    "content": "## Experience\n\nBuilt reliable data and AI platform services."
+  },
   "job": {
     "source_platform": "tokyodev",
     "title": "Senior Platform Engineer",
